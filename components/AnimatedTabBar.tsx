@@ -8,6 +8,7 @@ import Animated, {
   interpolateColor,
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { colors, shadows, typography, spacing, components } from '../lib/theme';
 
 interface TabIconProps {
   emoji: string;
@@ -16,17 +17,17 @@ interface TabIconProps {
 }
 
 export function AnimatedTabIcon({ emoji, focused, color }: TabIconProps) {
-  const scale = useSharedValue(focused ? 1.15 : 1);
+  const scale = useSharedValue(focused ? 1.1 : 1);
   const translateY = useSharedValue(focused ? -2 : 0);
 
   useEffect(() => {
     if (focused) {
       // Bounce animation when selected
       scale.value = withSequence(
-        withSpring(1.3, { damping: 8, stiffness: 300 }),
-        withSpring(1.15, { damping: 10, stiffness: 200 })
+        withSpring(1.2, { damping: 8, stiffness: 300 }),
+        withSpring(1.1, { damping: 10, stiffness: 200 })
       );
-      translateY.value = withSpring(-4, { damping: 15, stiffness: 150 });
+      translateY.value = withSpring(-2, { damping: 15, stiffness: 150 });
     } else {
       scale.value = withSpring(1, { damping: 15 });
       translateY.value = withSpring(0, { damping: 15 });
@@ -56,8 +57,8 @@ export function CustomTabBar({
   state, 
   descriptors, 
   navigation,
-  activeColor = '#FF6B35',
-  inactiveColor = '#999',
+  activeColor = colors.primary.orange,
+  inactiveColor = colors.text.tertiary,
 }: CustomTabBarProps) {
   return (
     <View style={styles.tabBar}>
@@ -69,7 +70,7 @@ export function CustomTabBar({
         const icon = options.tabBarIcon?.({ 
           focused: isFocused, 
           color: isFocused ? activeColor : inactiveColor,
-          size: 24 
+          size: components.tabBar.iconSize 
         });
 
         const onPress = () => {
@@ -118,7 +119,7 @@ function AnimatedTabButton({
   inactiveColor,
 }: AnimatedTabButtonProps) {
   const scale = useSharedValue(1);
-  const bgOpacity = useSharedValue(isFocused ? 0.1 : 0);
+  const bgOpacity = useSharedValue(isFocused ? 0.12 : 0);
 
   useEffect(() => {
     bgOpacity.value = withSpring(isFocused ? 0.12 : 0, { damping: 20 });
@@ -154,6 +155,8 @@ function AnimatedTabButton({
         >
           {label}
         </Text>
+        {/* Active indicator dot */}
+        {isFocused && <View style={styles.activeIndicator} />}
       </Animated.View>
     </Pressable>
   );
@@ -162,11 +165,13 @@ function AnimatedTabButton({
 const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: colors.background.white,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingBottom: 20, // Safe area
-    paddingTop: 8,
+    borderTopColor: `rgba(29, 53, 87, 0.08)`, // Subtle navy border
+    paddingBottom: 24, // Safe area
+    paddingTop: spacing.sm,
+    // Frosted glass shadow
+    ...shadows.tabBar,
   },
   tabButton: {
     flex: 1,
@@ -174,16 +179,24 @@ const styles = StyleSheet.create({
   },
   tabButtonInner: {
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     borderRadius: 12,
   },
   tabIcon: {
-    fontSize: 24,
+    fontSize: components.tabBar.iconSize,
   },
   tabLabel: {
-    fontSize: 11,
-    marginTop: 4,
-    fontWeight: '500',
+    fontSize: components.tabBar.labelSize,
+    marginTop: spacing.xs,
+    fontWeight: typography.weights.semibold,
+  },
+  activeIndicator: {
+    position: 'absolute',
+    bottom: 2,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.primary.orange,
   },
 });

@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { colors } from './lib/theme';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -64,7 +65,7 @@ function SavedTabScreen() {
   if (!initialized) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FF6B35" />
+        <ActivityIndicator size="large" color={colors.primary.orange} />
       </View>
     );
   }
@@ -81,8 +82,8 @@ function MainTabs() {
     <Tab.Navigator
       tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
-        headerStyle: { backgroundColor: '#FF6B35' },
-        headerTintColor: '#fff',
+        headerStyle: { backgroundColor: colors.primary.orange },
+        headerTintColor: colors.text.inverse,
         lazy: true,
       }}
       detachInactiveScreens={true}
@@ -135,7 +136,7 @@ function MainTabs() {
 function LoadingScreen() {
   return (
     <View style={styles.loadingContainer}>
-      <ActivityIndicator size="large" color="#FF6B35" />
+      <ActivityIndicator size="large" color={colors.primary.orange} />
     </View>
   );
 }
@@ -176,8 +177,8 @@ function AppNavigator() {
         component={LoginScreen}
         options={{
           headerTitle: 'Iniciar sesión',
-          headerStyle: { backgroundColor: '#FF6B35' },
-          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: colors.primary.orange },
+          headerTintColor: colors.text.inverse,
           presentation: 'modal',
           animation: 'slide_from_bottom',
         }}
@@ -187,8 +188,8 @@ function AppNavigator() {
         component={RegisterScreen}
         options={{
           headerTitle: 'Crear cuenta',
-          headerStyle: { backgroundColor: '#FF6B35' },
-          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: colors.primary.orange },
+          headerTintColor: colors.text.inverse,
           animation: 'slide_from_right',
         }}
       />
@@ -197,8 +198,8 @@ function AppNavigator() {
         component={ForgotPasswordScreen}
         options={{
           headerTitle: 'Recuperar contraseña',
-          headerStyle: { backgroundColor: '#FF6B35' },
-          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: colors.primary.orange },
+          headerTintColor: colors.text.inverse,
           animation: 'slide_from_right',
         }}
       />
@@ -315,11 +316,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFF8F5',
+    backgroundColor: colors.background.cream,
   },
   webOuterContainer: {
     flex: 1,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: colors.background.charcoal,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
     maxWidth: 430, // iPhone 14 Pro Max width
     height: '100%',
     maxHeight: 932, // iPhone 14 Pro Max height
-    backgroundColor: '#FFF8F5',
+    backgroundColor: colors.background.cream,
     overflow: 'hidden',
     borderRadius: 20,
     ...Platform.select({

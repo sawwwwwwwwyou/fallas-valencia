@@ -18,6 +18,14 @@ import {
   FireRefreshIndicator,
   SkeletonList,
 } from '../components';
+import { 
+  colors, 
+  getCategoryColor, 
+  typography, 
+  spacing, 
+  borderRadius,
+  shadows,
+} from '../lib/theme';
 
 // Category icons for visual distinction
 const CATEGORY_ICONS: Record<string, string> = {
@@ -100,6 +108,19 @@ const FALLAS_DATA: Falla[] = [
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
+// Category Badge Component
+function CategoryBadge({ category }: { category: string }) {
+  const catColor = getCategoryColor(category);
+  
+  return (
+    <View style={[styles.categoryBadge, { backgroundColor: catColor.background }]}>
+      <Text style={[styles.categoryBadgeText, { color: catColor.text }]}>
+        {category.toUpperCase()}
+      </Text>
+    </View>
+  );
+}
+
 export default function ListScreen() {
   const navigation = useNavigation<NavigationProp>();
   const [refreshing, setRefreshing] = useState(false);
@@ -126,50 +147,66 @@ export default function ListScreen() {
     });
   };
 
-  const renderFalla = ({ item, index }: { item: Falla; index: number }) => (
-    <MotiView
-      from={{
-        opacity: 0,
-        translateY: 20,
-        scale: 0.98,
-      }}
-      animate={{
-        opacity: 1,
-        translateY: 0,
-        scale: 1,
-      }}
-      transition={{
-        type: 'timing',
-        duration: 300,
-        delay: index * 50,
-      }}
-    >
-      <AnimatedCard 
-        style={styles.card}
-        onPress={() => navigation.navigate('FallaDetail', { falla: item })}
+  const renderFalla = ({ item, index }: { item: Falla; index: number }) => {
+    const catColor = getCategoryColor(item.category);
+    const isEspecial = item.category === 'Sección Especial';
+    
+    return (
+      <MotiView
+        from={{
+          opacity: 0,
+          translateY: 20,
+          scale: 0.98,
+        }}
+        animate={{
+          opacity: 1,
+          translateY: 0,
+          scale: 1,
+        }}
+        transition={{
+          type: 'timing',
+          duration: 300,
+          delay: index * 50,
+        }}
       >
-        <View style={styles.cardImage}>
-          <Text style={styles.cardEmoji}>{getCategoryIcon(item.category)}</Text>
-        </View>
-        <View style={styles.cardContent}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardCategory}>{item.category}</Text>
-            {item.id === '1' && <LiveBadge style={styles.liveBadge} />}
+        <AnimatedCard 
+          style={styles.card}
+          onPress={() => navigation.navigate('FallaDetail', { falla: item })}
+          variant={isEspecial ? 'hero' : 'standard'}
+        >
+          <View style={[
+            styles.cardImage, 
+            { backgroundColor: catColor.background }
+          ]}>
+            <Text style={styles.cardEmoji}>{getCategoryIcon(item.category)}</Text>
           </View>
-          <Text style={styles.cardTitle} numberOfLines={2}>{item.name}</Text>
-          <Text style={styles.cardAddress} numberOfLines={1}>{item.address}</Text>
-        </View>
-        <View style={styles.cardActions}>
-          <HeartButton 
-            initialFavorite={favorites.has(item.id)}
-            onToggle={() => toggleFavorite(item.id)}
-            size={22}
-          />
-          <Text style={styles.chevron}>›</Text>
-        </View>
-      </AnimatedCard>
-    </MotiView>
-  );
+          <View style={styles.cardContent}>
+            <View style={styles.cardHeader}>
+              <CategoryBadge category={item.category} />
+              {item.id === '1' && <LiveBadge style={styles.liveBadge} />}
+            </View>
+            <Text style={styles.cardTitle} numberOfLines={2}>{item.name}</Text>
+            <Text style={styles.cardAddress} numberOfLines={1}>{item.address}</Text>
+            {/* Distance indicator (placeholder) */}
+            <View style={styles.metaRow}>
+              <View style={styles.distanceBadge}>
+                <Text style={styles.distanceIcon}>🔥</Text>
+                <Text style={styles.distanceText}>324m</Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.cardActions}>
+            <HeartButton 
+              initialFavorite={favorites.has(item.id)}
+              onToggle={() => toggleFavorite(item.id)}
+              size={22}
+            />
+            <Text style={styles.chevron}>›</Text>
+          </View>
+        </AnimatedCard>
+      </MotiView>
+    );
+  };
 
   if (loading) {
     return (
@@ -193,8 +230,8 @@ export default function ListScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#FF6B35"
-            colors={['#FF6B35']}
+            tintColor={colors.primary.orange}
+            colors={[colors.primary.orange]}
           />
         }
         ListHeaderComponent={
@@ -208,62 +245,84 @@ export default function ListScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background.cream, // Warm cream, not gray!
   },
   list: {
-    padding: 16,
+    padding: spacing.md,
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 12,
-    padding: 12,
+    backgroundColor: colors.background.white,
+    borderRadius: borderRadius.lg,
+    marginBottom: spacing.md,
+    padding: spacing.md,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...shadows.card,
   },
   cardImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    backgroundColor: '#FFE5D9',
+    width: 72,
+    height: 72,
+    borderRadius: borderRadius.md,
     justifyContent: 'center',
     alignItems: 'center',
   },
   cardEmoji: {
-    fontSize: 30,
+    fontSize: 32,
   },
   cardContent: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: spacing.md,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
-  cardCategory: {
-    fontSize: 11,
-    color: '#FF6B35',
-    fontWeight: '600',
-    textTransform: 'uppercase',
+  categoryBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.sm,
+  },
+  categoryBadgeText: {
+    fontSize: typography.sizes.small,
+    fontWeight: typography.weights.bold,
+    letterSpacing: 0.5,
   },
   liveBadge: {
-    marginLeft: 8,
+    marginLeft: spacing.sm,
   },
   cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
+    fontSize: typography.sizes.h4,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.primary,
+    marginBottom: spacing.xs,
   },
   cardAddress: {
-    fontSize: 13,
-    color: '#888',
+    fontSize: typography.sizes.caption,
+    color: colors.text.secondary,
+    marginBottom: spacing.xs,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: spacing.xs,
+  },
+  distanceBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: `rgba(255, 107, 53, 0.1)`,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: borderRadius.sm,
+  },
+  distanceIcon: {
+    fontSize: 12,
+    marginRight: 2,
+  },
+  distanceText: {
+    fontSize: typography.sizes.small,
+    color: colors.primary.orange,
+    fontWeight: typography.weights.semibold,
   },
   cardActions: {
     alignItems: 'center',
@@ -272,6 +331,6 @@ const styles = StyleSheet.create({
   },
   chevron: {
     fontSize: 24,
-    color: '#ccc',
+    color: colors.text.tertiary,
   },
 });

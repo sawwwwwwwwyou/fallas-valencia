@@ -6,24 +6,41 @@ import Animated, {
   withSpring,
   interpolate,
 } from 'react-native-reanimated';
+import { colors, shadows, borderRadius, timing } from '../lib/theme';
 
 interface AnimatedCardProps {
   children: React.ReactNode;
   onPress?: () => void;
   style?: ViewStyle;
   index?: number;
+  variant?: 'standard' | 'hero' | 'compact';
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function AnimatedCard({ children, onPress, style, index = 0 }: AnimatedCardProps) {
+export function AnimatedCard({ 
+  children, 
+  onPress, 
+  style, 
+  index = 0,
+  variant = 'standard' 
+}: AnimatedCardProps) {
   const scale = useSharedValue(1);
   const pressed = useSharedValue(0);
 
   const animatedStyle = useAnimatedStyle(() => {
+    const shadowOpacity = interpolate(
+      pressed.value,
+      [0, 1],
+      [variant === 'hero' ? 0.15 : 0.08, variant === 'hero' ? 0.2 : 0.12]
+    );
+    
     return {
       transform: [
-        { scale: withSpring(scale.value, { damping: 15, stiffness: 150 }) },
+        { scale: withSpring(scale.value, { 
+          damping: timing.spring.damping, 
+          stiffness: timing.spring.stiffness 
+        }) },
         { 
           translateY: interpolate(
             pressed.value,
@@ -32,7 +49,7 @@ export function AnimatedCard({ children, onPress, style, index = 0 }: AnimatedCa
           )
         },
       ],
-      shadowOpacity: interpolate(pressed.value, [0, 1], [0.1, 0.2]),
+      shadowOpacity,
     };
   });
 
@@ -46,12 +63,25 @@ export function AnimatedCard({ children, onPress, style, index = 0 }: AnimatedCa
     pressed.value = withSpring(0, { damping: 20 });
   };
 
+  const variantShadow = variant === 'hero' ? shadows.cardHero : shadows.card;
+  const variantRadius = variant === 'hero' 
+    ? borderRadius.xl 
+    : variant === 'compact' 
+      ? borderRadius.md 
+      : borderRadius.lg;
+
   return (
     <AnimatedPressable
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      style={[styles.card, style, animatedStyle]}
+      style={[
+        styles.card, 
+        { borderRadius: variantRadius },
+        variantShadow,
+        style, 
+        animatedStyle
+      ]}
     >
       {children}
     </AnimatedPressable>
@@ -60,9 +90,6 @@ export function AnimatedCard({ children, onPress, style, index = 0 }: AnimatedCa
 
 const styles = StyleSheet.create({
   card: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: colors.background.white,
   },
 });
