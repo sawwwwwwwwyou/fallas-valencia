@@ -12,6 +12,15 @@ const translations: Record<Language, Translations> = {
     'tab.list': 'List',
     'tab.map': 'Map',
     'tab.guide': 'Guide',
+    'tab.events': 'Events',
+    
+    // Events screen
+    'events.today': 'Today',
+    'events.tomorrow': 'Tomorrow',
+    'events.thisWeek': 'This Week',
+    'events.noEvents': 'No events scheduled',
+    'events.checkLater': 'Check back later for upcoming events',
+    'events.headerTitle': 'What\'s happening',
     
     // Headers
     'header.main': 'Fallas Valencia 2025',
@@ -194,6 +203,15 @@ const translations: Record<Language, Translations> = {
     'tab.list': 'Lista',
     'tab.map': 'Mapa',
     'tab.guide': 'Guía',
+    'tab.events': 'Eventos',
+    
+    // Events screen
+    'events.today': 'Hoy',
+    'events.tomorrow': 'Mañana',
+    'events.thisWeek': 'Esta Semana',
+    'events.noEvents': 'No hay eventos programados',
+    'events.checkLater': 'Vuelve más tarde para ver próximos eventos',
+    'events.headerTitle': 'Qué pasa hoy',
     
     // Headers
     'header.main': 'Fallas Valencia 2025',

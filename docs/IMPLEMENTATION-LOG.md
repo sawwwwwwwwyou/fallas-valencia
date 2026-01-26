@@ -323,4 +323,111 @@ npx expo install react-native-svg
 - Active states have filled flame elements
 - Inactive states are outline-only
 
+---
+
+## Stage 6: Events Screen (Replacing ListScreen)
+
+**Updated:** 2025-01-26
+**Task:** Replace main "Lista" tab (fallas list) with "Eventos" tab (events feed)
+
+### Problem
+ListScreen was showing a list of fallas, but fallas are already visible on the Map tab. The main screen should show **what's happening** — events, schedules, activities.
+
+### Solution
+Created EventsScreen to display events from Supabase, grouped by date.
+
+### Files Created
+
+#### screens/EventsScreen.tsx
+Complete rewrite of the main tab content:
+
+**Features:**
+- Loads events from Supabase via `getEvents()`
+- Groups events by date sections: "Hoy" (Today), "Mañana" (Tomorrow), "Esta Semana" (This Week)
+- Event cards show: time, event type badge, title, location, linked falla
+- Color-coded event type badges (mascletà, castillo, despertà, ofrenda, cremà, pasacalle, concierto)
+- Pull-to-refresh with FireRefreshIndicator
+- Empty state when no events
+- Clicking event navigates to FallaDetail if event has associated falla
+- Multi-language support (Spanish/English) via LanguageContext
+
+**Components:**
+- `EventCard` — Individual event display with time column and details
+- `SectionHeader` — Date grouping headers with active indicator for "Today"
+- `EventTypeBadge` — Color-coded badge for event type
+- `EmptyState` — When no events are scheduled
+
+### Files Modified
+
+#### components/icons/TabIcons.tsx
+Added new `EventsIcon`:
+- Calendar shape with flame element on top
+- Date dots inside calendar
+- Matches design language of other tab icons
+
+#### components/icons/index.tsx
+- Export new `EventsIcon` from TabIcons
+
+#### components/AnimatedTabBar.tsx
+- Added `EventsIcon` import
+- Added `'events'` to icon type union
+- Added case for `events` in `renderIcon()` switch
+
+#### App.tsx
+```typescript
+// Before
+import ListScreen from './screens/ListScreen';
+<Tab.Screen 
+  name="Lista" 
+  component={ListScreen}
+  options={{
+    tabBarIcon: ({ color, focused }) => (
+      <AnimatedTabIcon icon="list" focused={focused} color={color} />
+    ),
+    ...
+  }}
+/>
+
+// After
+import EventsScreen from './screens/EventsScreen';
+<Tab.Screen 
+  name="Eventos" 
+  component={EventsScreen}
+  options={{
+    tabBarIcon: ({ color, focused }) => (
+      <AnimatedTabIcon icon="events" focused={focused} color={color} />
+    ),
+    ...
+  }}
+/>
+```
+
+#### contexts/LanguageContext.tsx
+Added translations for events screen:
+- `events.today` — "Hoy" / "Today"
+- `events.tomorrow` — "Mañana" / "Tomorrow"
+- `events.thisWeek` — "Esta Semana" / "This Week"
+- `events.noEvents` — "No hay eventos programados" / "No events scheduled"
+- `events.checkLater` — "Vuelve más tarde..." / "Check back later..."
+- `events.headerTitle` — "Qué pasa hoy" / "What's happening"
+- `tab.events` — "Eventos" / "Events"
+
+### Design Notes
+- Event type colors defined in EVENT_TYPE_COLORS constant
+- Time displayed prominently in left column (HH:MM format)
+- Colored left border indicator per event type
+- Section headers have active indicator for "Today"
+- Uses existing theme system (colors, spacing, typography, shadows)
+
+### Data Flow
+1. EventsScreen loads events from Supabase on mount
+2. Events filtered to only show current/future events
+3. Grouped by date section (today, tomorrow, this week, or specific date)
+4. Displayed in SectionList with sticky headers disabled
+5. Pull-to-refresh reloads from Supabase
+
+### ListScreen.tsx
+- File kept for reference but no longer used in navigation
+- Can be deleted in cleanup phase
+
 *Log continues with each change...*

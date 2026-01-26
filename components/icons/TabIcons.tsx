@@ -212,3 +212,48 @@ export function GuideIcon({
     </Svg>
   );
 }
+
+/**
+ * icon-tab-events
+ * Calendar with flame indicator
+ * Used in: Tab Bar — "Eventos" tab
+ */
+export function EventsIcon({ 
+  size = DEFAULT_SIZE, 
+  color = colors.text.tertiary,
+  focused = false 
+}: IconProps) {
+  const activeColor = focused ? colors.primary.orange : color;
+  const flameColor = focused ? colors.primary.flame : color;
+  
+  return (
+    <Svg width={size} height={size} viewBox="0 0 28 28" fill="none">
+      {/* Flame on top */}
+      <Path
+        d="M14 2C14 2 11 5 11 7C11 8.5 12.5 9.5 14 9.5C15.5 9.5 17 8.5 17 7C17 5 14 2 14 2Z"
+        fill={focused ? flameColor : 'transparent'}
+        stroke={flameColor}
+        strokeWidth={STROKE_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* Calendar body */}
+      <Path
+        d="M5 11H23V25C23 25.5523 22.5523 26 22 26H6C5.44772 26 5 25.5523 5 25V11Z"
+        stroke={activeColor}
+        strokeWidth={STROKE_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill={focused ? `${colors.primary.orange}10` : 'transparent'}
+      />
+      {/* Calendar top */}
+      <Line x1="5" y1="15" x2="23" y2="15" stroke={activeColor} strokeWidth={STROKE_WIDTH} />
+      {/* Date dots */}
+      <Circle cx="9" cy="19" r="1.5" fill={activeColor} />
+      <Circle cx="14" cy="19" r="1.5" fill={focused ? flameColor : activeColor} />
+      <Circle cx="19" cy="19" r="1.5" fill={activeColor} />
+      <Circle cx="9" cy="23" r="1.5" fill={activeColor} />
+      <Circle cx="14" cy="23" r="1.5" fill={activeColor} />
+    </Svg>
+  );
+}

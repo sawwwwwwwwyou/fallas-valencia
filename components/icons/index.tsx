@@ -10,7 +10,8 @@ export {
   ListIcon, 
   MapIcon, 
   FavoritesIcon, 
-  GuideIcon 
+  GuideIcon,
+  EventsIcon,
 } from './TabIcons';
 
 // Category Icons (32x32)

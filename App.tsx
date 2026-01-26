@@ -11,7 +11,7 @@ import { colors } from './lib/theme';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 
-import ListScreen from './screens/ListScreen';
+import EventsScreen from './screens/EventsScreen';
 import MapScreen from './screens/MapScreen';
 import GuideScreen from './screens/GuideScreen';
 import SavedScreen from './screens/SavedScreen';
@@ -89,11 +89,11 @@ function MainTabs() {
       detachInactiveScreens={true}
     >
       <Tab.Screen 
-        name="Lista" 
-        component={ListScreen}
+        name="Eventos" 
+        component={EventsScreen}
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <AnimatedTabIcon icon="list" focused={focused} color={color} />
+            <AnimatedTabIcon icon="events" focused={focused} color={color} />
           ),
           headerTitle: 'Fallas Valencia 2025',
         }}

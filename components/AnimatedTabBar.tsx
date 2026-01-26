@@ -9,11 +9,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors, shadows, typography, spacing, components } from '../lib/theme';
-import { ListIcon, MapIcon, FavoritesIcon, GuideIcon } from './icons';
+import { ListIcon, MapIcon, FavoritesIcon, GuideIcon, EventsIcon } from './icons';
 
 interface TabIconProps {
   emoji?: string;
-  icon?: 'list' | 'map' | 'favorites' | 'guide';
+  icon?: 'list' | 'map' | 'favorites' | 'guide' | 'events';
   focused: boolean;
   color: string;
 }
@@ -55,6 +55,8 @@ export function AnimatedTabIcon({ emoji, icon, focused, color }: TabIconProps) {
         return <FavoritesIcon size={28} color={iconColor} focused={focused} />;
       case 'guide':
         return <GuideIcon size={28} color={iconColor} focused={focused} />;
+      case 'events':
+        return <EventsIcon size={28} color={iconColor} focused={focused} />;
       default:
         // Fallback to emoji if no icon specified
         return <Text style={[styles.tabIcon, { color }]}>{emoji}</Text>;
