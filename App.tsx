@@ -93,7 +93,7 @@ function MainTabs() {
         component={ListScreen}
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <AnimatedTabIcon emoji="📋" focused={focused} color={color} />
+            <AnimatedTabIcon icon="list" focused={focused} color={color} />
           ),
           headerTitle: 'Fallas Valencia 2025',
         }}
@@ -103,7 +103,7 @@ function MainTabs() {
         component={MapScreen}
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <AnimatedTabIcon emoji="🗺️" focused={focused} color={color} />
+            <AnimatedTabIcon icon="map" focused={focused} color={color} />
           ),
           headerTitle: 'Mapa de Fallas',
         }}
@@ -113,7 +113,7 @@ function MainTabs() {
         component={SavedTabScreen}
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <AnimatedTabIcon emoji="⭐" focused={focused} color={color} />
+            <AnimatedTabIcon icon="favorites" focused={focused} color={color} />
           ),
           headerTitle: 'Mis Favoritos',
         }}
@@ -123,7 +123,7 @@ function MainTabs() {
         component={GuideScreen}
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <AnimatedTabIcon emoji="📖" focused={focused} color={color} />
+            <AnimatedTabIcon icon="guide" focused={focused} color={color} />
           ),
           headerTitle: 'Guía Práctica',
         }}

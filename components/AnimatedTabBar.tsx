@@ -9,14 +9,16 @@ import Animated, {
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors, shadows, typography, spacing, components } from '../lib/theme';
+import { ListIcon, MapIcon, FavoritesIcon, GuideIcon } from './icons';
 
 interface TabIconProps {
-  emoji: string;
+  emoji?: string;
+  icon?: 'list' | 'map' | 'favorites' | 'guide';
   focused: boolean;
   color: string;
 }
 
-export function AnimatedTabIcon({ emoji, focused, color }: TabIconProps) {
+export function AnimatedTabIcon({ emoji, icon, focused, color }: TabIconProps) {
   const scale = useSharedValue(focused ? 1.1 : 1);
   const translateY = useSharedValue(focused ? -2 : 0);
 
@@ -41,10 +43,28 @@ export function AnimatedTabIcon({ emoji, focused, color }: TabIconProps) {
     ],
   }));
 
+  // Render SVG icon if specified
+  const renderIcon = () => {
+    const iconColor = focused ? colors.primary.orange : colors.text.tertiary;
+    switch (icon) {
+      case 'list':
+        return <ListIcon size={28} color={iconColor} focused={focused} />;
+      case 'map':
+        return <MapIcon size={28} color={iconColor} focused={focused} />;
+      case 'favorites':
+        return <FavoritesIcon size={28} color={iconColor} focused={focused} />;
+      case 'guide':
+        return <GuideIcon size={28} color={iconColor} focused={focused} />;
+      default:
+        // Fallback to emoji if no icon specified
+        return <Text style={[styles.tabIcon, { color }]}>{emoji}</Text>;
+    }
+  };
+
   return (
-    <Animated.Text style={[styles.tabIcon, { color }, animatedStyle]}>
-      {emoji}
-    </Animated.Text>
+    <Animated.View style={animatedStyle}>
+      {renderIcon()}
+    </Animated.View>
   );
 }
 

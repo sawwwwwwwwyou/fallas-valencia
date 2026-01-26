@@ -186,4 +186,141 @@
 
 ---
 
+---
+
+## Stage 5: Icons Implementation
+
+**Updated:** 2025-01-21
+**Based on:** ICONS-SPEC.md v1.0
+
+### Overview
+Replaced all emoji icons with custom SVG icons using react-native-svg.
+Style: Outlined, 2px stroke, rounded caps, with selective fills.
+
+### Files Created
+
+#### components/icons/
+New folder structure for all custom icons:
+
+```
+components/icons/
+├── index.tsx          — Exports all icons
+├── TabIcons.tsx       — 4 tab bar icons (28x28)
+├── CategoryIcons.tsx  — 8 category icons (32x32)
+├── ActionIcons.tsx    — 17 action icons (24x24)
+└── GuideIcons.tsx     — 7 guide section icons (48x48)
+```
+
+### Tab Icons (28x28)
+
+| Before | After | Description |
+|--------|-------|-------------|
+| 📋 | `ListIcon` | Flame above three list lines |
+| 🗺️ | `MapIcon` | Folded map with flame-shaped pin |
+| ⭐ | `FavoritesIcon` | Star with heart inside |
+| 📖 | `GuideIcon` | Open book with flame bookmark |
+
+**Implementation:**
+- Animated bounce on focus (scale 1.1)
+- Active color: Valencia Orange #FF6B35
+- Inactive color: #8B9AAE
+- Flame elements fill when active
+
+### Category Icons (32x32)
+
+| Category | Before | After | Color |
+|----------|--------|-------|-------|
+| Sección Especial | 🏆 | `EspecialIcon` | Gold #FFB800 |
+| Primera A | 🥇 | `PrimeraAIcon` | Flame Red #E63946 |
+| Primera B | 🥈 | `PrimeraBIcon` | Orange #FF6B35 |
+| Segunda A | 🥉 | `SegundaAIcon` | Blue #457B9D |
+| Segunda B | 🎖️ | `SegundaBIcon` | Teal #2A9D8F |
+| Tercera A/B/C | 🎗️ | `TerceraIcon` | Slate #8B9AAE |
+| Infantil | 👶 | `InfantilIcon` | Coral #FF8A5B |
+| Ninot | 🎭 | `NinotIcon` | Navy #1D3557 |
+
+**Implementation:**
+- Trophy with flame for Especial
+- Medals with numbers for Primera
+- Shields for Segunda
+- Simple circle for Tercera
+- Child figure with party hat for Infantil
+- Theater mask for Ninot
+
+### Action Icons (24x24)
+
+Implemented icons:
+- `HeartIcon` — Favorite button (outline/filled states)
+- `HeartFireIcon` — Super-favorite with flame
+- `SearchIcon` — Magnifying glass
+- `FilterIcon` — Sliders
+- `ShareIcon` — iOS-style share arrow
+- `DirectionsIcon` — Navigation arrow
+- `LocationIcon` — Map pin with flame
+- `BackIcon` — Chevron left
+- `CloseIcon` — X button
+- `CheckIcon` — Checkmark
+- `PlusIcon`, `MinusIcon`
+- `MoreIcon` — Vertical dots
+- `ChevronRightIcon`
+- `CalendarIcon` — Calendar with flame marker
+- `ClockIcon`
+- `DistanceIcon` — Small flame for distance badge
+
+### Guide Section Icons (48x48)
+
+| Section | Before | After | Color |
+|---------|--------|-------|-------|
+| Petardos | 🧨 | `FireworksIcon` | Flame Red |
+| Transporte | 🚌 | `TransportIcon` | Success Green |
+| Exposiciones | 🎨 | `ExhibitionsIcon` | Ceramic Blue |
+| Ferias | 🎪 | `FairsIcon` | Orange |
+| Vida nocturna | 💃 | `NightlifeIcon` | Coral |
+| Toros | 🐂 | `BullfightingIcon` | Navy |
+| Glosario | 📚 | `GlossaryIcon` | Ceramic Blue |
+
+**Implementation:**
+- More detailed icons (48x48 safe area)
+- Custom illustrations with multiple colors
+- Flame/fire accents throughout
+
+### Files Modified
+
+#### App.tsx
+```typescript
+// Before
+<AnimatedTabIcon emoji="📋" focused={focused} color={color} />
+
+// After
+<AnimatedTabIcon icon="list" focused={focused} color={color} />
+```
+
+#### components/AnimatedTabBar.tsx
+- Added `icon` prop alongside `emoji` for backwards compatibility
+- Imports and renders SVG icons when `icon` prop is used
+- Maintains emoji fallback
+
+#### screens/ListScreen.tsx
+- Removed `CATEGORY_ICONS` emoji map
+- Import `CategoryIcon` component
+- Replace emoji with `<CategoryIcon category={item.category} size={40} />`
+- Replace 🔥 distance emoji with `<DistanceIcon size={14} />`
+
+#### screens/GuideScreen.tsx
+- Remove `emoji` from GuideCategory interface
+- Import `getGuideIcon` function
+- Replace `{category.emoji}` with `{getGuideIcon(category.id, 40)}`
+
+### Dependencies Added
+```bash
+npx expo install react-native-svg
+```
+
+### Design Notes
+- All icons follow ICONS-SPEC.md guidelines
+- 2px stroke width, rounded caps
+- Color tokens from theme.ts
+- Active states have filled flame elements
+- Inactive states are outline-only
+
 *Log continues with each change...*

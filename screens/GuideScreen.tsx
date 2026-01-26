@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getGuideIcon } from '../components/icons';
 import { 
   colors, 
   typography, 
@@ -24,7 +25,6 @@ interface GuideCategory {
   id: string;
   titleKey: string;
   subtitleKey: string;
-  emoji: string;
   color: string;
   bgColor: string;
   screen: keyof RootStackParamList;
@@ -36,7 +36,6 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     id: 'fireworks',
     titleKey: 'guide.fireworks',
     subtitleKey: 'header.fireworks',
-    emoji: '🧨',
     color: colors.primary.flame,
     bgColor: '#FFEBEB',
     screen: 'GuideFireworks',
@@ -45,7 +44,6 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     id: 'transport',
     titleKey: 'guide.transport',
     subtitleKey: 'header.transport',
-    emoji: '🚌',
     color: colors.semantic.success,
     bgColor: '#E6F7F5',
     screen: 'GuideTransport',
@@ -54,7 +52,6 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     id: 'exhibitions',
     titleKey: 'guide.exhibitions',
     subtitleKey: 'header.exhibitions',
-    emoji: '🎨',
     color: colors.secondary.ceramic,
     bgColor: '#E8F4FA',
     screen: 'GuideExhibitions',
@@ -63,7 +60,6 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     id: 'fairs',
     titleKey: 'guide.fairs',
     subtitleKey: 'header.fairs',
-    emoji: '🎪',
     color: colors.primary.orange,
     bgColor: '#FFF0EB',
     screen: 'GuideFairs',
@@ -72,7 +68,6 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     id: 'nightlife',
     titleKey: 'guide.nightlife',
     subtitleKey: 'header.nightlife',
-    emoji: '💃',
     color: colors.secondary.coral,
     bgColor: '#FFF5F0',
     screen: 'GuideNightlife',
@@ -81,7 +76,6 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     id: 'bullfighting',
     titleKey: 'guide.bullfighting',
     subtitleKey: 'header.bullfighting',
-    emoji: '🐂',
     color: colors.primary.navy,
     bgColor: '#F0F2F5',
     screen: 'GuideBullfighting',
@@ -90,7 +84,6 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     id: 'glossary',
     titleKey: 'guide.glossary',
     subtitleKey: 'header.glossary',
-    emoji: '📚',
     color: colors.secondary.ceramic,
     bgColor: '#E8F4FA',
     screen: 'GuideGlossary',
@@ -108,8 +101,8 @@ export default function GuideScreen() {
       onPress={() => navigation.navigate(category.screen as any)}
       activeOpacity={0.7}
     >
-      <View style={[styles.iconContainer, { backgroundColor: `${category.color}20` }]}>
-        <Text style={styles.emoji}>{category.emoji}</Text>
+      <View style={[styles.iconContainer, { backgroundColor: `${category.color}15` }]}>
+        {getGuideIcon(category.id, 40)}
       </View>
       <Text style={styles.categoryTitle}>{t(category.titleKey)}</Text>
     </TouchableOpacity>
@@ -166,9 +159,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: spacing.md,
-  },
-  emoji: {
-    fontSize: 32,
   },
   categoryTitle: {
     fontSize: typography.sizes.h4,

@@ -18,6 +18,7 @@ import {
   FireRefreshIndicator,
   SkeletonList,
 } from '../components';
+import { CategoryIcon, DistanceIcon } from '../components/icons';
 import { 
   colors, 
   getCategoryColor, 
@@ -26,18 +27,6 @@ import {
   borderRadius,
   shadows,
 } from '../lib/theme';
-
-// Category icons for visual distinction
-const CATEGORY_ICONS: Record<string, string> = {
-  'Sección Especial': '🏆',
-  'Primera A': '🥇',
-  'Primera B': '🥈',
-  'Segunda A': '🥉',
-  'Segunda B': '🎖️',
-  'Tercera A': '🎗️',
-  'Tercera B': '🎀',
-  'Lacas': '🏅',
-};
 
 // Category sort order (Lacas must be last!)
 const CATEGORY_ORDER: Record<string, number> = {
@@ -49,10 +38,6 @@ const CATEGORY_ORDER: Record<string, number> = {
   'Tercera A': 6,
   'Tercera B': 7,
   'Lacas': 999, // Always last
-};
-
-const getCategoryIcon = (category: string): string => {
-  return CATEGORY_ICONS[category] || '🔥';
 };
 
 const sortByCategory = (a: Falla, b: Falla): number => {
@@ -178,7 +163,7 @@ export default function ListScreen() {
             styles.cardImage, 
             { backgroundColor: catColor.background }
           ]}>
-            <Text style={styles.cardEmoji}>{getCategoryIcon(item.category)}</Text>
+            <CategoryIcon category={item.category} size={40} />
           </View>
           <View style={styles.cardContent}>
             <View style={styles.cardHeader}>
@@ -190,7 +175,7 @@ export default function ListScreen() {
             {/* Distance indicator (placeholder) */}
             <View style={styles.metaRow}>
               <View style={styles.distanceBadge}>
-                <Text style={styles.distanceIcon}>🔥</Text>
+                <DistanceIcon size={14} color={colors.primary.orange} />
                 <Text style={styles.distanceText}>324m</Text>
               </View>
             </View>
@@ -266,9 +251,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cardEmoji: {
-    fontSize: 32,
-  },
   cardContent: {
     flex: 1,
     marginLeft: spacing.md,
@@ -314,10 +296,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: borderRadius.sm,
-  },
-  distanceIcon: {
-    fontSize: 12,
-    marginRight: 2,
+    gap: 4,
   },
   distanceText: {
     fontSize: typography.sizes.small,
