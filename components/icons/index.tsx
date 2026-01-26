@@ -47,6 +47,8 @@ export {
   CalendarIcon,
   ClockIcon,
   DistanceIcon,
+  NavigationIcon,
+  StarIcon,
 } from './ActionIcons';
 
 // Guide Section Icons (48x48)

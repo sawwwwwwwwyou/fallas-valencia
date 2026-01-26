@@ -27,11 +27,14 @@ export function FloatingTabBar({ state, descriptors, navigation }: FloatingTabBa
   return (
     <View className="absolute bottom-4 left-4 right-4 z-50">
       {Platform.OS === 'web' ? (
-        // Web fallback - no BlurView
+        // Web with CSS backdrop-filter for glassmorphism
         <View
           className="rounded-[28px] p-2 border border-white/40"
           style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.75)',
+            backgroundColor: 'rgba(255, 255, 255, 0.6)',
+            // @ts-ignore - web-only CSS property
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 10 },
             shadowOpacity: 0.25,

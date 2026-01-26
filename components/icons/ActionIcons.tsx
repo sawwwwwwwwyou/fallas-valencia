@@ -424,3 +424,48 @@ export function DistanceIcon({
     </Svg>
   );
 }
+
+/**
+ * icon-navigation
+ * Compass/navigation arrow
+ */
+export function NavigationIcon({ 
+  size = DEFAULT_SIZE, 
+  color = colors.primary.orange 
+}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M3 11L22 2L13 21L11 13L3 11Z"
+        stroke={color}
+        strokeWidth={STROKE_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill={`${color}30`}
+      />
+    </Svg>
+  );
+}
+
+/**
+ * icon-star
+ * 5-pointed star for favorites/special
+ */
+export function StarIcon({ 
+  size = DEFAULT_SIZE, 
+  color = colors.primary.gold,
+  filled = false 
+}: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+        fill={filled ? color : 'transparent'}
+        stroke={color}
+        strokeWidth={STROKE_WIDTH}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
