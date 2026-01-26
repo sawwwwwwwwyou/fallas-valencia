@@ -30,7 +30,7 @@ import GuideNightlifeScreen from './screens/guide/GuideNightlifeScreen';
 import GuideBullfightingScreen from './screens/guide/GuideBullfightingScreen';
 import GuideGlossaryScreen from './screens/guide/GuideGlossaryScreen';
 
-import { AnimatedTabIcon, CustomTabBar, FloatingLanguageSwitcher } from './components';
+import { AnimatedTabIcon, CustomTabBar, FloatingTabBar, FloatingLanguageSwitcher } from './components';
 
 export type RootStackParamList = {
   MainTabs: undefined;
@@ -81,7 +81,7 @@ function SavedTabScreen() {
 function MainTabs() {
   return (
     <Tab.Navigator
-      tabBar={(props) => <CustomTabBar {...props} />}
+      tabBar={(props) => <FloatingTabBar {...props} />}
       screenOptions={{
         headerStyle: { backgroundColor: colors.primary.orange },
         headerTintColor: colors.text.inverse,
