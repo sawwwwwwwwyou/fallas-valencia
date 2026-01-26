@@ -387,7 +387,8 @@ interface LanguageProviderProps {
 }
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
-  const [language, setLanguage] = useState<Language>('en');
+  // Default to Spanish - primary audience
+  const [language, setLanguage] = useState<Language>('es');
 
   const t = useCallback((key: string): string => {
     return translations[language][key] || key;

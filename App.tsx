@@ -28,7 +28,7 @@ import GuideNightlifeScreen from './screens/guide/GuideNightlifeScreen';
 import GuideBullfightingScreen from './screens/guide/GuideBullfightingScreen';
 import GuideGlossaryScreen from './screens/guide/GuideGlossaryScreen';
 
-import { AnimatedTabIcon, CustomTabBar } from './components';
+import { AnimatedTabIcon, CustomTabBar, FloatingLanguageSwitcher } from './components';
 
 export type RootStackParamList = {
   MainTabs: undefined;
@@ -148,7 +148,10 @@ function AppNavigator() {
   }
   
   return (
-    <Stack.Navigator
+    <>
+      {/* Debug language switcher - visible floating button */}
+      <FloatingLanguageSwitcher />
+      <Stack.Navigator
       screenOptions={{
         animation: 'slide_from_right',
       }}
@@ -271,6 +274,7 @@ function AppNavigator() {
         }}
       />
     </Stack.Navigator>
+    </>
   );
 }
 

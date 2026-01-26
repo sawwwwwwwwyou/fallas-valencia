@@ -19,6 +19,40 @@ import {
   SkeletonList,
 } from '../components';
 
+// Category icons for visual distinction
+const CATEGORY_ICONS: Record<string, string> = {
+  'Sección Especial': '🏆',
+  'Primera A': '🥇',
+  'Primera B': '🥈',
+  'Segunda A': '🥉',
+  'Segunda B': '🎖️',
+  'Tercera A': '🎗️',
+  'Tercera B': '🎀',
+  'Lacas': '🏅',
+};
+
+// Category sort order (Lacas must be last!)
+const CATEGORY_ORDER: Record<string, number> = {
+  'Sección Especial': 1,
+  'Primera A': 2,
+  'Primera B': 3,
+  'Segunda A': 4,
+  'Segunda B': 5,
+  'Tercera A': 6,
+  'Tercera B': 7,
+  'Lacas': 999, // Always last
+};
+
+const getCategoryIcon = (category: string): string => {
+  return CATEGORY_ICONS[category] || '🔥';
+};
+
+const sortByCategory = (a: Falla, b: Falla): number => {
+  const orderA = CATEGORY_ORDER[a.category] ?? 100;
+  const orderB = CATEGORY_ORDER[b.category] ?? 100;
+  return orderA - orderB;
+};
+
 const FALLAS_DATA: Falla[] = [
   {
     id: '1',
@@ -96,8 +130,8 @@ export default function ListScreen() {
     <MotiView
       from={{
         opacity: 0,
-        translateY: 30,
-        scale: 0.95,
+        translateY: 20,
+        scale: 0.98,
       }}
       animate={{
         opacity: 1,
@@ -105,10 +139,9 @@ export default function ListScreen() {
         scale: 1,
       }}
       transition={{
-        type: 'spring',
-        damping: 15,
-        stiffness: 100,
-        delay: index * 80,
+        type: 'timing',
+        duration: 300,
+        delay: index * 50,
       }}
     >
       <AnimatedCard 
@@ -116,7 +149,7 @@ export default function ListScreen() {
         onPress={() => navigation.navigate('FallaDetail', { falla: item })}
       >
         <View style={styles.cardImage}>
-          <Text style={styles.cardEmoji}>🔥</Text>
+          <Text style={styles.cardEmoji}>{getCategoryIcon(item.category)}</Text>
         </View>
         <View style={styles.cardContent}>
           <View style={styles.cardHeader}>
@@ -146,10 +179,13 @@ export default function ListScreen() {
     );
   }
 
+  // Sort fallas by category (Lacas always last)
+  const sortedFallas = [...FALLAS_DATA].sort(sortByCategory);
+
   return (
     <AnimatedScreen style={styles.container}>
       <FlatList
-        data={FALLAS_DATA}
+        data={sortedFallas}
         renderItem={renderFalla}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}

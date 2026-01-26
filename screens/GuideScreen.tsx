@@ -96,9 +96,6 @@ export default function GuideScreen() {
         <Text style={styles.emoji}>{category.emoji}</Text>
       </View>
       <Text style={styles.categoryTitle}>{t(category.titleKey)}</Text>
-      <Text style={styles.categorySubtitle}>
-        {language === 'en' ? t(category.subtitleKey) : t(category.titleKey)}
-      </Text>
     </TouchableOpacity>
   );
 

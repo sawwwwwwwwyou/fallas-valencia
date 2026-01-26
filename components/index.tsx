@@ -9,3 +9,4 @@ export { FireSpinner, FireRefreshIndicator } from './FireSpinner';
 export { Skeleton, SkeletonCard, SkeletonList, SkeletonGridItem } from './SkeletonLoader';
 export { RippleButton, IconButton } from './RippleButton';
 export { AnimatedTabIcon, CustomTabBar } from './AnimatedTabBar';
+export { LanguageSwitcher, FloatingLanguageSwitcher } from './LanguageSwitcher';
