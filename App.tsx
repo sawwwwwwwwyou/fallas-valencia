@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 import ListScreen from './screens/ListScreen';
 import MapScreen from './screens/MapScreen';
@@ -82,7 +83,9 @@ function MainTabs() {
       screenOptions={{
         headerStyle: { backgroundColor: '#FF6B35' },
         headerTintColor: '#fff',
+        lazy: true,
       }}
+      detachInactiveScreens={true}
     >
       <Tab.Screen 
         name="Lista" 
@@ -201,7 +204,7 @@ function AppNavigator() {
         name="GuideFireworks" 
         component={GuideFireworksScreen}
         options={{
-          headerTitle: 'Петарды',
+          headerTitle: 'Pirotecnia',
           headerStyle: { backgroundColor: '#FF4444' },
           headerTintColor: '#fff',
           animation: 'slide_from_right',
@@ -211,7 +214,7 @@ function AppNavigator() {
         name="GuideTransport" 
         component={GuideTransportScreen}
         options={{
-          headerTitle: 'Транспорт',
+          headerTitle: 'Transporte',
           headerStyle: { backgroundColor: '#4CAF50' },
           headerTintColor: '#fff',
           animation: 'slide_from_right',
@@ -221,7 +224,7 @@ function AppNavigator() {
         name="GuideExhibitions" 
         component={GuideExhibitionsScreen}
         options={{
-          headerTitle: 'Выставки и музеи',
+          headerTitle: 'Exposiciones',
           headerStyle: { backgroundColor: '#9C27B0' },
           headerTintColor: '#fff',
           animation: 'slide_from_right',
@@ -231,7 +234,7 @@ function AppNavigator() {
         name="GuideFairs" 
         component={GuideFairsScreen}
         options={{
-          headerTitle: 'Ярмарки',
+          headerTitle: 'Ferias',
           headerStyle: { backgroundColor: '#FF9800' },
           headerTintColor: '#fff',
           animation: 'slide_from_right',
@@ -241,7 +244,7 @@ function AppNavigator() {
         name="GuideNightlife" 
         component={GuideNightlifeScreen}
         options={{
-          headerTitle: 'Ночная жизнь',
+          headerTitle: 'Vida Nocturna',
           headerStyle: { backgroundColor: '#E91E63' },
           headerTintColor: '#fff',
           animation: 'slide_from_right',
@@ -251,7 +254,7 @@ function AppNavigator() {
         name="GuideBullfighting" 
         component={GuideBullfightingScreen}
         options={{
-          headerTitle: 'Коррида',
+          headerTitle: 'Toros',
           headerStyle: { backgroundColor: '#795548' },
           headerTintColor: '#fff',
           animation: 'slide_from_right',
@@ -261,7 +264,7 @@ function AppNavigator() {
         name="GuideGlossary" 
         component={GuideGlossaryScreen}
         options={{
-          headerTitle: 'Глоссарий',
+          headerTitle: 'Glosario',
           headerStyle: { backgroundColor: '#2196F3' },
           headerTintColor: '#fff',
           animation: 'slide_from_right',
@@ -290,12 +293,14 @@ export default function App() {
   return (
     <WebContainer>
       <SafeAreaProvider>
-        <AuthProvider>
-          <NavigationContainer>
-            <AppNavigator />
-          </NavigationContainer>
-          <StatusBar style="light" />
-        </AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <NavigationContainer>
+              <AppNavigator />
+            </NavigationContainer>
+            <StatusBar style="light" />
+          </AuthProvider>
+        </LanguageProvider>
       </SafeAreaProvider>
     </WebContainer>
   );

@@ -6,7 +6,8 @@ import {
   ScrollView, 
   Dimensions,
 } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, CommonActions } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MotiView } from 'moti';
 import Animated, {
@@ -27,11 +28,12 @@ import {
 } from '../components';
 
 type DetailRouteProp = RouteProp<RootStackParamList, 'FallaDetail'>;
+type DetailNavigationProp = NativeStackNavigationProp<RootStackParamList, 'FallaDetail'>;
 
 const { width, height } = Dimensions.get('window');
 
 export default function FallaDetailScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<DetailNavigationProp>();
   const route = useRoute<DetailRouteProp>();
   const insets = useSafeAreaInsets();
   const { falla } = route.params;
@@ -39,6 +41,29 @@ export default function FallaDetailScreen() {
   const { t } = useLanguage();
 
   const scrollY = useSharedValue(0);
+
+  const handleViewOnMap = () => {
+    // Close the detail screen and navigate to Mapa tab
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'MainTabs',
+            state: {
+              routes: [
+                { name: 'Lista' },
+                { name: 'Mapa' },
+                { name: 'Guardado' },
+                { name: 'Guía' },
+              ],
+              index: 1, // Mapa tab
+            },
+          },
+        ],
+      })
+    );
+  };
 
   const heroAnimatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -159,6 +184,7 @@ export default function FallaDetailScreen() {
             title={t('detail.viewOnMap')}
             color="#FF6B35"
             style={styles.primaryButton}
+            onPress={handleViewOnMap}
           />
         </StaggerItem>
 
