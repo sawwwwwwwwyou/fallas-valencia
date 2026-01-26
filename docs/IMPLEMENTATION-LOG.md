@@ -117,4 +117,73 @@
 
 ---
 
+---
+
+## screens/FallaDetailScreen.tsx
+
+**Updated:** 2025-01-21
+
+### До:
+- Background: `#fff` (white)
+- Hero: `#FF6B35` (hardcoded orange)
+- Text colors: `#333`, `#666`, `#444`
+- Event cards: `#f8f8f8`
+- Buttons: hardcoded colors
+
+### После:
+- Background: Warm Cream `#FFF8F0`
+- Hero: Dynamic color based on category (getCategoryColor)
+- Text: Theme colors (primary, secondary)
+- Event cards: Smoke White with card shadows
+- Stats row added (distance, rating, views)
+- All spacing from theme
+
+### Причина:
+- DESIGN-CONCEPT.md: "Detail Screen (Falla Detail)" section
+- Category-specific hero colors for visual distinction
+- Consistent spacing and typography
+
+---
+
+## screens/GuideScreen.tsx
+
+**Updated:** 2025-01-21
+
+### До:
+- Background: `#f5f5f5` (gray)
+- Card colors: hardcoded with +15 opacity
+- Typography: hardcoded sizes
+
+### После:
+- Background: Warm Cream `#FFF8F0`
+- Card colors: Explicit bgColor from theme palette
+- Typography: theme.typography system
+- Shadows: theme.shadows.card
+
+### Причина:
+- DESIGN-CONCEPT.md: "Guía Screen (Guide)" section
+- Consistent warm appearance across app
+
+---
+
+## screens/App.tsx
+
+**Updated:** 2025-01-21
+
+### До:
+- All colors hardcoded: `#FF6B35`, `#fff`, `#FFF8F5`
+- No theme import
+
+### После:
+- Import colors from lib/theme
+- All headers use colors.primary.orange
+- Loading screens use colors.background.cream
+- Web container uses colors.background.charcoal
+
+### Причина:
+- Centralized theme prevents style divergence
+- Easy to update colors app-wide
+
+---
+
 *Log continues with each change...*

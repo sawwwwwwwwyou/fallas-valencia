@@ -26,11 +26,32 @@ import {
   LiveBadge,
   StaggerItem,
 } from '../components';
+import { 
+  colors, 
+  getCategoryColor, 
+  typography, 
+  spacing, 
+  borderRadius,
+  shadows,
+} from '../lib/theme';
 
 type DetailRouteProp = RouteProp<RootStackParamList, 'FallaDetail'>;
 type DetailNavigationProp = NativeStackNavigationProp<RootStackParamList, 'FallaDetail'>;
 
 const { width, height } = Dimensions.get('window');
+
+// Category Badge Component
+function CategoryBadge({ category }: { category: string }) {
+  const catColor = getCategoryColor(category);
+  
+  return (
+    <View style={[styles.categoryBadge, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+      <Text style={[styles.categoryBadgeText, { color: colors.text.inverse }]}>
+        {category.toUpperCase()}
+      </Text>
+    </View>
+  );
+}
 
 export default function FallaDetailScreen() {
   const navigation = useNavigation<DetailNavigationProp>();
@@ -39,6 +60,7 @@ export default function FallaDetailScreen() {
   const { falla } = route.params;
   const [isFavorite, setIsFavorite] = useState(false);
   const { t } = useLanguage();
+  const catColor = getCategoryColor(falla.category);
 
   const scrollY = useSharedValue(0);
 
@@ -90,7 +112,7 @@ export default function FallaDetailScreen() {
         <IconButton 
           icon="✕"
           onPress={() => navigation.goBack()}
-          backgroundColor="#f0f0f0"
+          backgroundColor={colors.background.ash}
         />
         <Text style={styles.headerTitle}>{t('header.detail')}</Text>
         <FavoriteStar 
@@ -107,7 +129,11 @@ export default function FallaDetailScreen() {
         transition={{ type: 'spring', damping: 15, delay: 200 }}
         style={styles.heroContainer}
       >
-        <Animated.View style={[styles.hero, heroAnimatedStyle]}>
+        <Animated.View style={[
+          styles.hero, 
+          { backgroundColor: catColor.primary },
+          heroAnimatedStyle
+        ]}>
           <MotiView
             from={{ scale: 0.5, rotate: '-20deg' }}
             animate={{ scale: 1, rotate: '0deg' }}
@@ -115,8 +141,8 @@ export default function FallaDetailScreen() {
           >
             <Text style={styles.heroEmoji}>🔥</Text>
           </MotiView>
-          <Text style={styles.heroCategory}>{falla.category}</Text>
-          {falla.id === '1' && <LiveBadge style={{ marginTop: 8 }} />}
+          <CategoryBadge category={falla.category} />
+          {falla.id === '1' && <LiveBadge style={{ marginTop: spacing.sm }} />}
         </Animated.View>
       </MotiView>
 
@@ -137,14 +163,32 @@ export default function FallaDetailScreen() {
           </View>
         </StaggerItem>
 
+        {/* Stats Row */}
         <StaggerItem index={2} delay={300}>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statIcon}>🔥</Text>
+              <Text style={styles.statText}>324m</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statIcon}>⭐</Text>
+              <Text style={styles.statText}>4.8</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statIcon}>👁</Text>
+              <Text style={styles.statText}>45k</Text>
+            </View>
+          </View>
+        </StaggerItem>
+
+        <StaggerItem index={3} delay={300}>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('detail.description')}</Text>
             <Text style={styles.description}>{falla.description}</Text>
           </View>
         </StaggerItem>
 
-        <StaggerItem index={3} delay={300}>
+        <StaggerItem index={4} delay={300}>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('detail.events')}</Text>
             
@@ -179,20 +223,20 @@ export default function FallaDetailScreen() {
           </View>
         </StaggerItem>
 
-        <StaggerItem index={4} delay={300}>
+        <StaggerItem index={5} delay={300}>
           <RippleButton 
             title={t('detail.viewOnMap')}
-            color="#FF6B35"
+            color={colors.primary.orange}
             style={styles.primaryButton}
             onPress={handleViewOnMap}
           />
         </StaggerItem>
 
-        <StaggerItem index={5} delay={300}>
+        <StaggerItem index={6} delay={300}>
           <RippleButton 
             title={isFavorite ? "⭐ ✓" : t('detail.addToFavorites')}
-            color={isFavorite ? "#FFB800" : "#f0f0f0"}
-            textStyle={{ color: isFavorite ? '#fff' : '#333' }}
+            color={isFavorite ? colors.primary.gold : colors.background.ash}
+            textStyle={{ color: isFavorite ? colors.text.inverse : colors.text.primary }}
             onPress={() => setIsFavorite(!isFavorite)}
           />
         </StaggerItem>
@@ -204,7 +248,7 @@ export default function FallaDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background.cream,
     width: '100%',
     height: '100%',
   },
@@ -212,103 +256,130 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: `rgba(29, 53, 87, 0.08)`,
+    backgroundColor: colors.background.white,
   },
   headerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#333',
+    fontSize: typography.sizes.h4,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.primary,
   },
   heroContainer: {
     width: '100%',
     overflow: 'hidden',
   },
   hero: {
-    height: 200,
-    backgroundColor: '#FF6B35',
+    height: 220,
     justifyContent: 'center',
     alignItems: 'center',
   },
   heroEmoji: {
     fontSize: 80,
   },
-  heroCategory: {
-    fontSize: 14,
-    color: '#fff',
-    fontWeight: '600',
-    marginTop: 8,
-    textTransform: 'uppercase',
+  categoryBadge: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.md,
+    marginTop: spacing.sm,
+  },
+  categoryBadgeText: {
+    fontSize: typography.sizes.caption,
+    fontWeight: typography.weights.bold,
     letterSpacing: 1,
   },
   content: {
     flex: 1,
   },
   contentContainer: {
-    padding: 20,
+    padding: spacing.lg,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginBottom: 16,
+    fontSize: typography.sizes.h1,
+    fontWeight: typography.weights.bold,
+    color: colors.text.primary,
+    marginBottom: spacing.md,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing.md,
   },
   infoIcon: {
     fontSize: 18,
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   infoText: {
-    fontSize: 15,
-    color: '#666',
+    fontSize: typography.sizes.body,
+    color: colors.text.secondary,
     flex: 1,
   },
+  statsRow: {
+    flexDirection: 'row',
+    backgroundColor: colors.background.white,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+    ...shadows.card,
+  },
+  statItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statIcon: {
+    fontSize: 16,
+    marginRight: spacing.xs,
+  },
+  statText: {
+    fontSize: typography.sizes.body,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.primary,
+  },
   section: {
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
+    fontSize: typography.sizes.h3,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.primary,
+    marginBottom: spacing.md,
   },
   description: {
-    fontSize: 16,
-    color: '#444',
-    lineHeight: 24,
+    fontSize: typography.sizes.bodyLarge,
+    color: colors.text.secondary,
+    lineHeight: typography.lineHeights.bodyLarge,
   },
   eventCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
+    backgroundColor: colors.background.white,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
+    ...shadows.card,
   },
   eventIcon: {
     fontSize: 24,
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   eventContent: {
     flex: 1,
   },
   eventTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontSize: typography.sizes.h4,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.primary,
   },
   eventTime: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 4,
+    fontSize: typography.sizes.caption,
+    color: colors.text.secondary,
+    marginTop: spacing.xs,
   },
   primaryButton: {
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
 });

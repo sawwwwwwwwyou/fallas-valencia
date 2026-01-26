@@ -10,6 +10,13 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
 import { useLanguage } from '../contexts/LanguageContext';
+import { 
+  colors, 
+  typography, 
+  spacing, 
+  borderRadius,
+  shadows,
+} from '../lib/theme';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -19,16 +26,19 @@ interface GuideCategory {
   subtitleKey: string;
   emoji: string;
   color: string;
+  bgColor: string;
   screen: keyof RootStackParamList;
 }
 
+// Updated colors to match Fallas design system
 const GUIDE_CATEGORIES: GuideCategory[] = [
   {
     id: 'fireworks',
     titleKey: 'guide.fireworks',
     subtitleKey: 'header.fireworks',
     emoji: '🧨',
-    color: '#FF4444',
+    color: colors.primary.flame,
+    bgColor: '#FFEBEB',
     screen: 'GuideFireworks',
   },
   {
@@ -36,7 +46,8 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     titleKey: 'guide.transport',
     subtitleKey: 'header.transport',
     emoji: '🚌',
-    color: '#4CAF50',
+    color: colors.semantic.success,
+    bgColor: '#E6F7F5',
     screen: 'GuideTransport',
   },
   {
@@ -44,7 +55,8 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     titleKey: 'guide.exhibitions',
     subtitleKey: 'header.exhibitions',
     emoji: '🎨',
-    color: '#9C27B0',
+    color: colors.secondary.ceramic,
+    bgColor: '#E8F4FA',
     screen: 'GuideExhibitions',
   },
   {
@@ -52,7 +64,8 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     titleKey: 'guide.fairs',
     subtitleKey: 'header.fairs',
     emoji: '🎪',
-    color: '#FF9800',
+    color: colors.primary.orange,
+    bgColor: '#FFF0EB',
     screen: 'GuideFairs',
   },
   {
@@ -60,7 +73,8 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     titleKey: 'guide.nightlife',
     subtitleKey: 'header.nightlife',
     emoji: '💃',
-    color: '#E91E63',
+    color: colors.secondary.coral,
+    bgColor: '#FFF5F0',
     screen: 'GuideNightlife',
   },
   {
@@ -68,7 +82,8 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     titleKey: 'guide.bullfighting',
     subtitleKey: 'header.bullfighting',
     emoji: '🐂',
-    color: '#795548',
+    color: colors.primary.navy,
+    bgColor: '#F0F2F5',
     screen: 'GuideBullfighting',
   },
   {
@@ -76,7 +91,8 @@ const GUIDE_CATEGORIES: GuideCategory[] = [
     titleKey: 'guide.glossary',
     subtitleKey: 'header.glossary',
     emoji: '📚',
-    color: '#2196F3',
+    color: colors.secondary.ceramic,
+    bgColor: '#E8F4FA',
     screen: 'GuideGlossary',
   },
 ];
@@ -88,11 +104,11 @@ export default function GuideScreen() {
   const renderCategory = (category: GuideCategory) => (
     <TouchableOpacity
       key={category.id}
-      style={[styles.categoryCard, { backgroundColor: category.color + '15' }]}
+      style={[styles.categoryCard, { backgroundColor: category.bgColor }]}
       onPress={() => navigation.navigate(category.screen as any)}
       activeOpacity={0.7}
     >
-      <View style={[styles.iconContainer, { backgroundColor: category.color + '25' }]}>
+      <View style={[styles.iconContainer, { backgroundColor: `${category.color}20` }]}>
         <Text style={styles.emoji}>{category.emoji}</Text>
       </View>
       <Text style={styles.categoryTitle}>{t(category.titleKey)}</Text>
@@ -114,21 +130,21 @@ export default function GuideScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.background.cream,
   },
   content: {
-    padding: 16,
+    padding: spacing.md,
   },
   header: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 4,
+    fontSize: typography.sizes.h2,
+    fontWeight: typography.weights.bold,
+    color: colors.text.primary,
+    marginBottom: spacing.xs,
   },
   subheader: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
+    fontSize: typography.sizes.body,
+    color: colors.text.secondary,
+    marginBottom: spacing.lg,
   },
   grid: {
     flexDirection: 'row',
@@ -137,10 +153,11 @@ const styles = StyleSheet.create({
   },
   categoryCard: {
     width: '48%',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: borderRadius.lg,
+    padding: spacing.md,
+    marginBottom: spacing.md,
     alignItems: 'center',
+    ...shadows.card,
   },
   iconContainer: {
     width: 60,
@@ -148,21 +165,21 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   emoji: {
     fontSize: 32,
   },
   categoryTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontSize: typography.sizes.h4,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.primary,
     textAlign: 'center',
     marginBottom: 2,
   },
   categorySubtitle: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: typography.sizes.small,
+    color: colors.text.secondary,
     textAlign: 'center',
   },
 });
