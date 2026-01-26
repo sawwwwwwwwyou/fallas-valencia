@@ -6,6 +6,7 @@ import {
   StyleSheet,
   RefreshControl,
   Pressable,
+  ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -18,6 +19,7 @@ import {
   AnimatedScreen, 
   FireRefreshIndicator,
   SkeletonList,
+  EventsFeed,
 } from '../components';
 import { CalendarIcon, ClockIcon, LocationIcon } from '../components/icons';
 import { 
@@ -284,6 +286,39 @@ export default function EventsScreen() {
     );
   }
 
+  // If we have events for today, show the new EventsFeed design
+  const todayEvents = events.filter(e => {
+    const eventDate = new Date(e.start_time).toDateString();
+    const today = new Date().toDateString();
+    return eventDate === today;
+  });
+
+  // Use new design when we have today's events
+  if (todayEvents.length > 0) {
+    return (
+      <AnimatedScreen style={styles.container}>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.primary.orange}
+              colors={[colors.primary.orange]}
+            />
+          }
+        >
+          <EventsFeed
+            events={todayEvents}
+            onEventPress={handleEventPress}
+            language={language}
+          />
+        </ScrollView>
+      </AnimatedScreen>
+    );
+  }
+
   return (
     <AnimatedScreen style={styles.container}>
       {sections.length === 0 ? (
@@ -303,7 +338,7 @@ export default function EventsScreen() {
           renderSectionHeader={({ section }) => (
             <SectionHeader title={section.title} />
           )}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[styles.list, { paddingBottom: 100 }]}
           stickySectionHeadersEnabled={false}
           refreshControl={
             <RefreshControl

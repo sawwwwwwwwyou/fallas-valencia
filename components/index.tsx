@@ -10,6 +10,7 @@ export { Skeleton, SkeletonCard, SkeletonList, SkeletonGridItem } from './Skelet
 export { RippleButton, IconButton } from './RippleButton';
 export { AnimatedTabIcon, CustomTabBar } from './AnimatedTabBar';
 export { FloatingTabBar } from './FloatingTabBar';
+export { EventsFeed } from './EventsFeed';
 export { LanguageSwitcher, FloatingLanguageSwitcher } from './LanguageSwitcher';
 
 // Custom SVG Icons
