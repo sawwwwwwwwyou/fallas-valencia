@@ -1,0 +1,332 @@
+import 'react-native-reanimated';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+import ListScreen from './screens/ListScreen';
+import MapScreen from './screens/MapScreen';
+import GuideScreen from './screens/GuideScreen';
+import SavedScreen from './screens/SavedScreen';
+import FallaDetailScreen from './screens/FallaDetailScreen';
+
+// Auth screens
+import { LoginScreen, RegisterScreen, ForgotPasswordScreen } from './screens/auth';
+
+// Guide subscreens
+import GuideFireworksScreen from './screens/guide/GuideFireworksScreen';
+import GuideTransportScreen from './screens/guide/GuideTransportScreen';
+import GuideExhibitionsScreen from './screens/guide/GuideExhibitionsScreen';
+import GuideFairsScreen from './screens/guide/GuideFairsScreen';
+import GuideNightlifeScreen from './screens/guide/GuideNightlifeScreen';
+import GuideBullfightingScreen from './screens/guide/GuideBullfightingScreen';
+import GuideGlossaryScreen from './screens/guide/GuideGlossaryScreen';
+
+import { AnimatedTabIcon, CustomTabBar } from './components';
+
+export type RootStackParamList = {
+  MainTabs: undefined;
+  FallaDetail: { falla: Falla };
+  GuideFireworks: undefined;
+  GuideTransport: undefined;
+  GuideExhibitions: undefined;
+  GuideFairs: undefined;
+  GuideNightlife: undefined;
+  GuideBullfighting: undefined;
+  GuideGlossary: undefined;
+  // Auth screens
+  Login: undefined;
+  Register: undefined;
+  ForgotPassword: undefined;
+};
+
+export type Falla = {
+  id: string;
+  name: string;
+  category: string;
+  address: string;
+  description: string;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator();
+
+// Protected Tab Screen - shows Login if not authenticated
+function SavedTabScreen() {
+  const { user, initialized } = useAuth();
+  
+  if (!initialized) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FF6B35" />
+      </View>
+    );
+  }
+  
+  if (!user) {
+    return <LoginScreen />;
+  }
+  
+  return <SavedScreen />;
+}
+
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{
+        headerStyle: { backgroundColor: '#FF6B35' },
+        headerTintColor: '#fff',
+      }}
+    >
+      <Tab.Screen 
+        name="Lista" 
+        component={ListScreen}
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon emoji="📋" focused={focused} color={color} />
+          ),
+          headerTitle: 'Fallas Valencia 2025',
+        }}
+      />
+      <Tab.Screen 
+        name="Mapa" 
+        component={MapScreen}
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon emoji="🗺️" focused={focused} color={color} />
+          ),
+          headerTitle: 'Mapa de Fallas',
+        }}
+      />
+      <Tab.Screen 
+        name="Guardado" 
+        component={SavedTabScreen}
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon emoji="⭐" focused={focused} color={color} />
+          ),
+          headerTitle: 'Mis Favoritos',
+        }}
+      />
+      <Tab.Screen 
+        name="Guía" 
+        component={GuideScreen}
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon emoji="📖" focused={focused} color={color} />
+          ),
+          headerTitle: 'Guía Práctica',
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+// Loading screen while initializing auth
+function LoadingScreen() {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#FF6B35" />
+    </View>
+  );
+}
+
+function AppNavigator() {
+  const { initialized } = useAuth();
+  
+  if (!initialized) {
+    return <LoadingScreen />;
+  }
+  
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        animation: 'slide_from_right',
+      }}
+    >
+      <Stack.Screen 
+        name="MainTabs" 
+        component={MainTabs}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="FallaDetail" 
+        component={FallaDetailScreen}
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+          animation: 'slide_from_bottom',
+        }}
+      />
+      {/* Auth Screens */}
+      <Stack.Screen 
+        name="Login" 
+        component={LoginScreen}
+        options={{
+          headerTitle: 'Iniciar sesión',
+          headerStyle: { backgroundColor: '#FF6B35' },
+          headerTintColor: '#fff',
+          presentation: 'modal',
+          animation: 'slide_from_bottom',
+        }}
+      />
+      <Stack.Screen 
+        name="Register" 
+        component={RegisterScreen}
+        options={{
+          headerTitle: 'Crear cuenta',
+          headerStyle: { backgroundColor: '#FF6B35' },
+          headerTintColor: '#fff',
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen 
+        name="ForgotPassword" 
+        component={ForgotPasswordScreen}
+        options={{
+          headerTitle: 'Recuperar contraseña',
+          headerStyle: { backgroundColor: '#FF6B35' },
+          headerTintColor: '#fff',
+          animation: 'slide_from_right',
+        }}
+      />
+      {/* Guide Screens */}
+      <Stack.Screen 
+        name="GuideFireworks" 
+        component={GuideFireworksScreen}
+        options={{
+          headerTitle: 'Петарды',
+          headerStyle: { backgroundColor: '#FF4444' },
+          headerTintColor: '#fff',
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen 
+        name="GuideTransport" 
+        component={GuideTransportScreen}
+        options={{
+          headerTitle: 'Транспорт',
+          headerStyle: { backgroundColor: '#4CAF50' },
+          headerTintColor: '#fff',
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen 
+        name="GuideExhibitions" 
+        component={GuideExhibitionsScreen}
+        options={{
+          headerTitle: 'Выставки и музеи',
+          headerStyle: { backgroundColor: '#9C27B0' },
+          headerTintColor: '#fff',
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen 
+        name="GuideFairs" 
+        component={GuideFairsScreen}
+        options={{
+          headerTitle: 'Ярмарки',
+          headerStyle: { backgroundColor: '#FF9800' },
+          headerTintColor: '#fff',
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen 
+        name="GuideNightlife" 
+        component={GuideNightlifeScreen}
+        options={{
+          headerTitle: 'Ночная жизнь',
+          headerStyle: { backgroundColor: '#E91E63' },
+          headerTintColor: '#fff',
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen 
+        name="GuideBullfighting" 
+        component={GuideBullfightingScreen}
+        options={{
+          headerTitle: 'Коррида',
+          headerStyle: { backgroundColor: '#795548' },
+          headerTintColor: '#fff',
+          animation: 'slide_from_right',
+        }}
+      />
+      <Stack.Screen 
+        name="GuideGlossary" 
+        component={GuideGlossaryScreen}
+        options={{
+          headerTitle: 'Глоссарий',
+          headerStyle: { backgroundColor: '#2196F3' },
+          headerTintColor: '#fff',
+          animation: 'slide_from_right',
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+// Web wrapper for mobile-first appearance
+function WebContainer({ children }: { children: React.ReactNode }) {
+  if (Platform.OS !== 'web') {
+    return <>{children}</>;
+  }
+  
+  return (
+    <View style={styles.webOuterContainer}>
+      <View style={styles.webInnerContainer}>
+        {children}
+      </View>
+    </View>
+  );
+}
+
+export default function App() {
+  return (
+    <WebContainer>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <NavigationContainer>
+            <AppNavigator />
+          </NavigationContainer>
+          <StatusBar style="light" />
+        </AuthProvider>
+      </SafeAreaProvider>
+    </WebContainer>
+  );
+}
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFF8F5',
+  },
+  webOuterContainer: {
+    flex: 1,
+    backgroundColor: '#1a1a2e',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  webInnerContainer: {
+    width: '100%',
+    maxWidth: 430, // iPhone 14 Pro Max width
+    height: '100%',
+    maxHeight: 932, // iPhone 14 Pro Max height
+    backgroundColor: '#FFF8F5',
+    overflow: 'hidden',
+    borderRadius: 20,
+    ...Platform.select({
+      web: {
+        boxShadow: '0 0 40px rgba(0,0,0,0.3)',
+      },
+      default: {},
+    }),
+  },
+});
