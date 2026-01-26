@@ -430,4 +430,124 @@ Added translations for events screen:
 - File kept for reference but no longer used in navigation
 - Can be deleted in cleanup phase
 
+---
+
+## Stage 7: NativeWind Migration + Design Refresh
+
+**Updated:** 2026-01-26
+**Branch:** `redesign`
+**Reference:** Design/ folder (Vite + React + Tailwind)
+
+### Overview
+Migrating the app to NativeWind (Tailwind CSS for React Native) and refreshing the design based on the modern web prototype in Design/ folder.
+
+### Packages Installed
+```bash
+npx expo install nativewind tailwindcss
+npx expo install expo-blur expo-linear-gradient
+```
+
+### Files Created
+
+#### tailwind.config.js
+```javascript
+module.exports = {
+  content: [
+    "./App.{js,jsx,ts,tsx}",
+    "./screens/**/*.{js,jsx,ts,tsx}",
+    "./components/**/*.{js,jsx,ts,tsx}",
+  ],
+  presets: [require("nativewind/preset")],
+  theme: {
+    extend: {
+      colors: {
+        'valencia-orange': '#FF6B35',
+        'flame-red': '#E63946',
+        'warm-cream': '#FFF8F0',
+        'gold': '#FFB800',
+        // ... semantic colors
+      },
+    },
+  },
+};
+```
+
+#### metro.config.js
+```javascript
+const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
+
+const config = getDefaultConfig(__dirname);
+module.exports = withNativeWind(config, { input: './global.css' });
+```
+
+#### global.css
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+#### nativewind-env.d.ts
+TypeScript support for className prop.
+
+### Files Modified
+
+#### babel.config.js
+Added `nativewind/babel` preset.
+
+#### App.tsx
+Added `import './global.css';` at top.
+
+### Components Migrated
+
+#### components/FloatingTabBar.tsx (NEW)
+Replaces CustomTabBar with modern floating design:
+- **Glassmorphism:** BlurView (native) / semi-transparent bg (web)
+- **Floating position:** `position: absolute`, bottom 16px
+- **Gradient active state:** LinearGradient from valencia-orange to flame-red
+- **Fire particles:** Animated gold particles on active tab (using Moti)
+- **Smooth animations:** React Native Reanimated for press/scale effects
+
+**Web vs Native differences:**
+- Web: Uses rgba background instead of BlurView (no native blur support)
+- Native: Full BlurView with intensity=80
+
+#### components/EventsFeed.tsx (NEW)
+Modern events display with Design/ styling:
+
+**HeroEventCard:**
+- Full-width image card with gradient overlay
+- Glassmorphism bottom content area
+- Live countdown timer (updates every second)
+- Pulsing "Live" badge with FlameIcon
+- Serif font for title (Georgia/serif)
+
+**TimelineEvent:**
+- Vertical timeline with orange dots
+- Event cards with subtle glassmorphism
+- Staggered entry animations (Moti)
+- Connected by vertical orange line
+
+### Design Adaptations for React Native
+
+| Web (Design/) | React Native |
+|---------------|--------------|
+| `motion/react` | `react-native-reanimated` + `moti` |
+| `backdrop-blur-xl` | `expo-blur` BlurView |
+| `lucide-react` | Custom icons in `components/icons/` |
+| CSS gradients | `expo-linear-gradient` |
+| CSS `position: absolute; inset: 0` | StyleSheet with all 4 positions |
+
+### Known Issues
+- NativeWind className doesn't work for all style properties on web
+- Some animations fallback to simpler versions on web
+- Fire particles simplified (no physics simulation like web)
+
+### Next Steps
+- [ ] Migrate more components to NativeWind
+- [ ] Add more glassmorphism cards
+- [ ] Implement guide screen with new design
+- [ ] Test on actual devices (iOS/Android)
+
 *Log continues with each change...*
