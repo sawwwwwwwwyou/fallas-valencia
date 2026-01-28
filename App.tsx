@@ -63,11 +63,11 @@ const Tab = createBottomTabNavigator();
 // For design review: always show SavedScreen
 function SavedTabScreen() {
   const { user, initialized } = useAuth();
-  
+
   // DESIGN REVIEW MODE: Always show SavedScreen to match design mockup
   // Remove this block for production
   return <SavedScreen />;
-  
+
   /*
   if (!initialized) {
     return (
@@ -96,8 +96,8 @@ function MainTabs() {
       }}
       detachInactiveScreens={true}
     >
-      <Tab.Screen 
-        name="Eventos" 
+      <Tab.Screen
+        name="Eventos"
         component={EventsScreen}
         options={{
           tabBarIcon: ({ color, focused }) => (
@@ -106,8 +106,8 @@ function MainTabs() {
           headerShown: false, // Hide nav header - EventsFeed has its own
         }}
       />
-      <Tab.Screen 
-        name="Mapa" 
+      <Tab.Screen
+        name="Mapa"
         component={MapScreen}
         options={{
           tabBarIcon: ({ color, focused }) => (
@@ -116,8 +116,8 @@ function MainTabs() {
           headerShown: false, // Hidden to match design
         }}
       />
-      <Tab.Screen 
-        name="Guardado" 
+      <Tab.Screen
+        name="Guardado"
         component={SavedTabScreen}
         options={{
           tabBarIcon: ({ color, focused }) => (
@@ -126,8 +126,8 @@ function MainTabs() {
           headerShown: false, // Hidden to match design
         }}
       />
-      <Tab.Screen 
-        name="Guía" 
+      <Tab.Screen
+        name="Guía"
         component={GuideScreen}
         options={{
           tabBarIcon: ({ color, focused }) => (
@@ -151,138 +151,138 @@ function LoadingScreen() {
 
 function AppNavigator() {
   const { initialized } = useAuth();
-  
+
   if (!initialized) {
     return <LoadingScreen />;
   }
-  
+
   return (
     <>
-      {/* Debug language switcher - HIDDEN to match design */}
-      {/* <FloatingLanguageSwitcher /> */}
+      {/* Debug language switcher */}
+      <FloatingLanguageSwitcher />
       <Stack.Navigator
-      screenOptions={{
-        animation: 'slide_from_right',
-      }}
-    >
-      <Stack.Screen 
-        name="MainTabs" 
-        component={MainTabs}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen 
-        name="FallaDetail" 
-        component={FallaDetailScreen}
-        options={{
-          presentation: 'modal',
-          headerShown: false,
-          animation: 'slide_from_bottom',
-        }}
-      />
-      {/* Auth Screens */}
-      <Stack.Screen 
-        name="Login" 
-        component={LoginScreen}
-        options={{
-          headerTitle: 'Iniciar sesión',
-          headerStyle: { backgroundColor: colors.primary.orange },
-          headerTintColor: colors.text.inverse,
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-        }}
-      />
-      <Stack.Screen 
-        name="Register" 
-        component={RegisterScreen}
-        options={{
-          headerTitle: 'Crear cuenta',
-          headerStyle: { backgroundColor: colors.primary.orange },
-          headerTintColor: colors.text.inverse,
+        screenOptions={{
           animation: 'slide_from_right',
         }}
-      />
-      <Stack.Screen 
-        name="ForgotPassword" 
-        component={ForgotPasswordScreen}
-        options={{
-          headerTitle: 'Recuperar contraseña',
-          headerStyle: { backgroundColor: colors.primary.orange },
-          headerTintColor: colors.text.inverse,
-          animation: 'slide_from_right',
-        }}
-      />
-      {/* Guide Screens */}
-      <Stack.Screen 
-        name="GuideFireworks" 
-        component={GuideFireworksScreen}
-        options={{
-          headerTitle: 'Pirotecnia',
-          headerStyle: { backgroundColor: '#FF4444' },
-          headerTintColor: '#fff',
-          animation: 'slide_from_right',
-        }}
-      />
-      <Stack.Screen 
-        name="GuideTransport" 
-        component={GuideTransportScreen}
-        options={{
-          headerTitle: 'Transporte',
-          headerStyle: { backgroundColor: '#4CAF50' },
-          headerTintColor: '#fff',
-          animation: 'slide_from_right',
-        }}
-      />
-      <Stack.Screen 
-        name="GuideExhibitions" 
-        component={GuideExhibitionsScreen}
-        options={{
-          headerTitle: 'Exposiciones',
-          headerStyle: { backgroundColor: '#9C27B0' },
-          headerTintColor: '#fff',
-          animation: 'slide_from_right',
-        }}
-      />
-      <Stack.Screen 
-        name="GuideFairs" 
-        component={GuideFairsScreen}
-        options={{
-          headerTitle: 'Ferias',
-          headerStyle: { backgroundColor: '#FF9800' },
-          headerTintColor: '#fff',
-          animation: 'slide_from_right',
-        }}
-      />
-      <Stack.Screen 
-        name="GuideNightlife" 
-        component={GuideNightlifeScreen}
-        options={{
-          headerTitle: 'Vida Nocturna',
-          headerStyle: { backgroundColor: '#E91E63' },
-          headerTintColor: '#fff',
-          animation: 'slide_from_right',
-        }}
-      />
-      <Stack.Screen 
-        name="GuideBullfighting" 
-        component={GuideBullfightingScreen}
-        options={{
-          headerTitle: 'Toros',
-          headerStyle: { backgroundColor: '#795548' },
-          headerTintColor: '#fff',
-          animation: 'slide_from_right',
-        }}
-      />
-      <Stack.Screen 
-        name="GuideGlossary" 
-        component={GuideGlossaryScreen}
-        options={{
-          headerTitle: 'Glosario',
-          headerStyle: { backgroundColor: '#2196F3' },
-          headerTintColor: '#fff',
-          animation: 'slide_from_right',
-        }}
-      />
-    </Stack.Navigator>
+      >
+        <Stack.Screen
+          name="MainTabs"
+          component={MainTabs}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="FallaDetail"
+          component={FallaDetailScreen}
+          options={{
+            presentation: 'modal',
+            headerShown: false,
+            animation: 'slide_from_bottom',
+          }}
+        />
+        {/* Auth Screens */}
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{
+            headerTitle: 'Iniciar sesión',
+            headerStyle: { backgroundColor: colors.primary.orange },
+            headerTintColor: colors.text.inverse,
+            presentation: 'modal',
+            animation: 'slide_from_bottom',
+          }}
+        />
+        <Stack.Screen
+          name="Register"
+          component={RegisterScreen}
+          options={{
+            headerTitle: 'Crear cuenta',
+            headerStyle: { backgroundColor: colors.primary.orange },
+            headerTintColor: colors.text.inverse,
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="ForgotPassword"
+          component={ForgotPasswordScreen}
+          options={{
+            headerTitle: 'Recuperar contraseña',
+            headerStyle: { backgroundColor: colors.primary.orange },
+            headerTintColor: colors.text.inverse,
+            animation: 'slide_from_right',
+          }}
+        />
+        {/* Guide Screens */}
+        <Stack.Screen
+          name="GuideFireworks"
+          component={GuideFireworksScreen}
+          options={{
+            headerTitle: 'Pirotecnia',
+            headerStyle: { backgroundColor: '#FF4444' },
+            headerTintColor: '#fff',
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="GuideTransport"
+          component={GuideTransportScreen}
+          options={{
+            headerTitle: 'Transporte',
+            headerStyle: { backgroundColor: '#4CAF50' },
+            headerTintColor: '#fff',
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="GuideExhibitions"
+          component={GuideExhibitionsScreen}
+          options={{
+            headerTitle: 'Exposiciones',
+            headerStyle: { backgroundColor: '#9C27B0' },
+            headerTintColor: '#fff',
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="GuideFairs"
+          component={GuideFairsScreen}
+          options={{
+            headerTitle: 'Ferias',
+            headerStyle: { backgroundColor: '#FF9800' },
+            headerTintColor: '#fff',
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="GuideNightlife"
+          component={GuideNightlifeScreen}
+          options={{
+            headerTitle: 'Vida Nocturna',
+            headerStyle: { backgroundColor: '#E91E63' },
+            headerTintColor: '#fff',
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="GuideBullfighting"
+          component={GuideBullfightingScreen}
+          options={{
+            headerTitle: 'Toros',
+            headerStyle: { backgroundColor: '#795548' },
+            headerTintColor: '#fff',
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="GuideGlossary"
+          component={GuideGlossaryScreen}
+          options={{
+            headerTitle: 'Glosario',
+            headerStyle: { backgroundColor: '#2196F3' },
+            headerTintColor: '#fff',
+            animation: 'slide_from_right',
+          }}
+        />
+      </Stack.Navigator>
     </>
   );
 }
@@ -292,7 +292,7 @@ function WebContainer({ children }: { children: React.ReactNode }) {
   if (Platform.OS !== 'web') {
     return <>{children}</>;
   }
-  
+
   return (
     <View style={styles.webOuterContainer}>
       <View style={styles.webInnerContainer}>

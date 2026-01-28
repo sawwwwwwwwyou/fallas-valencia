@@ -9,10 +9,10 @@ interface Translations {
 const translations: Record<Language, Translations> = {
   en: {
     // Tab bar
-    'tab.list': 'List',
+    'tab.list': 'Events',
     'tab.map': 'Map',
+    'tab.favorites': 'Saved',
     'tab.guide': 'Guide',
-    'tab.events': 'Events',
 
     // Events screen
     'events.today': 'Today',
@@ -60,6 +60,21 @@ const translations: Record<Language, Translations> = {
     'guide.tip2Desc': 'Timing tips for a better experience',
     'guide.tip3': 'Photo opportunities',
     'guide.tip3Desc': 'Most Instagrammable moments',
+
+    // Guide section additional
+    'guide.cultural': 'Cultural Guide',
+    'guide.learn': 'Learn about Las Fallas',
+    'guide.welcome': 'Welcome to Fallas!',
+    'guide.welcomeDesc': 'Your complete guide to Valencia\'s biggest festival',
+    'guide.exploreTopics': 'Explore Topics',
+    'guide.quickTips': 'Quick Tips',
+    'guide.commonTerms': 'Common Terms',
+    'guide.topic.history': 'Origins & Evolution',
+    'guide.topic.crema': 'The Grand Finale',
+    'guide.topic.fireworks': 'Firework Shows',
+    'guide.topic.food': 'Gastronomy Guide',
+    'guide.topic.artists': 'Meet the Creators',
+    'guide.topic.music': 'Traditional Performances',
 
     // Map screen
     'map.title': '🗺️ Valencia Center',
@@ -140,6 +155,17 @@ const translations: Record<Language, Translations> = {
     'fairs.ruzafaDesc': 'Neighborhood fair in trendy district. Handmade, vintage, street food.',
     'fairs.pyro': 'Pyrotechnics Fair',
     'fairs.pyroDesc': 'Kiosks with pyrotechnics. You can buy from small poppers to serious firecrackers.',
+
+    // Saved screen
+    'saved.title': 'Your Plan',
+    'saved.subtitle': 'saved items',
+    'saved.filter.all': 'All',
+    'saved.filter.fallas': 'Fallas',
+    'saved.filter.events': 'Events',
+    'saved.emptyTitle': 'Nothing saved yet',
+    'saved.emptySubtitle': 'Save fallas and events to plan your experience',
+    'saved.navigate': 'Navigate',
+    'saved.details': 'Details',
     'fairs.attractions': 'Amusement Fair',
     'fairs.attractionsDesc': 'Huge amusement park. Ferris wheel, roller coasters, carousels.',
     'fairs.showOnMap': 'Show on map',
@@ -208,13 +234,14 @@ const translations: Record<Language, Translations> = {
     'common.from': 'from',
     'common.until': 'until',
     'common.march': 'March',
+    'common.event': 'Event',
   },
   es: {
     // Tab bar
-    'tab.list': 'Lista',
+    'tab.list': 'Eventos',
     'tab.map': 'Mapa',
+    'tab.favorites': 'Guardado',
     'tab.guide': 'Guía',
-    'tab.events': 'Eventos',
 
     // Events screen
     'events.today': 'Hoy',
@@ -262,6 +289,21 @@ const translations: Record<Language, Translations> = {
     'guide.tip2Desc': 'Consejos de horarios para una mejor experiencia',
     'guide.tip3': 'Oportunidades de foto',
     'guide.tip3Desc': 'Los momentos más instagrameables',
+
+    // Guide section additional
+    'guide.cultural': 'Guía Cultural',
+    'guide.learn': 'Aprende sobre las Fallas',
+    'guide.welcome': '¡Bienvenido a Fallas!',
+    'guide.welcomeDesc': 'Tu guía completa del festival más grande de Valencia',
+    'guide.exploreTopics': 'Explorar Temas',
+    'guide.quickTips': 'Consejos Rápidos',
+    'guide.commonTerms': 'Términos Comunes',
+    'guide.topic.history': 'Orígenes y Evolución',
+    'guide.topic.crema': 'El Gran Final',
+    'guide.topic.fireworks': 'Espectáculos Pirotécnicos',
+    'guide.topic.food': 'Guía Gastronómica',
+    'guide.topic.artists': 'Conoce a los Creadores',
+    'guide.topic.music': 'Actuaciones Tradicionales',
 
     // Map screen
     'map.title': '🗺️ Valencia Centro',
@@ -342,6 +384,17 @@ const translations: Record<Language, Translations> = {
     'fairs.ruzafaDesc': 'Feria del barrio en zona trendy. Handmade, vintage, street food.',
     'fairs.pyro': 'Feria de Pirotecnia',
     'fairs.pyroDesc': 'Quioscos con pirotecnia. Puedes comprar desde pequeños petardos hasta los más potentes.',
+
+    // Saved screen
+    'saved.title': 'Tu Plan',
+    'saved.subtitle': 'guardados',
+    'saved.filter.all': 'Todos',
+    'saved.filter.fallas': 'Fallas',
+    'saved.filter.events': 'Eventos',
+    'saved.emptyTitle': 'Nada guardado aún',
+    'saved.emptySubtitle': 'Guarda fallas y eventos para planificar tu experiencia',
+    'saved.navigate': 'Navegar',
+    'saved.details': 'Detalles',
     'fairs.attractions': 'Feria de Atracciones',
     'fairs.attractionsDesc': 'Enorme parque de atracciones. Noria, montañas rusas, carruseles.',
     'fairs.showOnMap': 'Ver en el mapa',
@@ -410,6 +463,7 @@ const translations: Record<Language, Translations> = {
     'common.from': 'desde',
     'common.until': 'hasta',
     'common.march': 'marzo',
+    'common.event': 'Evento',
   },
 };
 

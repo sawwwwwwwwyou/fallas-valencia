@@ -157,6 +157,7 @@ function SavedItemCard({
   onToggleSaved: () => void;
   language: string;
 }) {
+  const { t } = useLanguage();
   return (
     <MotiView
       from={{ opacity: 0, translateY: 20 }}
@@ -208,26 +209,26 @@ function SavedItemCard({
               <TouchableOpacity style={styles.primaryButton} onPress={onPress}>
                 <Text style={styles.primaryButtonIcon}>🧭</Text>
                 <Text style={styles.primaryButtonText}>
-                  {language === 'es' ? 'Navegar' : 'Navigate'}
+                  {t('saved.navigate')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.secondaryButton}>
                 <Text style={styles.secondaryButtonText}>
-                  {language === 'es' ? 'Detalles' : 'Details'}
+                  {t('saved.details')}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </GlassCard>
-    </MotiView>
+    </MotiView >
   );
 }
 
 export default function SavedScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { user } = useAuth();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const insets = useSafeAreaInsets();
 
   const [items, setItems] = useState(SAVED_ITEMS);
@@ -286,10 +287,10 @@ export default function SavedScreen() {
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
           <View>
             <Text style={styles.title}>
-              {language === 'es' ? 'Tu Plan' : 'Your Plan'}
+              {t('saved.title')}
             </Text>
             <Text style={styles.subtitle}>
-              {filteredItems.length} {language === 'es' ? 'guardados' : 'saved items'}
+              {filteredItems.length} {t('saved.subtitle')}
             </Text>
           </View>
           <TouchableOpacity style={styles.shareButton}>
@@ -300,18 +301,18 @@ export default function SavedScreen() {
         {/* Filter Tabs */}
         <View style={styles.filterContainer}>
           <FilterTab
-            label={language === 'es' ? 'Todos' : 'All'}
+            label={t('saved.filter.all')}
             isActive={filter === 'all'}
             onPress={() => setFilter('all')}
           />
           <FilterTab
-            label="Fallas"
+            label={t('saved.filter.fallas')}
             icon="🔥"
             isActive={filter === 'fallas'}
             onPress={() => setFilter('fallas')}
           />
           <FilterTab
-            label={language === 'es' ? 'Eventos' : 'Events'}
+            label={t('saved.filter.events')}
             icon="📅"
             isActive={filter === 'events'}
             onPress={() => setFilter('events')}
@@ -337,12 +338,10 @@ export default function SavedScreen() {
           <View style={styles.emptyState}>
             <Text style={styles.emptyEmoji}>📌</Text>
             <Text style={styles.emptyTitle}>
-              {language === 'es' ? 'Nada guardado aún' : 'Nothing saved yet'}
+              {t('saved.emptyTitle')}
             </Text>
             <Text style={styles.emptySubtitle}>
-              {language === 'es'
-                ? 'Guarda fallas y eventos para planificar tu experiencia'
-                : 'Save fallas and events to plan your experience'}
+              {t('saved.emptySubtitle')}
             </Text>
           </View>
         )}

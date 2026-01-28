@@ -11,18 +11,20 @@ import Animated, {
 } from 'react-native-reanimated';
 import { MotiView } from 'moti';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useLanguage } from '../contexts/LanguageContext';
 import { EventsIcon, MapIcon, FavoritesIcon, GuideIcon } from './icons';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-interface FloatingTabBarProps extends BottomTabBarProps {}
+interface FloatingTabBarProps extends BottomTabBarProps { }
 
-export function FloatingTabBar({ state, descriptors, navigation }: FloatingTabBarProps) {
+export function FloatingTabBar({ state, descriptors, navigation, insets }: FloatingTabBarProps) {
+  const { t } = useLanguage();
   const tabs = [
-    { icon: EventsIcon, label: 'Eventos' },
-    { icon: MapIcon, label: 'Mapa' },
-    { icon: FavoritesIcon, label: 'Guardado' },
-    { icon: GuideIcon, label: 'Guía' },
+    { icon: EventsIcon, label: t('tab.list') },
+    { icon: MapIcon, label: t('tab.map') },
+    { icon: FavoritesIcon, label: t('tab.favorites') },
+    { icon: GuideIcon, label: t('tab.guide') },
   ];
 
   return (
@@ -47,6 +49,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: FloatingTabBa
             descriptors={descriptors}
             navigation={navigation}
             tabs={tabs}
+            insets={insets}
           />
         </View>
       ) : (
@@ -69,6 +72,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: FloatingTabBa
               descriptors={descriptors}
               navigation={navigation}
               tabs={tabs}
+              insets={insets}
             />
           </View>
         </BlurView>

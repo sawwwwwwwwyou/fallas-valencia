@@ -56,7 +56,7 @@ const GUIDE_TOPICS: GuideCategory[] = [
   {
     id: 'history',
     titleKey: 'guide.history',
-    subtitleKey: 'Origins & Evolution',
+    subtitleKey: 'guide.topic.history',
     emoji: '📜',
     gradient: [COLORS.primary, COLORS.flameRed],
     screen: 'GuideGlossary',
@@ -64,7 +64,7 @@ const GUIDE_TOPICS: GuideCategory[] = [
   {
     id: 'crema',
     titleKey: 'guide.crema',
-    subtitleKey: 'The Grand Finale',
+    subtitleKey: 'guide.topic.crema',
     emoji: '🔥',
     gradient: [COLORS.flameRed, '#FF4500'],
     screen: 'GuideFireworks',
@@ -72,7 +72,7 @@ const GUIDE_TOPICS: GuideCategory[] = [
   {
     id: 'fireworks',
     titleKey: 'guide.fireworks',
-    subtitleKey: 'Firework Shows',
+    subtitleKey: 'guide.topic.fireworks',
     emoji: '💥',
     gradient: [COLORS.gold, '#FFD700'],
     screen: 'GuideFireworks',
@@ -80,7 +80,7 @@ const GUIDE_TOPICS: GuideCategory[] = [
   {
     id: 'food',
     titleKey: 'guide.food',
-    subtitleKey: 'Gastronomy Guide',
+    subtitleKey: 'guide.topic.food',
     emoji: '🥘',
     gradient: [COLORS.primary, COLORS.gold],
     screen: 'GuideFairs',
@@ -88,7 +88,7 @@ const GUIDE_TOPICS: GuideCategory[] = [
   {
     id: 'artists',
     titleKey: 'guide.artists',
-    subtitleKey: 'Meet the Creators',
+    subtitleKey: 'guide.topic.artists',
     emoji: '🎨',
     gradient: ['#9333EA', '#C084FC'],
     screen: 'GuideExhibitions',
@@ -96,7 +96,7 @@ const GUIDE_TOPICS: GuideCategory[] = [
   {
     id: 'music',
     titleKey: 'guide.music',
-    subtitleKey: 'Traditional Performances',
+    subtitleKey: 'guide.topic.music',
     emoji: '🎵',
     gradient: ['#EC4899', '#F472B6'],
     screen: 'GuideNightlife',
@@ -184,7 +184,7 @@ function TopicCard({
             </LinearGradient>
             <View style={styles.topicInfo}>
               <Text style={styles.topicTitle}>{t(topic.titleKey)}</Text>
-              <Text style={styles.topicSubtitle}>{topic.subtitleKey}</Text>
+              <Text style={styles.topicSubtitle}>{t(topic.subtitleKey)}</Text>
             </View>
             <Text style={styles.topicArrow}>›</Text>
           </View>
@@ -240,10 +240,10 @@ export default function GuideScreen() {
       <View style={styles.header}>
         <View>
           <Text style={styles.title}>
-            {language === 'es' ? 'Guía Cultural' : 'Cultural Guide'}
+            {t('guide.cultural')}
           </Text>
           <Text style={styles.subtitle}>
-            {language === 'es' ? 'Aprende sobre las Fallas' : 'Learn about Las Fallas'}
+            {t('guide.learn')}
           </Text>
         </View>
         <TouchableOpacity style={styles.searchButton}>
@@ -268,12 +268,10 @@ export default function GuideScreen() {
               <Text style={styles.featuredEmoji}>🎊</Text>
               <View style={styles.featuredTextContainer}>
                 <Text style={styles.featuredTitle}>
-                  {language === 'es' ? '¡Bienvenido a Fallas!' : 'Welcome to Fallas!'}
+                  {t('guide.welcome')}
                 </Text>
                 <Text style={styles.featuredSubtitle}>
-                  {language === 'es'
-                    ? 'Tu guía completa del festival más grande de Valencia'
-                    : "Your complete guide to Valencia's biggest festival"}
+                  {t('guide.welcomeDesc')}
                 </Text>
               </View>
               <Text style={styles.featuredArrow}>→</Text>
@@ -285,7 +283,7 @@ export default function GuideScreen() {
       {/* Topics Grid */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>
-          {language === 'es' ? 'Explorar Temas' : 'Explore Topics'}
+          {t('guide.exploreTopics')}
         </Text>
         <View style={styles.topicsGrid}>
           {GUIDE_TOPICS.map((topic, index) => (
@@ -302,7 +300,7 @@ export default function GuideScreen() {
       {/* Quick Tips */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>
-          {language === 'es' ? 'Consejos Rápidos' : 'Quick Tips'}
+          {t('guide.quickTips')}
         </Text>
         {QUICK_TIPS.map((tip, index) => (
           <TipCard key={index} tip={tip} index={index} />
@@ -312,7 +310,7 @@ export default function GuideScreen() {
       {/* Glossary Section */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>
-          {language === 'es' ? 'Términos Comunes' : 'Common Terms'}
+          {t('guide.commonTerms')}
         </Text>
         <GlassCard style={styles.glossaryCard} noBlur={Platform.OS === 'web'}>
           {GLOSSARY_ITEMS.map((item, index, arr) => (
@@ -320,8 +318,8 @@ export default function GuideScreen() {
               <View style={styles.glossaryItem}>
                 <View style={styles.glossaryDot} />
                 <View style={styles.glossaryText}>
-                  <Text style={styles.glossaryTerm}>{item.term}</Text>
-                  <Text style={styles.glossaryDefinition}>{item.definition}</Text>
+                  <Text style={styles.glossaryTerm}>{t(`glossary.${item.term.toLowerCase()}`)}</Text>
+                  <Text style={styles.glossaryDefinition}>{t(`glossary.${item.term.toLowerCase()}Def`)}</Text>
                 </View>
               </View>
               {index < arr.length - 1 && <View style={styles.glossaryDivider} />}

@@ -78,7 +78,11 @@ export default function WebMapbox({
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
 
     map.current.on('load', () => {
-      setMapLoaded(true);
+      // Give the browser 300ms to settle after heavy WebGL initialization 
+      // before starting the fade transition. This prevents lag/stutter.
+      setTimeout(() => {
+        setMapLoaded(true);
+      }, 300);
     });
 
     return () => {
@@ -156,8 +160,9 @@ export default function WebMapbox({
           width: '100%',
           height: '100%',
           opacity: mapLoaded ? 1 : 0,
-          transition: 'opacity 0.8s ease-in-out', // Smoother fade-in
-          zIndex: 1
+          transition: 'opacity 0.8s ease-in-out',
+          zIndex: 1,
+          willChange: 'opacity'
         }}
       />
 
@@ -177,6 +182,7 @@ export default function WebMapbox({
         opacity: mapLoaded ? 0 : 1, // Fade out
         transition: 'opacity 0.8s ease-in-out',
         pointerEvents: mapLoaded ? 'none' : 'auto',
+        willChange: 'opacity'
       }}>
         <div style={{ fontSize: 32, marginBottom: 12 }}>🗺️</div>
         <div style={{

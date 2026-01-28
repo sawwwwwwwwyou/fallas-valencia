@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { 
-  View, 
-  Text, 
-  SectionList, 
+import {
+  View,
+  Text,
+  SectionList,
   StyleSheet,
   RefreshControl,
   Pressable,
@@ -14,18 +14,18 @@ import { MotiView } from 'moti';
 import { RootStackParamList } from '../App';
 import { Event as EventType, EventWithDetails } from '../types/database';
 import { getEvents } from '../lib/supabase';
-import { 
-  AnimatedCard, 
-  AnimatedScreen, 
+import {
+  AnimatedCard,
+  AnimatedScreen,
   FireRefreshIndicator,
   SkeletonList,
   EventsFeed,
 } from '../components';
 import { CalendarIcon, ClockIcon, LocationIcon } from '../components/icons';
-import { 
-  colors, 
-  typography, 
-  spacing, 
+import {
+  colors,
+  typography,
+  spacing,
   borderRadius,
   shadows,
 } from '../lib/theme';
@@ -63,11 +63,11 @@ function getDateSection(dateString: string, t: (key: string) => string): string 
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  
+
   const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const tomorrowOnly = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
-  
+
   if (dateOnly.getTime() === todayOnly.getTime()) {
     return t('events.today');
   } else if (dateOnly.getTime() === tomorrowOnly.getTime()) {
@@ -88,7 +88,7 @@ function getDateSection(dateString: string, t: (key: string) => string): string 
 function groupEventsByDate(events: EventWithDetails[], t: (key: string) => string) {
   const sections: { title: string; data: EventWithDetails[] }[] = [];
   const sectionMap = new Map<string, EventWithDetails[]>();
-  
+
   events.forEach(event => {
     const section = getDateSection(event.start_time, t);
     if (!sectionMap.has(section)) {
@@ -96,53 +96,54 @@ function groupEventsByDate(events: EventWithDetails[], t: (key: string) => strin
     }
     sectionMap.get(section)!.push(event);
   });
-  
+
   sectionMap.forEach((data, title) => {
     sections.push({ title, data });
   });
-  
+
   return sections;
 }
 
 // Event Type Badge Component
 function EventTypeBadge({ typeName, icon }: { typeName?: string; icon?: string }) {
+  const { t } = useLanguage();
   const style = getEventTypeStyle(typeName);
-  
+
   return (
     <View style={[styles.typeBadge, { backgroundColor: style.bg }]}>
       <Text style={styles.typeBadgeIcon}>{icon || style.icon}</Text>
       <Text style={[styles.typeBadgeText, { color: style.text }]}>
-        {typeName?.toUpperCase() || 'EVENTO'}
+        {typeName?.toUpperCase() || t('common.event')}
       </Text>
     </View>
   );
 }
 
 // Event Card Component
-function EventCard({ 
-  event, 
-  index, 
+function EventCard({
+  event,
+  index,
   onPress,
   language,
-}: { 
-  event: EventWithDetails; 
+}: {
+  event: EventWithDetails;
   index: number;
   onPress: () => void;
   language: string;
 }) {
   const typeStyle = getEventTypeStyle(event.event_type?.name_es);
   const title = language === 'en' && event.title_en ? event.title_en : event.title_es;
-  const typeName = language === 'en' && event.event_type?.name_en 
-    ? event.event_type.name_en 
+  const typeName = language === 'en' && event.event_type?.name_en
+    ? event.event_type.name_en
     : event.event_type?.name_es;
-  
+
   return (
     <MotiView
       from={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ type: 'timing', duration: 200 }}
     >
-      <AnimatedCard 
+      <AnimatedCard
         style={styles.card}
         onPress={onPress}
         variant="standard"
@@ -154,18 +155,18 @@ function EventCard({
             <Text style={styles.endTimeText}>— {formatTime(event.end_time)}</Text>
           )}
         </View>
-        
+
         {/* Content */}
         <View style={styles.cardContent}>
-          <EventTypeBadge 
-            typeName={typeName} 
-            icon={event.event_type?.icon} 
+          <EventTypeBadge
+            typeName={typeName}
+            icon={event.event_type?.icon}
           />
-          
+
           <Text style={styles.cardTitle} numberOfLines={2}>
             {title}
           </Text>
-          
+
           {/* Location */}
           {event.location && (
             <View style={styles.locationRow}>
@@ -175,7 +176,7 @@ function EventCard({
               </Text>
             </View>
           )}
-          
+
           {/* Falla link */}
           {event.falla && (
             <View style={styles.fallaRow}>
@@ -186,7 +187,7 @@ function EventCard({
             </View>
           )}
         </View>
-        
+
         {/* Indicator */}
         <View style={[styles.indicator, { backgroundColor: typeStyle.text }]} />
       </AnimatedCard>
@@ -197,7 +198,7 @@ function EventCard({
 // Section Header Component
 function SectionHeader({ title }: { title: string }) {
   const isToday = title.includes('Hoy') || title.includes('Today');
-  
+
   return (
     <View style={styles.sectionHeader}>
       <View style={[styles.sectionDot, isToday && styles.sectionDotActive]} />
@@ -352,8 +353,8 @@ export default function EventsScreen() {
       // Filter only future events and sort by start_time
       const now = new Date();
       const futureEvents = (data as EventWithDetails[])
-        .filter(e => new Date(e.start_time) >= now || 
-                    new Date(e.start_time).toDateString() === now.toDateString())
+        .filter(e => new Date(e.start_time) >= now ||
+          new Date(e.start_time).toDateString() === now.toDateString())
         .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
       setEvents(futureEvents);
     } catch (err) {
@@ -382,7 +383,7 @@ export default function EventsScreen() {
   const handleEventPress = useCallback((event: EventWithDetails) => {
     // If event has a falla, navigate to falla detail
     if (event.falla) {
-      navigation.navigate('FallaDetail', { 
+      navigation.navigate('FallaDetail', {
         falla: {
           id: event.falla.id,
           name: event.falla.name,
