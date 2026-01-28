@@ -131,14 +131,16 @@ const GLOSSARY_ITEMS = [
 function GlassCard({
   children,
   style,
+  noBlur = false,
 }: {
   children: React.ReactNode;
   style?: any;
+  noBlur?: boolean;
 }) {
   // Use BlurView on native, fallback on web
-  if (Platform.OS === 'web') {
+  if (Platform.OS === 'web' || noBlur) {
     return (
-      <View style={[styles.glassCardWeb, style]}>
+      <View style={[styles.glassCardWeb, noBlur && styles.noBlurCard, style]}>
         {children}
       </View>
     );
@@ -170,7 +172,7 @@ function TopicCard({
       transition={{ type: 'timing', duration: 400, delay: index * 50 }}
     >
       <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-        <GlassCard style={styles.topicCard}>
+        <GlassCard style={styles.topicCard} noBlur={Platform.OS === 'web'}>
           <View style={styles.topicContent}>
             <LinearGradient
               colors={topic.gradient}
@@ -209,7 +211,7 @@ function TipCard({
       transition={{ type: 'timing', duration: 300, delay: index * 100 }}
     >
       <TouchableOpacity activeOpacity={0.8}>
-        <GlassCard style={styles.tipCard}>
+        <GlassCard style={styles.tipCard} noBlur={Platform.OS === 'web'}>
           <View style={styles.tipIconContainer}>
             <Text style={styles.tipIcon}>{tip.icon}</Text>
           </View>
@@ -312,7 +314,7 @@ export default function GuideScreen() {
         <Text style={styles.sectionTitle}>
           {language === 'es' ? 'Términos Comunes' : 'Common Terms'}
         </Text>
-        <GlassCard style={styles.glossaryCard}>
+        <GlassCard style={styles.glossaryCard} noBlur={Platform.OS === 'web'}>
           {GLOSSARY_ITEMS.map((item, index, arr) => (
             <View key={index}>
               <View style={styles.glossaryItem}>
@@ -389,6 +391,15 @@ const styles = StyleSheet.create({
       web: {
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
+      },
+    }),
+  },
+  noBlurCard: {
+    backgroundColor: '#FFFFFF',
+    ...Platform.select({
+      web: {
+        backdropFilter: 'none',
+        WebkitBackdropFilter: 'none',
       },
     }),
   },
