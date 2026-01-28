@@ -143,6 +143,35 @@ function FilterTab({
   );
 }
 
+// Progress Card Component
+function ProgressCard({ visitedCount, totalCount }: { visitedCount: number; totalCount: number }) {
+  const { t } = useLanguage();
+  const progressPercent = (visitedCount / totalCount) * 100;
+
+  return (
+    <GlassCard style={styles.progressCard}>
+      <View style={styles.progressContent}>
+        <View style={styles.progressLeft}>
+          <Text style={styles.progressTitle}>{t('saved.progress')}</Text>
+          <View style={styles.progressCountRow}>
+            <Text style={styles.progressVisited}>{visitedCount}</Text>
+            <Text style={styles.progressTotal}>/{totalCount}</Text>
+            <Text style={styles.progressLabel}>{t('saved.fallasVisited')}</Text>
+          </View>
+          {/* Progress Bar */}
+          <View style={styles.progressBarContainer}>
+            <View style={styles.progressBarTrack}>
+              <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
+              <View style={[styles.progressDot, { left: `${progressPercent}%` }]} />
+            </View>
+          </View>
+        </View>
+        <Text style={styles.progressEmoji}>🔥</Text>
+      </View>
+    </GlassCard>
+  );
+}
+
 // Saved Item Card Component
 function SavedItemCard({
   item,
@@ -297,6 +326,9 @@ export default function SavedScreen() {
             <Text style={styles.shareIcon}>📤</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Progress Card */}
+        <ProgressCard visitedCount={2} totalCount={50} />
 
         {/* Filter Tabs */}
         <View style={styles.filterContainer}>
@@ -584,5 +616,76 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(0,0,0,0.6)',
     textAlign: 'center',
+  },
+  // Progress Card
+  progressCard: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    padding: spacing.lg,
+  },
+  progressContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  progressLeft: {
+    flex: 1,
+  },
+  progressTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: 'rgba(0,0,0,0.6)',
+    marginBottom: 4,
+  },
+  progressCountRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: 12,
+  },
+  progressVisited: {
+    fontSize: 42,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  progressTotal: {
+    fontSize: 24,
+    fontWeight: '500',
+    color: 'rgba(0,0,0,0.4)',
+  },
+  progressLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: 'rgba(0,0,0,0.6)',
+    marginLeft: 8,
+  },
+  progressBarContainer: {
+    width: '100%',
+    paddingRight: 40,
+  },
+  progressBarTrack: {
+    height: 6,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    borderRadius: 3,
+    position: 'relative',
+  },
+  progressBarFill: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    height: 6,
+    backgroundColor: COLORS.primary,
+    borderRadius: 3,
+  },
+  progressDot: {
+    position: 'absolute',
+    top: -4,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: COLORS.flameRed,
+    marginLeft: -7,
+  },
+  progressEmoji: {
+    fontSize: 48,
   },
 });

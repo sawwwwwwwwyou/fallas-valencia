@@ -69,6 +69,12 @@ const translations: Record<Language, Translations> = {
     'guide.exploreTopics': 'Explore Topics',
     'guide.quickTips': 'Quick Tips',
     'guide.commonTerms': 'Common Terms',
+
+    // Saved screen - Progress
+    'saved.progress': 'Progress',
+    'saved.fallasVisited': 'Fallas Visited',
+    'saved.personalJourney': 'Your personal festival journey',
+
     'guide.topic.history': 'Origins & Evolution',
     'guide.topic.crema': 'The Grand Finale',
     'guide.topic.fireworks': 'Firework Shows',
@@ -298,6 +304,12 @@ const translations: Record<Language, Translations> = {
     'guide.exploreTopics': 'Explorar Temas',
     'guide.quickTips': 'Consejos Rápidos',
     'guide.commonTerms': 'Términos Comunes',
+
+    // Saved screen - Progress
+    'saved.progress': 'Progreso',
+    'saved.fallasVisited': 'Fallas Visitadas',
+    'saved.personalJourney': 'Tu viaje personal por las fiestas',
+
     'guide.topic.history': 'Orígenes y Evolución',
     'guide.topic.crema': 'El Gran Final',
     'guide.topic.fireworks': 'Espectáculos Pirotécnicos',
