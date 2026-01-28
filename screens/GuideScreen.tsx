@@ -33,7 +33,6 @@ import {
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_WIDTH = (SCREEN_WIDTH - spacing.md * 3) / 2;
 
 // Colors matching the design
 const COLORS = {
@@ -339,6 +338,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingTop: 60,
+    paddingHorizontal: spacing.lg,
   },
   header: {
     flexDirection: 'row',
@@ -391,7 +391,6 @@ const styles = StyleSheet.create({
   },
   // Featured Banner
   featuredBanner: {
-    marginHorizontal: spacing.lg,
     marginBottom: spacing.lg,
   },
   featuredGradient: {
@@ -424,7 +423,6 @@ const styles = StyleSheet.create({
   },
   // Sections
   section: {
-    paddingHorizontal: spacing.lg,
     marginBottom: spacing.xl,
   },
   sectionTitle: {
@@ -437,10 +435,11 @@ const styles = StyleSheet.create({
   topicsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    justifyContent: 'space-between',
+    rowGap: spacing.md,
   },
   topicCard: {
-    width: CARD_WIDTH,
+    width: '48%',
     marginBottom: 0,
   },
   topicGradient: {
