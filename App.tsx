@@ -60,9 +60,15 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 // Protected Tab Screen - shows Login if not authenticated
+// For design review: always show SavedScreen
 function SavedTabScreen() {
   const { user, initialized } = useAuth();
   
+  // DESIGN REVIEW MODE: Always show SavedScreen to match design mockup
+  // Remove this block for production
+  return <SavedScreen />;
+  
+  /*
   if (!initialized) {
     return (
       <View style={styles.loadingContainer}>
@@ -76,6 +82,7 @@ function SavedTabScreen() {
   }
   
   return <SavedScreen />;
+  */
 }
 
 function MainTabs() {
@@ -96,7 +103,7 @@ function MainTabs() {
           tabBarIcon: ({ color, focused }) => (
             <AnimatedTabIcon icon="events" focused={focused} color={color} />
           ),
-          headerTitle: 'Fallas Valencia 2025',
+          headerShown: false, // Hide nav header - EventsFeed has its own
         }}
       />
       <Tab.Screen 
@@ -106,7 +113,7 @@ function MainTabs() {
           tabBarIcon: ({ color, focused }) => (
             <AnimatedTabIcon icon="map" focused={focused} color={color} />
           ),
-          headerTitle: 'Mapa de Fallas',
+          headerShown: false, // Hidden to match design
         }}
       />
       <Tab.Screen 
@@ -116,7 +123,7 @@ function MainTabs() {
           tabBarIcon: ({ color, focused }) => (
             <AnimatedTabIcon icon="favorites" focused={focused} color={color} />
           ),
-          headerTitle: 'Mis Favoritos',
+          headerShown: false, // Hidden to match design
         }}
       />
       <Tab.Screen 
@@ -126,7 +133,7 @@ function MainTabs() {
           tabBarIcon: ({ color, focused }) => (
             <AnimatedTabIcon icon="guide" focused={focused} color={color} />
           ),
-          headerTitle: 'Guía Práctica',
+          headerShown: false, // Hidden to match design
         }}
       />
     </Tab.Navigator>
@@ -151,8 +158,8 @@ function AppNavigator() {
   
   return (
     <>
-      {/* Debug language switcher - visible floating button */}
-      <FloatingLanguageSwitcher />
+      {/* Debug language switcher - HIDDEN to match design */}
+      {/* <FloatingLanguageSwitcher /> */}
       <Stack.Navigator
       screenOptions={{
         animation: 'slide_from_right',

@@ -49,6 +49,7 @@ const translations: Record<Language, Translations> = {
     'guide.nightlife': 'Nightlife',
     'guide.bullfighting': 'Bullfighting',
     'guide.glossary': 'Glossary',
+    'guide.history': 'History',
     
     // Map screen
     'map.title': '🗺️ Valencia Center',
@@ -240,6 +241,7 @@ const translations: Record<Language, Translations> = {
     'guide.nightlife': 'Vida nocturna',
     'guide.bullfighting': 'Toros',
     'guide.glossary': 'Glosario',
+    'guide.history': 'Historia',
     
     // Map screen
     'map.title': '🗺️ Valencia Centro',

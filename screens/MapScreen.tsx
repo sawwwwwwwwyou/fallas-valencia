@@ -26,6 +26,12 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { LocationIcon, StarIcon, NavigationIcon } from '../components/icons';
 import { colors, spacing, borderRadius, shadows } from '../lib/theme';
 
+// Conditionally import WebMapbox only on web
+let WebMapbox: React.ComponentType<any> | null = null;
+if (Platform.OS === 'web') {
+  WebMapbox = require('../components/WebMapbox').default;
+}
+
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -34,29 +40,59 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const FALLA_MARKERS = [
   { 
     id: '1', 
-    name: 'Falla de la Sección Especial', 
+    name: 'Falla Plaza del Ayuntamiento', 
     district: 'Plaza del Ayuntamiento', 
-    category: 'special',
+    category: 'special' as const,
     image: 'https://images.unsplash.com/photo-1647693680958-e2bd830cdbfb?w=400',
+    latitude: 39.4699,
+    longitude: -0.3763,
   },
   { 
     id: '2', 
     name: 'Falla Convento Jerusalén', 
     district: 'Ruzafa', 
-    category: 'special',
+    category: 'special' as const,
     image: 'https://images.unsplash.com/photo-1760121002397-70751ea3c113?w=400',
+    latitude: 39.4589,
+    longitude: -0.3723,
   },
   { 
     id: '3', 
+    name: 'Falla Na Jordana', 
+    district: 'El Carmen', 
+    category: 'special' as const,
+    image: 'https://images.unsplash.com/photo-1671639045782-93f73d559236?w=400',
+    latitude: 39.4789,
+    longitude: -0.3803,
+  },
+  { 
+    id: '4', 
     name: 'Falla Antiga de Campanar', 
     district: 'Campanar', 
-    category: 'firstA',
+    category: 'firstA' as const,
     image: 'https://images.unsplash.com/photo-1671639045782-93f73d559236?w=400',
+    latitude: 39.4820,
+    longitude: -0.4010,
+  },
+  { 
+    id: '5', 
+    name: 'Falla Cuba-Literato Azorín', 
+    district: 'Ruzafa', 
+    category: 'firstA' as const,
+    image: 'https://images.unsplash.com/photo-1647693680958-e2bd830cdbfb?w=400',
+    latitude: 39.4560,
+    longitude: -0.3670,
+  },
+  { 
+    id: '6', 
+    name: 'Falla Exposición', 
+    district: 'Exposición', 
+    category: 'special' as const,
+    image: 'https://images.unsplash.com/photo-1760121002397-70751ea3c113?w=400',
+    latitude: 39.4750,
+    longitude: -0.3650,
   },
 ];
-
-// OpenStreetMap iframe URL centered on Valencia
-const OSM_EMBED_URL = 'https://www.openstreetmap.org/export/embed.html?bbox=-0.4050%2C39.4500%2C-0.3500%2C39.4900&layer=mapnik&marker=39.4699%2C-0.3763';
 
 // Filter Pill Component
 function FilterPill({ 
@@ -93,7 +129,7 @@ function FilterPill({
   );
 }
 
-// Animated Map Marker
+// Animated Map Marker (for native fallback)
 function MapMarker({ 
   special = false, 
   delay = 0,
@@ -137,7 +173,7 @@ function MapMarker({
   );
 }
 
-// User Location Pulse
+// User Location Pulse (for native fallback)
 function UserLocationPulse() {
   const scale = useSharedValue(1);
   const opacity = useSharedValue(0.5);
@@ -270,57 +306,66 @@ export default function MapScreen() {
 
   const openDirections = () => {
     if (!selectedMarker) return;
-    Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${selectedMarker.district},Valencia,Spain`);
+    Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${selectedMarker.latitude},${selectedMarker.longitude}`);
   };
+
+  // Filter markers
+  const filteredMarkers = FALLA_MARKERS.filter(marker => {
+    if (filterSpecial && marker.category !== 'special') return false;
+    return true;
+  });
 
   return (
     <View style={styles.container}>
-      {/* Map Background */}
+      {/* Map */}
       <View style={styles.mapContainer}>
-        {Platform.OS === 'web' ? (
-          <iframe
-            src={OSM_EMBED_URL}
-            style={{
-              width: '100%',
-              height: '100%',
-              border: 'none',
-            }}
-            title="Valencia Fallas Map"
+        {Platform.OS === 'web' && WebMapbox ? (
+          <WebMapbox
+            markers={filteredMarkers}
+            onMarkerClick={handleMarkerPress}
+            selectedMarkerId={selectedMarker?.id}
+            showUserLocation={true}
           />
         ) : (
-          <View style={styles.mapPlaceholder}>
-            <LinearGradient
-              colors={['#FFE8D6', '#FFDCC1', '#FFE5CD']}
-              style={StyleSheet.absoluteFillObject}
-            />
-            <Text style={styles.mapPlaceholderText}>🗺️</Text>
-          </View>
+          // Native fallback with placeholder and overlay markers
+          <>
+            <View style={styles.mapPlaceholder}>
+              <LinearGradient
+                colors={['#1A1A1A', '#0D0D0D', '#1A1A1A']}
+                style={StyleSheet.absoluteFillObject}
+              />
+              <Text style={styles.mapPlaceholderText}>🗺️</Text>
+              <Text style={styles.mapPlaceholderSubtext}>
+                {language === 'es' ? 'Mapa de Valencia' : 'Valencia Map'}
+              </Text>
+            </View>
+            
+            {/* Animated Markers overlay */}
+            <View style={styles.markersOverlay}>
+              <MapMarker 
+                special 
+                style={{ top: '25%', left: '35%' }}
+                onPress={() => handleMarkerPress(FALLA_MARKERS[0])}
+              />
+              <MapMarker 
+                special 
+                delay={300}
+                style={{ top: '45%', left: '55%' }}
+                onPress={() => handleMarkerPress(FALLA_MARKERS[1])}
+              />
+              <MapMarker 
+                delay={600}
+                style={{ top: '60%', left: '30%' }}
+                onPress={() => handleMarkerPress(FALLA_MARKERS[3])}
+              />
+              
+              {/* User location */}
+              <View style={styles.userLocationContainer}>
+                <UserLocationPulse />
+              </View>
+            </View>
+          </>
         )}
-        
-        {/* Animated Markers overlay */}
-        <View style={styles.markersOverlay}>
-          <MapMarker 
-            special 
-            style={{ top: '25%', left: '35%' }}
-            onPress={() => handleMarkerPress(FALLA_MARKERS[0])}
-          />
-          <MapMarker 
-            special 
-            delay={300}
-            style={{ top: '45%', left: '55%' }}
-            onPress={() => handleMarkerPress(FALLA_MARKERS[1])}
-          />
-          <MapMarker 
-            delay={600}
-            style={{ top: '60%', left: '30%' }}
-            onPress={() => handleMarkerPress(FALLA_MARKERS[2])}
-          />
-          
-          {/* User location */}
-          <View style={styles.userLocationContainer}>
-            <UserLocationPulse />
-          </View>
-        </View>
       </View>
 
       {/* Filter Pills */}
@@ -382,6 +427,11 @@ const styles = StyleSheet.create({
   },
   mapPlaceholderText: {
     fontSize: 64,
+  },
+  mapPlaceholderSubtext: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 8,
   },
   markersOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -495,7 +545,7 @@ const styles = StyleSheet.create({
   previewCardWeb: {
     borderRadius: borderRadius.xl,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: 'rgba(255,255,255,0.95)',
     // @ts-ignore
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
@@ -563,8 +613,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 24,
     padding: 12,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: 'rgba(26, 26, 26, 0.9)',
     borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 107, 53, 0.3)',
   },
   legendItem: {
     flexDirection: 'row',
@@ -582,6 +634,6 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 12,
-    color: colors.text.secondary,
+    color: '#ccc',
   },
 });

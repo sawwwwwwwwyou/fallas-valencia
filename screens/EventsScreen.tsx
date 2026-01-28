@@ -138,9 +138,9 @@ function EventCard({
   
   return (
     <MotiView
-      from={{ opacity: 0, translateY: 20, scale: 0.98 }}
-      animate={{ opacity: 1, translateY: 0, scale: 1 }}
-      transition={{ type: 'timing', duration: 300, delay: index * 50 }}
+      from={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ type: 'timing', duration: 200 }}
     >
       <AnimatedCard 
         style={styles.card}
@@ -208,6 +208,123 @@ function SectionHeader({ title }: { title: string }) {
     </View>
   );
 }
+
+// Helper to create fixed time for today
+function getTodayAt(hours: number, minutes: number = 0): string {
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date.toISOString();
+}
+
+// Mock events for demo when no real events exist
+// Times match the design EXACTLY: Mascletà (hero) + 4 timeline events
+const MOCK_EVENTS: EventWithDetails[] = [
+  // Hero event - Mascletà
+  {
+    id: 'mock-1',
+    title_es: 'Mascletà',
+    title_en: 'Mascletà',
+    start_time: getTodayAt(14, 0), // 14:00 - Plaza del Ayuntamiento
+    end_time: null,
+    location: 'Plaza del Ayuntamiento',
+    description_es: 'Espectáculo de fuegos artificiales diurno',
+    event_type: { id: '1', name_es: 'Mascletà', name_en: 'Mascletà', icon: '💥' },
+    falla: null,
+  },
+  // Timeline event 1 - matches design
+  {
+    id: 'mock-2',
+    title_es: 'Ofrenda de Flores',
+    title_en: 'Flower Offering',
+    start_time: getTodayAt(16, 0), // 16:00 - Plaza de la Virgen
+    end_time: null,
+    location: 'Plaza de la Virgen',
+    description_es: 'Ofrenda floral a la Virgen de los Desamparados',
+    event_type: { id: '2', name_es: 'Ofrenda', name_en: 'Offering', icon: '🌺' },
+    falla: null,
+  },
+  // Timeline event 2 - matches design
+  {
+    id: 'mock-3',
+    title_es: 'Cabalgata del Fuego',
+    title_en: 'Fire Parade',
+    start_time: getTodayAt(18, 30), // 18:30 - Calle Colón
+    end_time: null,
+    location: 'Calle Colón',
+    description_es: 'Desfile de carrozas con pirotecnia',
+    event_type: { id: '3', name_es: 'Cabalgata', name_en: 'Parade', icon: '🔥' },
+    falla: null,
+  },
+  // Timeline event 3 - matches design
+  {
+    id: 'mock-4',
+    title_es: 'Castell de Foc',
+    title_en: 'Fireworks Castle',
+    start_time: getTodayAt(22, 0), // 22:00 - Jardín del Turia
+    end_time: null,
+    location: 'Jardín del Turia',
+    description_es: 'Espectáculo de fuegos artificiales nocturno',
+    event_type: { id: '4', name_es: 'Castillo', name_en: 'Fireworks', icon: '🎆' },
+    falla: null,
+  },
+  // Timeline event 4 - matches design (La Cremà at 01:00)
+  {
+    id: 'mock-5',
+    title_es: 'La Cremà',
+    title_en: 'The Burning',
+    start_time: getTodayAt(25, 0), // 01:00 next day (25 = 1am tomorrow)
+    end_time: null,
+    location: 'Citywide',
+    description_es: 'La quema de las fallas - el momento culminante',
+    event_type: { id: '5', name_es: 'Cremà', name_en: 'Burning', icon: '🔥' },
+    falla: null,
+  },
+  // Additional events for scrollable demo
+  {
+    id: 'mock-6',
+    title_es: 'Despertà',
+    title_en: 'Wake-up Call',
+    start_time: getTodayAt(32, 0), // 08:00 next day
+    end_time: null,
+    location: 'Barrio del Carmen',
+    description_es: 'Despertador tradicional con petardos por las calles',
+    event_type: { id: '6', name_es: 'Despertà', name_en: 'Wake-up', icon: '🎺' },
+    falla: null,
+  },
+  {
+    id: 'mock-7',
+    title_es: 'Pasacalle Infantil',
+    title_en: 'Children\'s Parade',
+    start_time: getTodayAt(34, 0), // 10:00 next day
+    end_time: null,
+    location: 'Centro Histórico',
+    description_es: 'Desfile de las comisiones infantiles',
+    event_type: { id: '7', name_es: 'Pasacalle', name_en: 'Parade', icon: '🎭' },
+    falla: null,
+  },
+  {
+    id: 'mock-8',
+    title_es: 'Concierto de Bandas',
+    title_en: 'Band Concert',
+    start_time: getTodayAt(36, 0), // 12:00 next day
+    end_time: null,
+    location: 'Plaza de la Virgen',
+    description_es: 'Concierto de música tradicional valenciana',
+    event_type: { id: '8', name_es: 'Concierto', name_en: 'Concert', icon: '🎵' },
+    falla: null,
+  },
+  {
+    id: 'mock-9',
+    title_es: 'Visita a Monumentos',
+    title_en: 'Monument Tours',
+    start_time: getTodayAt(38, 0), // 14:00 next day
+    end_time: null,
+    location: 'Toda la ciudad',
+    description_es: 'Recorrido guiado por las fallas más destacadas',
+    event_type: { id: '9', name_es: 'Visita', name_en: 'Tour', icon: '🗿' },
+    falla: null,
+  },
+] as EventWithDetails[];
 
 // Empty State Component
 function EmptyState({ t }: { t: (key: string) => string }) {
@@ -293,32 +410,36 @@ export default function EventsScreen() {
     return eventDate === today;
   });
 
-  // Use new design when we have today's events
-  if (todayEvents.length > 0) {
-    return (
-      <AnimatedScreen style={styles.container}>
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: 100 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor={colors.primary.orange}
-              colors={[colors.primary.orange]}
-            />
-          }
-        >
-          <EventsFeed
-            events={todayEvents}
-            onEventPress={handleEventPress}
-            language={language}
-          />
-        </ScrollView>
-      </AnimatedScreen>
-    );
-  }
+  // Use mock data for demo when no real events
+  const displayEvents = todayEvents.length > 0 ? todayEvents : MOCK_EVENTS;
 
+  // Always show EventsFeed with header (like original design)
+  return (
+    <AnimatedScreen style={styles.container}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary.orange}
+            colors={[colors.primary.orange]}
+          />
+        }
+      >
+        <EventsFeed
+          events={displayEvents}
+          onEventPress={handleEventPress}
+          language={language}
+          showHeader={true}
+        />
+      </ScrollView>
+    </AnimatedScreen>
+  );
+
+  // Fallback to sections view (kept for reference)
+  /*
   return (
     <AnimatedScreen style={styles.container}>
       {sections.length === 0 ? (
@@ -355,6 +476,7 @@ export default function EventsScreen() {
       )}
     </AnimatedScreen>
   );
+  */
 }
 
 const styles = StyleSheet.create({

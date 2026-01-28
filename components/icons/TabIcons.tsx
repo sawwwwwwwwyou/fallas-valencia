@@ -2,12 +2,12 @@
  * 🔥 FALLAS VALENCIA — Tab Bar Icons
  * 
  * Custom SVG icons for bottom tab navigation
- * Style: Outlined, 2px stroke, rounded caps
- * Based on: ICONS-SPEC.md
+ * Style: Clean, simple, lucide-react inspired
+ * Matching reference design
  */
 
 import React from 'react';
-import Svg, { Path, Circle, Line, Polyline, G } from 'react-native-svg';
+import Svg, { Path, Rect, Circle, Line } from 'react-native-svg';
 import { colors } from '../../lib/theme';
 
 interface IconProps {
@@ -16,244 +16,148 @@ interface IconProps {
   focused?: boolean;
 }
 
-const DEFAULT_SIZE = 28;
+const DEFAULT_SIZE = 24;
 const STROKE_WIDTH = 2;
 
 /**
- * icon-tab-list
- * Three horizontal lines (list) with top line styled as flame
- * Used in: Tab Bar — first tab "Lista"
+ * ListIcon - Simple list/menu icon
  */
 export function ListIcon({ 
   size = DEFAULT_SIZE, 
   color = colors.text.tertiary,
   focused = false 
 }: IconProps) {
-  const activeColor = focused ? colors.primary.orange : color;
-  const flameColor = focused ? colors.primary.flame : color;
+  const activeColor = focused ? '#FFFFFF' : color;
   
   return (
-    <Svg width={size} height={size} viewBox="0 0 28 28" fill="none">
-      {/* Flame tip on top */}
-      <Path
-        d="M14 4C14 4 11 7 11 9.5C11 11.5 12.5 13 14 13C15.5 13 17 11.5 17 9.5C17 7 14 4 14 4Z"
-        fill={focused ? flameColor : 'transparent'}
-        stroke={flameColor}
-        strokeWidth={STROKE_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* List lines */}
-      <Line
-        x1="7" y1="16"
-        x2="21" y2="16"
-        stroke={activeColor}
-        strokeWidth={STROKE_WIDTH}
-        strokeLinecap="round"
-      />
-      <Line
-        x1="7" y1="21"
-        x2="21" y2="21"
-        stroke={activeColor}
-        strokeWidth={STROKE_WIDTH}
-        strokeLinecap="round"
-      />
-      <Line
-        x1="7" y1="26"
-        x2="21" y2="26"
-        stroke={activeColor}
-        strokeWidth={STROKE_WIDTH}
-        strokeLinecap="round"
-      />
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Line x1="4" y1="6" x2="20" y2="6" stroke={activeColor} strokeWidth={STROKE_WIDTH} strokeLinecap="round" />
+      <Line x1="4" y1="12" x2="20" y2="12" stroke={activeColor} strokeWidth={STROKE_WIDTH} strokeLinecap="round" />
+      <Line x1="4" y1="18" x2="20" y2="18" stroke={activeColor} strokeWidth={STROKE_WIDTH} strokeLinecap="round" />
     </Svg>
   );
 }
 
 /**
- * icon-tab-map
- * Folded map with flame-shaped location pin
- * Used in: Tab Bar — second tab "Mapa"
+ * MapIcon - Map icon (matching lucide-react Map icon from design)
  */
 export function MapIcon({ 
   size = DEFAULT_SIZE, 
   color = colors.text.tertiary,
   focused = false 
 }: IconProps) {
-  const activeColor = focused ? colors.primary.orange : color;
-  const pinColor = focused ? colors.primary.flame : color;
+  const activeColor = focused ? '#FFFFFF' : color;
   
   return (
-    <Svg width={size} height={size} viewBox="0 0 28 28" fill="none">
-      {/* Flame-shaped pin */}
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      {/* Map polygon - left section */}
       <Path
-        d="M14 3C14 3 10 7 10 10.5C10 13.5 12 15 14 15C16 15 18 13.5 18 10.5C18 7 14 3 14 3Z"
-        fill={focused ? pinColor : 'transparent'}
-        stroke={pinColor}
-        strokeWidth={STROKE_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Circle
-        cx="14" cy="10"
-        r="2"
-        fill={focused ? colors.text.inverse : 'transparent'}
-        stroke={focused ? colors.text.inverse : pinColor}
-        strokeWidth={1}
-      />
-      {/* Map folded */}
-      <Path
-        d="M4 18L10 16L18 18L24 16V26L18 28L10 26L4 28V18Z"
+        d="M1 6V22L8 18L16 22L23 18V2L16 6L8 2L1 6Z"
         stroke={activeColor}
         strokeWidth={STROKE_WIDTH}
         strokeLinecap="round"
         strokeLinejoin="round"
+        fill={focused ? 'rgba(255,255,255,0.1)' : 'transparent'}
       />
-      <Line
-        x1="10" y1="16"
-        x2="10" y2="26"
-        stroke={activeColor}
-        strokeWidth={STROKE_WIDTH}
-        strokeLinecap="round"
-      />
-      <Line
-        x1="18" y1="18"
-        x2="18" y2="28"
-        stroke={activeColor}
-        strokeWidth={STROKE_WIDTH}
-        strokeLinecap="round"
-      />
+      {/* Vertical lines */}
+      <Line x1="8" y1="2" x2="8" y2="18" stroke={activeColor} strokeWidth={STROKE_WIDTH} />
+      <Line x1="16" y1="6" x2="16" y2="22" stroke={activeColor} strokeWidth={STROKE_WIDTH} />
     </Svg>
   );
 }
 
 /**
- * icon-tab-favorites
- * Star with heart inside
- * Used in: Tab Bar — third tab "Favoritos"
+ * FavoritesIcon - Bookmark icon (matching reference design)
  */
 export function FavoritesIcon({ 
   size = DEFAULT_SIZE, 
   color = colors.text.tertiary,
   focused = false 
 }: IconProps) {
-  const activeColor = focused ? colors.primary.orange : color;
-  const heartColor = focused ? colors.primary.flame : color;
+  const activeColor = focused ? '#FFFFFF' : color;
   
   return (
-    <Svg width={size} height={size} viewBox="0 0 28 28" fill="none">
-      {/* Star outline */}
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
-        d="M14 2L17.09 8.26L24 9.27L19 14.14L20.18 21.02L14 17.77L7.82 21.02L9 14.14L4 9.27L10.91 8.26L14 2Z"
+        d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z"
         stroke={activeColor}
         strokeWidth={STROKE_WIDTH}
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill={focused ? `${colors.primary.orange}20` : 'transparent'}
-      />
-      {/* Heart inside */}
-      <Path
-        d="M14 11C14 11 12 9.5 11 10C10 10.5 10 12 11 13C12 14 14 15.5 14 15.5C14 15.5 16 14 17 13C18 12 18 10.5 17 10C16 9.5 14 11 14 11Z"
-        fill={focused ? heartColor : 'transparent'}
-        stroke={heartColor}
-        strokeWidth={1.5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        fill={focused ? 'rgba(255,255,255,0.1)' : 'transparent'}
       />
     </Svg>
   );
 }
 
 /**
- * icon-tab-guide
- * Open book with flame bookmark
- * Used in: Tab Bar — fourth tab "Guía"
+ * GuideIcon - Simple book/square icon (matching reference)
  */
 export function GuideIcon({ 
   size = DEFAULT_SIZE, 
   color = colors.text.tertiary,
   focused = false 
 }: IconProps) {
-  const activeColor = focused ? colors.primary.orange : color;
-  const flameColor = focused ? colors.primary.flame : color;
+  const activeColor = focused ? '#FFFFFF' : color;
   
   return (
-    <Svg width={size} height={size} viewBox="0 0 28 28" fill="none">
-      {/* Flame bookmark on top */}
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      {/* Book outline */}
       <Path
-        d="M18 3C18 3 16 5 16 6.5C16 8 17 9 18 9C19 9 20 8 20 6.5C20 5 18 3 18 3Z"
-        fill={focused ? flameColor : 'transparent'}
-        stroke={flameColor}
-        strokeWidth={STROKE_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Open book */}
-      <Path
-        d="M4 8H12C13.1 8 14 8.9 14 10V24C14 23.1 13.1 22 12 22H4V8Z"
+        d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20"
         stroke={activeColor}
         strokeWidth={STROKE_WIDTH}
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill={focused ? `${colors.primary.orange}10` : 'transparent'}
       />
       <Path
-        d="M24 8H16C14.9 8 14 8.9 14 10V24C14 23.1 14.9 22 16 22H24V8Z"
+        d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z"
         stroke={activeColor}
         strokeWidth={STROKE_WIDTH}
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill={focused ? `${colors.primary.orange}10` : 'transparent'}
+        fill={focused ? 'rgba(255,255,255,0.1)' : 'transparent'}
       />
-      {/* Page lines */}
-      <Line x1="7" y1="12" x2="11" y2="12" stroke={activeColor} strokeWidth={1.5} strokeLinecap="round" />
-      <Line x1="7" y1="16" x2="11" y2="16" stroke={activeColor} strokeWidth={1.5} strokeLinecap="round" />
-      <Line x1="17" y1="12" x2="21" y2="12" stroke={activeColor} strokeWidth={1.5} strokeLinecap="round" />
-      <Line x1="17" y1="16" x2="21" y2="16" stroke={activeColor} strokeWidth={1.5} strokeLinecap="round" />
     </Svg>
   );
 }
 
 /**
- * icon-tab-events
- * Calendar with flame indicator
- * Used in: Tab Bar — "Eventos" tab
+ * EventsIcon - Calendar icon (matching reference design)
  */
 export function EventsIcon({ 
   size = DEFAULT_SIZE, 
   color = colors.text.tertiary,
   focused = false 
 }: IconProps) {
-  const activeColor = focused ? colors.primary.orange : color;
-  const flameColor = focused ? colors.primary.flame : color;
+  const activeColor = focused ? '#FFFFFF' : color;
   
   return (
-    <Svg width={size} height={size} viewBox="0 0 28 28" fill="none">
-      {/* Flame on top */}
-      <Path
-        d="M14 2C14 2 11 5 11 7C11 8.5 12.5 9.5 14 9.5C15.5 9.5 17 8.5 17 7C17 5 14 2 14 2Z"
-        fill={focused ? flameColor : 'transparent'}
-        stroke={flameColor}
-        strokeWidth={STROKE_WIDTH}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       {/* Calendar body */}
-      <Path
-        d="M5 11H23V25C23 25.5523 22.5523 26 22 26H6C5.44772 26 5 25.5523 5 25V11Z"
+      <Rect
+        x="3"
+        y="4"
+        width="18"
+        height="18"
+        rx="2"
         stroke={activeColor}
         strokeWidth={STROKE_WIDTH}
         strokeLinecap="round"
         strokeLinejoin="round"
-        fill={focused ? `${colors.primary.orange}10` : 'transparent'}
+        fill={focused ? 'rgba(255,255,255,0.1)' : 'transparent'}
       />
-      {/* Calendar top */}
-      <Line x1="5" y1="15" x2="23" y2="15" stroke={activeColor} strokeWidth={STROKE_WIDTH} />
+      {/* Top line */}
+      <Line x1="3" y1="10" x2="21" y2="10" stroke={activeColor} strokeWidth={STROKE_WIDTH} />
+      {/* Calendar pins */}
+      <Line x1="8" y1="2" x2="8" y2="6" stroke={activeColor} strokeWidth={STROKE_WIDTH} strokeLinecap="round" />
+      <Line x1="16" y1="2" x2="16" y2="6" stroke={activeColor} strokeWidth={STROKE_WIDTH} strokeLinecap="round" />
       {/* Date dots */}
-      <Circle cx="9" cy="19" r="1.5" fill={activeColor} />
-      <Circle cx="14" cy="19" r="1.5" fill={focused ? flameColor : activeColor} />
-      <Circle cx="19" cy="19" r="1.5" fill={activeColor} />
-      <Circle cx="9" cy="23" r="1.5" fill={activeColor} />
-      <Circle cx="14" cy="23" r="1.5" fill={activeColor} />
+      <Circle cx="8" cy="14" r="1" fill={activeColor} />
+      <Circle cx="12" cy="14" r="1" fill={activeColor} />
+      <Circle cx="16" cy="14" r="1" fill={activeColor} />
+      <Circle cx="8" cy="18" r="1" fill={activeColor} />
+      <Circle cx="12" cy="18" r="1" fill={activeColor} />
     </Svg>
   );
 }

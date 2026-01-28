@@ -29,38 +29,22 @@ export function AnimatedCard({
   const pressed = useSharedValue(0);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const shadowOpacity = interpolate(
-      pressed.value,
-      [0, 1],
-      [variant === 'hero' ? 0.15 : 0.08, variant === 'hero' ? 0.2 : 0.12]
-    );
-    
     return {
       transform: [
-        { scale: withSpring(scale.value, { 
-          damping: timing.spring.damping, 
-          stiffness: timing.spring.stiffness 
-        }) },
-        { 
-          translateY: interpolate(
-            pressed.value,
-            [0, 1],
-            [0, -2]
-          )
-        },
+        { scale: scale.value },
       ],
-      shadowOpacity,
+      opacity: interpolate(pressed.value, [0, 1], [1, 0.9]),
     };
   });
 
   const handlePressIn = () => {
-    scale.value = 0.97;
-    pressed.value = withSpring(1, { damping: 20 });
+    scale.value = 0.98;
+    pressed.value = 1;
   };
 
   const handlePressOut = () => {
     scale.value = 1;
-    pressed.value = withSpring(0, { damping: 20 });
+    pressed.value = 0;
   };
 
   const variantShadow = variant === 'hero' ? shadows.cardHero : shadows.card;

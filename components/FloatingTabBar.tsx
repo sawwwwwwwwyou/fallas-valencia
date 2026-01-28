@@ -7,6 +7,7 @@ import Animated, {
   useSharedValue,
   withSpring,
   withSequence,
+  withTiming,
 } from 'react-native-reanimated';
 import { MotiView } from 'moti';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -125,7 +126,7 @@ function TabButton({ icon: Icon, label, isActive, onPress }: TabButtonProps) {
   const bgOpacity = useSharedValue(isActive ? 1 : 0);
 
   React.useEffect(() => {
-    bgOpacity.value = withSpring(isActive ? 1 : 0, { damping: 20 });
+    bgOpacity.value = withTiming(isActive ? 1 : 0, { duration: 150 });
   }, [isActive]);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -137,11 +138,11 @@ function TabButton({ icon: Icon, label, isActive, onPress }: TabButtonProps) {
   }));
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
+    scale.value = withTiming(0.95, { duration: 100 });
   };
 
   const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15, stiffness: 200 });
+    scale.value = withTiming(1, { duration: 100 });
   };
 
   return (
@@ -206,8 +207,8 @@ function TabButton({ icon: Icon, label, isActive, onPress }: TabButtonProps) {
           </Text>
         </View>
 
-        {/* Fire particles for active tab */}
-        {isActive && <FireParticles />}
+        {/* Fire particles disabled - too small to see, wastes CPU */}
+        {/* {isActive && <FireParticles />} */}
       </View>
     </AnimatedPressable>
   );

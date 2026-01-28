@@ -371,17 +371,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.8)',
   },
-  // Grid
+  // Grid - 2 columns like design
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    gap: 12,
   },
-  // Card
+  // Card - exactly 2 columns (use calc for web)
   cardWrapper: {
-    width: '48%',
-    aspectRatio: 1,
-    marginBottom: spacing.md,
+    flex: 1,
+    minWidth: 150,
+    maxWidth: '48%',
+    height: 180, // Fixed height for web compatibility
+    marginBottom: 0,
   },
   card: {
     flex: 1,

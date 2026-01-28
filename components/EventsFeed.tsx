@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Image, Platform } from 'react-native';
+import { View, Text, ScrollView, Image, Platform, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -17,6 +18,7 @@ interface EventsFeedProps {
   events: EventWithDetails[];
   onEventPress?: (event: EventWithDetails) => void;
   language?: string;
+  showHeader?: boolean;
 }
 
 // Hero Event Card with countdown
@@ -80,18 +82,21 @@ function HeroEventCard({
 
   return (
     <MotiView
-      from={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', damping: 20 }}
+      from={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ type: 'timing', duration: 300 }}
     >
-      <View
-        style={{
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => ({
           borderRadius: 24,
           overflow: 'hidden',
-          height: 200,
-          marginHorizontal: 16,
+          height: 192, // h-48 in design = 12rem = 192px
+          marginHorizontal: 24, // px-6 in design
           marginBottom: 24,
-        }}
+          opacity: pressed ? 0.9 : 1,
+          transform: [{ scale: pressed ? 0.98 : 1 }],
+        })}
       >
         {/* Background Image */}
         <Image
@@ -148,9 +153,12 @@ function HeroEventCard({
             <View
               style={{
                 padding: 20,
-                backgroundColor: 'rgba(255,255,255,0.15)',
+                backgroundColor: 'rgba(255,255,255,0.1)',
                 borderTopWidth: 1,
                 borderTopColor: 'rgba(255,255,255,0.2)',
+                // @ts-ignore - web-only CSS property
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
               }}
             >
               <HeroContent
@@ -171,7 +179,7 @@ function HeroEventCard({
             </BlurView>
           )}
         </View>
-      </View>
+      </Pressable>
     </MotiView>
   );
 }
@@ -212,7 +220,7 @@ function HeroContent({
       
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>
-          Empieza en
+          Starts in
         </Text>
         <Text
           style={{
@@ -227,6 +235,25 @@ function HeroContent({
       </View>
     </>
   );
+}
+
+// Event type color mapping
+const EVENT_DOT_COLORS: Record<string, string> = {
+  'ofrenda': '#E8F5E9', // Light green for flowers
+  'mascletà': '#FFEBEE', // Light red for explosions
+  'cremà': '#FCE4EC', // Light pink for burning
+  'castillo': '#FFF3E0', // Light orange for fireworks
+  'cabalgata': '#FFF3E0', // Light orange for parades
+  'despertà': '#E3F2FD', // Light blue for morning wake-up
+  'pasacalle': '#F3E5F5', // Light purple for parades
+  'concierto': '#E0F7FA', // Light cyan for concerts
+  'default': '#FF6B35', // Orange fallback
+};
+
+function getEventDotColor(typeName?: string): string {
+  if (!typeName) return EVENT_DOT_COLORS.default;
+  const key = typeName.toLowerCase();
+  return EVENT_DOT_COLORS[key] || EVENT_DOT_COLORS.default;
 }
 
 // Timeline Event Item
@@ -247,43 +274,55 @@ function TimelineEvent({
     hour: '2-digit',
     minute: '2-digit',
   });
+  
+  // Get color based on event type
+  const dotColor = getEventDotColor(event.event_type?.name_es);
 
   return (
-    <MotiView
-      from={{ opacity: 0, translateX: -20 }}
-      animate={{ opacity: 1, translateX: 0 }}
-      transition={{ type: 'timing', duration: 300, delay: index * 100 }}
-      style={{
-        flexDirection: 'row',
-        gap: 16,
-        marginBottom: 24,
-        paddingHorizontal: 16,
-      }}
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => ({
+        opacity: pressed ? 0.8 : 1,
+      })}
     >
-      {/* Timeline dot */}
-      <View
+      <MotiView
+        from={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ type: 'timing', duration: 200 }}
+        style={{
+          flexDirection: 'row',
+          gap: 16,
+          marginBottom: 24,
+          // paddingHorizontal moved to parent container for proper line alignment
+        }}
+      >
+        {/* Timeline dot - colored by event type */}
+        <View
         style={{
           width: 40,
           height: 40,
           borderRadius: 20,
-          backgroundColor: '#FF6B35',
+          backgroundColor: dotColor,
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 10,
+          borderWidth: 2,
+          borderColor: 'rgba(255,107,53,0.3)',
         }}
       >
         <Text style={{ fontSize: 18 }}>{event.event_type?.icon || '📅'}</Text>
       </View>
 
-      {/* Card */}
+      {/* Card - removed blur for performance (8 cards * blur = heavy) */}
       <View
         style={{
           flex: 1,
-          backgroundColor: 'rgba(255,255,255,0.8)',
+          backgroundColor: 'rgba(255,255,255,0.95)', // Slightly more opaque to compensate
           borderRadius: 16,
           padding: 16,
           borderWidth: 1,
           borderColor: 'rgba(255,107,53,0.2)',
+          // Blur disabled for performance - too many cards
         }}
       >
         <View
@@ -314,11 +353,69 @@ function TimelineEvent({
           {event.location || 'Valencia'}
         </Text>
       </View>
-    </MotiView>
+      </MotiView>
+    </Pressable>
   );
 }
 
-export function EventsFeed({ events, onEventPress, language = 'es' }: EventsFeedProps) {
+// Header Component matching original design
+function FeedHeader() {
+  const insets = useSafeAreaInsets();
+  const pulseScale = useSharedValue(1);
+  
+  useEffect(() => {
+    pulseScale.value = withRepeat(
+      withTiming(1.05, { duration: 2000 }),
+      -1,
+      true
+    );
+  }, []);
+
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
+
+  return (
+    <View style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 24 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <Text
+          style={{
+            fontSize: 36,
+            fontWeight: '400',
+            color: '#2d2d2d',
+            fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+          }}
+        >
+          Fallas 2025
+        </Text>
+        <Animated.View
+          style={[
+            {
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: '#E63946',
+              paddingHorizontal: 12,
+              paddingVertical: 4,
+              borderRadius: 20,
+              gap: 4,
+            },
+            pulseStyle,
+          ]}
+        >
+          <FlameIcon size={12} color="#fff" />
+          <Text style={{ color: '#fff', fontSize: 12, fontWeight: '600' }}>
+            Live
+          </Text>
+        </Animated.View>
+      </View>
+      <Text style={{ fontSize: 14, color: 'rgba(45,45,45,0.6)' }}>
+        March 15-19, 2025
+      </Text>
+    </View>
+  );
+}
+
+export function EventsFeed({ events, onEventPress, language = 'es', showHeader = true }: EventsFeedProps) {
   if (events.length === 0) {
     return null;
   }
@@ -326,7 +423,17 @@ export function EventsFeed({ events, onEventPress, language = 'es' }: EventsFeed
   const [heroEvent, ...timelineEvents] = events;
 
   return (
-    <View style={{ paddingTop: 16 }}>
+    <View>
+      {/* Header like original design */}
+      {showHeader && <FeedHeader />}
+      
+      {/* Today section label */}
+      <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
+        <Text style={{ fontSize: 18, fontWeight: '600', color: '#2d2d2d' }}>
+          Today
+        </Text>
+      </View>
+      
       {/* Hero Card */}
       {heroEvent && (
         <HeroEventCard
@@ -336,40 +443,33 @@ export function EventsFeed({ events, onEventPress, language = 'es' }: EventsFeed
         />
       )}
 
-      {/* Timeline section header */}
+      {/* Timeline with vertical line */}
       {timelineEvents.length > 0 && (
-        <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
-          <Text style={{ fontSize: 18, fontWeight: '600', color: '#2d2d2d' }}>
-            Próximos eventos
-          </Text>
+        <View style={{ position: 'relative', paddingHorizontal: 24 }}>
+          {/* Vertical line - centered on dots (dot 40px, center at 20px, line width 2px) */}
+          <View
+            style={{
+              position: 'absolute',
+              left: 24 + 19, // padding + (dot_width/2 - line_width/2) = 24 + 19 = 43
+              top: 20,
+              bottom: 20,
+              width: 2,
+              backgroundColor: 'rgba(255,107,53,0.3)',
+            }}
+          />
+
+          {/* Timeline events */}
+          {timelineEvents.map((event, index) => (
+            <TimelineEvent
+              key={event.id}
+              event={event}
+              index={index}
+              onPress={() => onEventPress?.(event)}
+              language={language}
+            />
+          ))}
         </View>
       )}
-
-      {/* Timeline with vertical line */}
-      <View style={{ position: 'relative' }}>
-        {/* Vertical line */}
-        <View
-          style={{
-            position: 'absolute',
-            left: 36,
-            top: 20,
-            bottom: 20,
-            width: 2,
-            backgroundColor: 'rgba(255,107,53,0.3)',
-          }}
-        />
-
-        {/* Timeline events */}
-        {timelineEvents.slice(0, 5).map((event, index) => (
-          <TimelineEvent
-            key={event.id}
-            event={event}
-            index={index}
-            onPress={() => onEventPress?.(event)}
-            language={language}
-          />
-        ))}
-      </View>
     </View>
   );
 }
