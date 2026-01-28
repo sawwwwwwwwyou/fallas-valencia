@@ -344,7 +344,6 @@ export const FALLAS_MAPLIBRE_STYLE: StyleSpecification = {
         'text-color': '#AA7744',
         'text-halo-color': '#1A1A1A',
         'text-halo-width': 1,
-        'text-opacity': 0.25,
       },
     },
   ],
