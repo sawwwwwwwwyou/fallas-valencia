@@ -144,8 +144,51 @@ export default function WebMapbox({
   }, [mapLoaded, showUserLocation]);
 
   return (
-    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
+    <div style={{
+      width: '100%',
+      height: '100%',
+      position: 'relative',
+      backgroundColor: '#0D0D0D'
+    }}>
+      <div
+        ref={mapContainer}
+        style={{
+          width: '100%',
+          height: '100%',
+          opacity: mapLoaded ? 1 : 0,
+          transition: 'opacity 0.8s ease-in-out', // Smoother fade-in
+          zIndex: 1
+        }}
+      />
+
+      {/* Loading Overlay with transition */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#0D0D0D',
+        zIndex: 10,
+        opacity: mapLoaded ? 0 : 1, // Fade out
+        transition: 'opacity 0.8s ease-in-out',
+        pointerEvents: mapLoaded ? 'none' : 'auto',
+      }}>
+        <div style={{ fontSize: 32, marginBottom: 12 }}>🗺️</div>
+        <div style={{
+          color: 'rgba(255,107,53,0.8)',
+          fontSize: 14,
+          fontWeight: '700',
+          letterSpacing: 2,
+          textTransform: 'uppercase'
+        }}>
+          Cargando mapa
+        </div>
+      </div>
 
       {/* Inject styles */}
       <style>{`

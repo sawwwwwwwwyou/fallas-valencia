@@ -411,7 +411,12 @@ export default function MapScreen() {
             </View>
 
             {/* Animated Markers overlay */}
-            <View style={styles.markersOverlay}>
+            <MotiView
+              from={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ type: 'timing', duration: 800 }}
+              style={styles.markersOverlay}
+            >
               <MapMarker
                 active={selectedMarker?.id === FALLA_MARKERS[0].id}
                 style={{ top: '25%', left: '35%' }}
@@ -432,7 +437,7 @@ export default function MapScreen() {
               <View style={styles.userLocationContainer}>
                 <UserLocationPulse />
               </View>
-            </View>
+            </MotiView>
           </>
         )}
       </View>
@@ -483,7 +488,7 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.cream,
+    backgroundColor: '#0D0D0D', // Match map style to prevent flash
   },
   mapContainer: {
     flex: 1,
