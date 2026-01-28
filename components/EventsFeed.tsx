@@ -22,37 +22,37 @@ interface EventsFeedProps {
 }
 
 // Hero Event Card with countdown
-function HeroEventCard({ 
-  event, 
+function HeroEventCard({
+  event,
   onPress,
   language = 'es',
-}: { 
+}: {
   event: EventWithDetails;
   onPress?: () => void;
   language?: string;
 }) {
   const [countdown, setCountdown] = useState('--:--:--');
-  
+
   useEffect(() => {
     const updateCountdown = () => {
       const now = new Date();
       const eventTime = new Date(event.start_time);
       const diff = eventTime.getTime() - now.getTime();
-      
+
       if (diff <= 0) {
         setCountdown('¡Ahora!');
         return;
       }
-      
+
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      
+
       setCountdown(
         `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
       );
     };
-    
+
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
@@ -60,14 +60,14 @@ function HeroEventCard({
 
   const title = language === 'en' && event.title_en ? event.title_en : event.title_es;
   const eventTime = new Date(event.start_time);
-  const formattedTime = eventTime.toLocaleTimeString('es-ES', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
+  const formattedTime = eventTime.toLocaleTimeString('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit'
   });
 
   // Pulse animation for live badge
   const pulseScale = useSharedValue(1);
-  
+
   useEffect(() => {
     pulseScale.value = withRepeat(
       withTiming(1.1, { duration: 1000 }),
@@ -107,10 +107,11 @@ function HeroEventCard({
             position: 'absolute',
             width: '100%',
             height: '100%',
+            borderRadius: 24, // Explicit radius for image
           }}
           resizeMode="cover"
         />
-        
+
         {/* Gradient overlay */}
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)']}
@@ -156,6 +157,8 @@ function HeroEventCard({
                 backgroundColor: 'rgba(255,255,255,0.1)',
                 borderTopWidth: 1,
                 borderTopColor: 'rgba(255,255,255,0.2)',
+                borderBottomLeftRadius: 24, // Match parent radius
+                borderBottomRightRadius: 24,
                 // @ts-ignore - web-only CSS property
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
@@ -169,7 +172,16 @@ function HeroEventCard({
               />
             </View>
           ) : (
-            <BlurView intensity={40} tint="dark" style={{ padding: 20 }}>
+            <BlurView
+              intensity={40}
+              tint="dark"
+              style={{
+                padding: 20,
+                borderBottomLeftRadius: 24,
+                borderBottomRightRadius: 24,
+                overflow: 'hidden',
+              }}
+            >
               <HeroContent
                 title={title}
                 event={event}
@@ -210,14 +222,14 @@ function HeroContent({
           {title}
         </Text>
       </View>
-      
+
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 }}>
         <ClockIcon size={16} color="rgba(255,255,255,0.9)" />
         <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14 }}>
           {formattedTime} - {event.location || 'Valencia'}
         </Text>
       </View>
-      
+
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>
           Starts in
@@ -274,7 +286,7 @@ function TimelineEvent({
     hour: '2-digit',
     minute: '2-digit',
   });
-  
+
   // Get color based on event type
   const dotColor = getEventDotColor(event.event_type?.name_es);
 
@@ -298,61 +310,61 @@ function TimelineEvent({
       >
         {/* Timeline dot - colored by event type */}
         <View
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          backgroundColor: dotColor,
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 10,
-          borderWidth: 2,
-          borderColor: 'rgba(255,107,53,0.3)',
-        }}
-      >
-        <Text style={{ fontSize: 18 }}>{event.event_type?.icon || '📅'}</Text>
-      </View>
-
-      {/* Card - removed blur for performance (8 cards * blur = heavy) */}
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: 'rgba(255,255,255,0.95)', // Slightly more opaque to compensate
-          borderRadius: 16,
-          padding: 16,
-          borderWidth: 1,
-          borderColor: 'rgba(255,107,53,0.2)',
-          // Blur disabled for performance - too many cards
-        }}
-      >
-        <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            marginBottom: 4,
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: dotColor,
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+            borderWidth: 2,
+            borderColor: 'rgba(255,107,53,0.3)',
           }}
         >
-          <Text
+          <Text style={{ fontSize: 18 }}>{event.event_type?.icon || '📅'}</Text>
+        </View>
+
+        {/* Card - removed blur for performance (8 cards * blur = heavy) */}
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(255,255,255,0.95)', // Slightly more opaque to compensate
+            borderRadius: 16,
+            padding: 16,
+            borderWidth: 1,
+            borderColor: 'rgba(255,107,53,0.2)',
+            // Blur disabled for performance - too many cards
+          }}
+        >
+          <View
             style={{
-              fontSize: 16,
-              fontWeight: '600',
-              color: '#2d2d2d',
-              flex: 1,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              marginBottom: 4,
             }}
-            numberOfLines={2}
           >
-            {title}
-          </Text>
-          <Text style={{ fontSize: 12, color: 'rgba(45,45,45,0.6)' }}>
-            {formattedTime}
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: '600',
+                color: '#2d2d2d',
+                flex: 1,
+              }}
+              numberOfLines={2}
+            >
+              {title}
+            </Text>
+            <Text style={{ fontSize: 12, color: 'rgba(45,45,45,0.6)' }}>
+              {formattedTime}
+            </Text>
+          </View>
+
+          <Text style={{ fontSize: 14, color: 'rgba(45,45,45,0.6)' }}>
+            {event.location || 'Valencia'}
           </Text>
         </View>
-        
-        <Text style={{ fontSize: 14, color: 'rgba(45,45,45,0.6)' }}>
-          {event.location || 'Valencia'}
-        </Text>
-      </View>
       </MotiView>
     </Pressable>
   );
@@ -362,7 +374,7 @@ function TimelineEvent({
 function FeedHeader() {
   const insets = useSafeAreaInsets();
   const pulseScale = useSharedValue(1);
-  
+
   useEffect(() => {
     pulseScale.value = withRepeat(
       withTiming(1.05, { duration: 2000 }),
@@ -426,14 +438,14 @@ export function EventsFeed({ events, onEventPress, language = 'es', showHeader =
     <View>
       {/* Header like original design */}
       {showHeader && <FeedHeader />}
-      
+
       {/* Today section label */}
       <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
         <Text style={{ fontSize: 18, fontWeight: '600', color: '#2d2d2d' }}>
           Today
         </Text>
       </View>
-      
+
       {/* Hero Card */}
       {heroEvent && (
         <HeroEventCard
