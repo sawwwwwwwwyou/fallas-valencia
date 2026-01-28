@@ -171,17 +171,20 @@ function TopicCard({
     >
       <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
         <GlassCard style={styles.topicCard}>
-          <LinearGradient
-            colors={topic.gradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.topicGradient}
-          >
-            <Text style={styles.topicEmoji}>{topic.emoji}</Text>
-          </LinearGradient>
-          <View style={styles.topicInfo}>
-            <Text style={styles.topicTitle}>{t(topic.titleKey)}</Text>
-            <Text style={styles.topicSubtitle}>{topic.subtitleKey}</Text>
+          <View style={styles.topicContent}>
+            <LinearGradient
+              colors={topic.gradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.topicGradient}
+            >
+              <Text style={styles.topicEmoji}>{topic.emoji}</Text>
+            </LinearGradient>
+            <View style={styles.topicInfo}>
+              <Text style={styles.topicTitle}>{t(topic.titleKey)}</Text>
+              <Text style={styles.topicSubtitle}>{topic.subtitleKey}</Text>
+            </View>
+            <Text style={styles.topicArrow}>›</Text>
           </View>
         </GlassCard>
       </TouchableOpacity>
@@ -433,35 +436,43 @@ const styles = StyleSheet.create({
   },
   // Topics Grid
   topicsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    rowGap: spacing.md,
+    gap: 12,
   },
   topicCard: {
-    width: '48%',
+    width: '100%',
     marginBottom: 0,
   },
+  topicContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   topicGradient: {
+    width: 80,
     height: 80,
     alignItems: 'center',
     justifyContent: 'center',
   },
   topicEmoji: {
-    fontSize: 36,
+    fontSize: 32,
   },
   topicInfo: {
-    padding: 12,
+    flex: 1,
+    padding: 16,
   },
   topicTitle: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '700',
     color: '#1a1a1a',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   topicSubtitle: {
-    fontSize: 12,
+    fontSize: 13,
     color: 'rgba(0,0,0,0.6)',
+  },
+  topicArrow: {
+    fontSize: 24,
+    color: '#ccc',
+    marginRight: 16,
   },
   // Tip Cards
   tipCard: {
