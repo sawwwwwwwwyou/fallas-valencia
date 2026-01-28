@@ -344,26 +344,7 @@ export const FALLAS_MAPLIBRE_STYLE: StyleSpecification = {
         'text-color': '#AA7744',
         'text-halo-color': '#1A1A1A',
         'text-halo-width': 1,
-      },
-    },
-    // POI labels
-    {
-      id: 'poi-label',
-      type: 'symbol',
-      source: 'osm',
-      'source-layer': 'poi',
-      minzoom: 15,
-      layout: {
-        'text-field': ['get', 'name'],
-        'text-font': ['Open Sans Regular'],
-        'text-size': 11,
-        'text-anchor': 'top',
-        'text-offset': [0, 0.5],
-      },
-      paint: {
-        'text-color': '#FFAA66',
-        'text-halo-color': '#0D0D0D',
-        'text-halo-width': 1,
+        'text-opacity': 0.25,
       },
     },
   ],

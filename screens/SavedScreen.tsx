@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
   RefreshControl,
   TouchableOpacity,
@@ -13,13 +12,13 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../contexts/AuthContext';
-import { getFavorites, removeFavorite } from '../lib/supabase';
 import { RootStackParamList, Falla } from '../App';
 import { useLanguage } from '../contexts/LanguageContext';
-import { LocationIcon, StarIcon, FlameIcon, CheckIcon } from '../components/icons';
+import { LocationIcon, CheckIcon, FlameIcon, HeartIcon } from '../components/icons';
 import {
   AnimatedScreen,
   SkeletonList,
@@ -34,183 +33,194 @@ import {
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-interface SavedFalla {
+// Colors matching the design
+const COLORS = {
+  primary: '#FF6B35',
+  flameRed: '#E63946',
+  gold: '#FFB800',
+  warmCream: '#FFF8F0',
+};
+
+type FilterType = 'all' | 'fallas' | 'events';
+
+interface SavedItem {
   id: string;
-  falla: Falla;
-  visited: boolean;
-  burnt: boolean;
+  type: 'falla' | 'event';
+  name: string;
+  location: string;
+  category?: string;
+  time?: string;
+  image: string;
+  saved: boolean;
 }
 
 // Mock data matching the design
-const MOCK_SAVED_FALLAS: SavedFalla[] = [
+const SAVED_ITEMS: SavedItem[] = [
   {
     id: '1',
-    falla: {
-      id: 'f1',
-      name: 'Falla Plaza del Ayuntamiento',
-      category: 'Sección Especial',
-      address: 'Centro',
-      description: '',
-    },
-    visited: true,
-    burnt: true,
+    type: 'falla',
+    name: 'Falla Convento Jerusalén',
+    location: 'Ruzafa',
+    category: 'Especial',
+    image: 'https://images.unsplash.com/photo-1647693680958-e2bd830cdbfb?w=400',
+    saved: true,
   },
   {
     id: '2',
-    falla: {
-      id: 'f2',
-      name: 'Falla Convento Jerusalén',
-      category: 'Sección Especial',
-      address: 'Ruzafa',
-      description: '',
-    },
-    visited: false,
-    burnt: false,
+    type: 'event',
+    name: 'Mascletà',
+    time: '14:00',
+    location: 'Plaza del Ayuntamiento',
+    image: 'https://images.unsplash.com/photo-1708848462812-8645bf6f264e?w=400',
+    saved: true,
+  },
+  {
+    id: '3',
+    type: 'falla',
+    name: 'Plaza del Ayuntamiento',
+    location: 'Ciutat Vella',
+    category: 'Especial',
+    image: 'https://images.unsplash.com/photo-1760121002397-70751ea3c113?w=400',
+    saved: true,
+  },
+  {
+    id: '4',
+    type: 'event',
+    name: 'Ofrenda de Flores',
+    time: '16:00',
+    location: 'Plaza de la Virgen',
+    image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=400',
+    saved: true,
   },
 ];
 
-// Progress Card Component
-function ProgressCard({ visited, total }: { visited: number; total: number }) {
-  const progress = (visited / total) * 100;
-  
-  return (
-    <MotiView
-      from={{ opacity: 0, translateY: -20 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      transition={{ type: 'spring', damping: 20 }}
-    >
-      <View style={styles.progressCard}>
-        <View style={styles.progressHeader}>
-          <Text style={styles.progressLabel}>Progress</Text>
-          <View style={styles.progressFlame}>
-            <FlameIcon size={24} color="#FF6B35" />
-          </View>
-        </View>
-        <View style={styles.progressNumbers}>
-          <Text style={styles.progressCount}>{visited}</Text>
-          <Text style={styles.progressTotal}>/{total}</Text>
-          <Text style={styles.progressText}>Fallas Visited</Text>
-        </View>
-        {/* Progress bar */}
-        <View style={styles.progressBarContainer}>
-          <View style={[styles.progressBar, { width: `${progress}%` }]} />
-          <View style={[styles.progressDot, { left: `${Math.max(progress - 2, 0)}%` }]} />
-        </View>
+// Glassmorphism Card wrapper
+function GlassCard({
+  children,
+  style,
+}: {
+  children: React.ReactNode;
+  style?: any;
+}) {
+  if (Platform.OS === 'web') {
+    return (
+      <View style={[styles.glassCardWeb, style]}>
+        {children}
       </View>
-    </MotiView>
+    );
+  }
+
+  return (
+    <BlurView intensity={80} tint="light" style={[styles.glassCard, style]}>
+      {children}
+    </BlurView>
   );
 }
 
-// Saved Falla Card Component
-function SavedFallaCard({ 
-  item, 
+// Filter Tab Component
+function FilterTab({
+  label,
+  icon,
+  isActive,
+  onPress,
+}: {
+  label: string;
+  icon?: string;
+  isActive: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      style={[styles.filterTab, isActive && styles.filterTabActive]}
+      onPress={onPress}
+      activeOpacity={0.8}
+    >
+      {icon && <Text style={styles.filterIcon}>{icon}</Text>}
+      <Text style={[styles.filterText, isActive && styles.filterTextActive]}>
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+// Saved Item Card Component
+function SavedItemCard({
+  item,
   index,
   onPress,
-  onToggleVisited,
+  onToggleSaved,
   language,
-}: { 
-  item: SavedFalla; 
+}: {
+  item: SavedItem;
   index: number;
   onPress: () => void;
-  onToggleVisited: () => void;
+  onToggleSaved: () => void;
   language: string;
 }) {
-  const isSpecial = item.falla.category === 'Sección Especial';
-  
   return (
     <MotiView
-      from={{ opacity: 0, translateX: -20 }}
-      animate={{ opacity: 1, translateX: 0 }}
+      from={{ opacity: 0, translateY: 20 }}
+      animate={{ opacity: 1, translateY: 0 }}
       transition={{ type: 'timing', duration: 300, delay: index * 100 }}
     >
-      <TouchableOpacity 
-        style={styles.fallaCard}
-        onPress={onPress}
-        activeOpacity={0.9}
-      >
-        {/* Image with overlay */}
-        <View style={styles.fallaImageContainer}>
-          <Image
-            source={{
-              uri: index === 0 
-                ? 'https://images.unsplash.com/photo-1647693680958-e2bd830cdbfb?w=300'
-                : 'https://images.unsplash.com/photo-1760121002397-70751ea3c113?w=300'
-            }}
-            style={styles.fallaImage}
-            resizeMode="cover"
-          />
-          {/* Checkmark overlay for visited */}
-          {item.visited && (
-            <View style={styles.visitedOverlay}>
-              <CheckIcon size={24} color="#fff" />
-            </View>
-          )}
-          {/* Burnt badge */}
-          {item.burnt && (
-            <View style={styles.burntBadge}>
-              <Text style={styles.burntBadgeText}>BURNT</Text>
-            </View>
-          )}
-        </View>
+      <GlassCard style={styles.itemCard}>
+        {/* Top gradient line */}
+        <LinearGradient
+          colors={[COLORS.primary, COLORS.gold, COLORS.primary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.itemTopGradient}
+        />
 
-        {/* Content */}
-        <View style={styles.fallaContent}>
-          <View style={styles.fallaHeader}>
-            <Text style={styles.fallaTitle} numberOfLines={2}>
-              {item.falla.name}
-            </Text>
-            {isSpecial && (
-              <StarIcon size={18} color="#FFB800" filled />
-            )}
-          </View>
-          
-          <View style={styles.fallaLocation}>
-            <LocationIcon size={12} color={colors.text.tertiary} />
-            <Text style={styles.fallaAddress}>{item.falla.address}</Text>
-          </View>
-          
-          <Text style={styles.fallaCategory}>{item.falla.category}</Text>
+        <View style={styles.itemContent}>
+          {/* Image */}
+          <Image source={{ uri: item.image }} style={styles.itemImage} />
 
-          {/* Action Button */}
-          <TouchableOpacity
-            style={[
-              styles.actionButton,
-              item.visited ? styles.actionButtonVisited : styles.actionButtonMark,
-            ]}
-            onPress={onToggleVisited}
-            activeOpacity={0.8}
-          >
-            {item.visited ? (
-              <>
-                <CheckIcon size={16} color="#fff" />
-                <Text style={styles.actionButtonTextVisited}>Visited</Text>
-              </>
-            ) : (
-              <Text style={styles.actionButtonTextMark}>Mark as Visited</Text>
-            )}
-          </TouchableOpacity>
+          {/* Info */}
+          <View style={styles.itemInfo}>
+            <View style={styles.itemHeader}>
+              <Text style={styles.itemName} numberOfLines={1}>
+                {item.name}
+              </Text>
+              <TouchableOpacity onPress={onToggleSaved}>
+                <Text style={styles.heartIcon}>{item.saved ? '❤️' : '🤍'}</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.itemMeta}>
+              {item.type === 'falla' && item.category && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{item.category}</Text>
+                </View>
+              )}
+              {item.type === 'event' && item.time && (
+                <View style={styles.timeBadge}>
+                  <Text style={styles.timeIcon}>🕐</Text>
+                  <Text style={styles.timeText}>{item.time}</Text>
+                </View>
+              )}
+              <Text style={styles.locationIcon}>📍</Text>
+              <Text style={styles.locationText}>{item.location}</Text>
+            </View>
+
+            {/* Actions */}
+            <View style={styles.itemActions}>
+              <TouchableOpacity style={styles.primaryButton} onPress={onPress}>
+                <Text style={styles.primaryButtonIcon}>🧭</Text>
+                <Text style={styles.primaryButtonText}>
+                  {language === 'es' ? 'Navegar' : 'Navigate'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.secondaryButton}>
+                <Text style={styles.secondaryButtonText}>
+                  {language === 'es' ? 'Detalles' : 'Details'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      </TouchableOpacity>
+      </GlassCard>
     </MotiView>
-  );
-}
-
-// Header Component
-function SavedHeader() {
-  const insets = useSafeAreaInsets();
-  const { language } = useLanguage();
-  
-  return (
-    <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-      <Text style={styles.headerTitle}>
-        {language === 'es' ? 'Guardado' : 'Saved'}
-      </Text>
-      <Text style={styles.headerSubtitle}>
-        {language === 'es' 
-          ? 'Tu experiencia personal del festival' 
-          : 'Your personal festival journey'}
-      </Text>
-    </View>
   );
 }
 
@@ -218,83 +228,127 @@ export default function SavedScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { user } = useAuth();
   const { language } = useLanguage();
-  
-  const [savedFallas, setSavedFallas] = useState<SavedFalla[]>(MOCK_SAVED_FALLAS);
-  const [loading, setLoading] = useState(false);
+  const insets = useSafeAreaInsets();
+
+  const [items, setItems] = useState(SAVED_ITEMS);
+  const [filter, setFilter] = useState<FilterType>('all');
   const [refreshing, setRefreshing] = useState(false);
 
-  const visitedCount = savedFallas.filter(f => f.visited).length;
+  const filteredItems = items.filter((item) => {
+    if (filter === 'all') return true;
+    if (filter === 'fallas') return item.type === 'falla';
+    if (filter === 'events') return item.type === 'event';
+    return true;
+  });
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    // Simulate refresh
-    setTimeout(() => setRefreshing(false), 1000);
-  }, []);
-
-  const handleToggleVisited = (id: string) => {
-    setSavedFallas(prev => 
-      prev.map(f => 
-        f.id === id ? { ...f, visited: !f.visited } : f
+  const toggleSaved = (id: string) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, saved: !item.saved } : item
       )
     );
   };
 
-  const handleFallaPress = (falla: Falla) => {
-    navigation.navigate('FallaDetail', { falla });
-  };
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1000);
+  }, []);
 
-  if (loading) {
-    return (
-      <AnimatedScreen style={styles.container}>
-        <SavedHeader />
-        <SkeletonList count={3} />
-      </AnimatedScreen>
-    );
-  }
+  const handleItemPress = (item: SavedItem) => {
+    if (item.type === 'falla') {
+      navigation.navigate('FallaDetail', {
+        falla: {
+          id: item.id,
+          name: item.name,
+          category: item.category || '',
+          address: item.location,
+          description: '',
+        },
+      });
+    }
+  };
 
   return (
     <AnimatedScreen style={styles.container}>
       <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={colors.primary.orange}
-            colors={[colors.primary.orange]}
+            tintColor={COLORS.primary}
+            colors={[COLORS.primary]}
           />
         }
       >
         {/* Header */}
-        <SavedHeader />
-
-        {/* Progress Card */}
-        <View style={styles.section}>
-          <ProgressCard visited={visitedCount} total={50} />
+        <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+          <View>
+            <Text style={styles.title}>
+              {language === 'es' ? 'Tu Plan' : 'Your Plan'}
+            </Text>
+            <Text style={styles.subtitle}>
+              {filteredItems.length} {language === 'es' ? 'guardados' : 'saved items'}
+            </Text>
+          </View>
+          <TouchableOpacity style={styles.shareButton}>
+            <Text style={styles.shareIcon}>📤</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Saved Fallas Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            {language === 'es' ? 'Fallas Guardadas' : 'Saved Fallas'}
-          </Text>
-          
-          {savedFallas.map((item, index) => (
-            <SavedFallaCard
+        {/* Filter Tabs */}
+        <View style={styles.filterContainer}>
+          <FilterTab
+            label={language === 'es' ? 'Todos' : 'All'}
+            isActive={filter === 'all'}
+            onPress={() => setFilter('all')}
+          />
+          <FilterTab
+            label="Fallas"
+            icon="🔥"
+            isActive={filter === 'fallas'}
+            onPress={() => setFilter('fallas')}
+          />
+          <FilterTab
+            label={language === 'es' ? 'Eventos' : 'Events'}
+            icon="📅"
+            isActive={filter === 'events'}
+            onPress={() => setFilter('events')}
+          />
+        </View>
+
+        {/* Items List */}
+        <View style={styles.itemsList}>
+          {filteredItems.map((item, index) => (
+            <SavedItemCard
               key={item.id}
               item={item}
               index={index}
-              onPress={() => handleFallaPress(item.falla)}
-              onToggleVisited={() => handleToggleVisited(item.id)}
+              onPress={() => handleItemPress(item)}
+              onToggleSaved={() => toggleSaved(item.id)}
               language={language}
             />
           ))}
         </View>
 
-        {/* Bottom spacing for tab bar */}
-        <View style={{ height: 120 }} />
+        {/* Empty State */}
+        {filteredItems.length === 0 && (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyEmoji}>📌</Text>
+            <Text style={styles.emptyTitle}>
+              {language === 'es' ? 'Nada guardado aún' : 'Nothing saved yet'}
+            </Text>
+            <Text style={styles.emptySubtitle}>
+              {language === 'es'
+                ? 'Guarda fallas y eventos para planificar tu experiencia'
+                : 'Save fallas and events to plan your experience'}
+            </Text>
+          </View>
+        )}
+
+        {/* Bottom Padding */}
+        <View style={{ height: 100 }} />
       </ScrollView>
     </AnimatedScreen>
   );
@@ -303,196 +357,233 @@ export default function SavedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.cream,
+    backgroundColor: COLORS.warmCream,
   },
-  scrollContent: {
-    paddingHorizontal: spacing.lg,
+  contentContainer: {
+    paddingBottom: 20,
   },
-  // Header
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
     marginBottom: spacing.lg,
   },
-  headerTitle: {
+  title: {
     fontSize: 36,
     fontWeight: '700',
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+    color: '#1a1a1a',
   },
-  headerSubtitle: {
-    fontSize: typography.sizes.body,
-    color: colors.text.secondary,
+  subtitle: {
+    fontSize: 14,
+    color: 'rgba(0,0,0,0.6)',
+    marginTop: 4,
   },
-  // Section
-  section: {
+  shareButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,107,53,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareIcon: {
+    fontSize: 20,
+  },
+  // Glass Card styles
+  glassCard: {
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    overflow: 'hidden',
+  },
+  glassCardWeb: {
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    overflow: 'hidden',
+    ...Platform.select({
+      web: {
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+      },
+    }),
+  },
+  // Filter Tabs
+  filterContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    paddingHorizontal: spacing.lg,
     marginBottom: spacing.lg,
   },
-  sectionTitle: {
-    fontSize: typography.sizes.h4,
+  filterTab: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 50,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  filterTabActive: {
+    backgroundColor: COLORS.primary,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  filterIcon: {
+    fontSize: 14,
+  },
+  filterText: {
+    fontSize: 14,
     fontWeight: '600',
-    color: colors.text.primary,
+    color: '#666',
+  },
+  filterTextActive: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+  // Items List
+  itemsList: {
+    paddingHorizontal: spacing.lg,
+    gap: spacing.md,
+  },
+  itemCard: {
     marginBottom: spacing.md,
   },
-  // Progress Card
-  progressCard: {
-    backgroundColor: colors.background.white,
-    borderRadius: borderRadius.xl,
-    padding: spacing.lg,
-    ...shadows.card,
-  },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  progressLabel: {
-    fontSize: typography.sizes.caption,
-    color: colors.text.secondary,
-    fontWeight: '500',
-  },
-  progressFlame: {
+  itemTopGradient: {
+    height: 3,
     opacity: 0.8,
   },
-  progressNumbers: {
+  itemContent: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    marginBottom: spacing.md,
+    padding: 12,
+    gap: 12,
   },
-  progressCount: {
-    fontSize: 48,
-    fontWeight: '700',
-    color: colors.text.primary,
-  },
-  progressTotal: {
-    fontSize: 24,
-    fontWeight: '500',
-    color: colors.text.tertiary,
-  },
-  progressText: {
-    fontSize: typography.sizes.body,
-    color: colors.text.secondary,
-    marginLeft: spacing.sm,
-  },
-  progressBarContainer: {
-    height: 8,
-    backgroundColor: colors.background.ash,
-    borderRadius: 4,
-    position: 'relative',
-    overflow: 'visible',
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: colors.primary.flame,
-    borderRadius: 4,
-  },
-  progressDot: {
-    position: 'absolute',
-    top: -4,
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: colors.primary.flame,
-    borderWidth: 3,
-    borderColor: colors.background.white,
-  },
-  // Falla Card
-  fallaCard: {
-    flexDirection: 'row',
-    backgroundColor: colors.background.white,
-    borderRadius: borderRadius.xl,
-    marginBottom: spacing.md,
-    overflow: 'hidden',
-    ...shadows.card,
-  },
-  fallaImageContainer: {
+  itemImage: {
     width: 100,
-    height: 140,
-    position: 'relative',
+    height: 100,
+    borderRadius: borderRadius.md,
+    backgroundColor: '#f0f0f0',
   },
-  fallaImage: {
-    width: '100%',
-    height: '100%',
-  },
-  visitedOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(16, 185, 129, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  burntBadge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: colors.primary.flame,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 4,
-  },
-  burntBadgeText: {
-    color: '#fff',
-    fontSize: 9,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  fallaContent: {
+  itemInfo: {
     flex: 1,
-    padding: spacing.md,
-    justifyContent: 'space-between',
+    gap: 6,
   },
-  fallaHeader: {
+  itemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: spacing.xs,
   },
-  fallaTitle: {
+  itemName: {
     flex: 1,
-    fontSize: typography.sizes.body,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginRight: spacing.sm,
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginRight: 8,
   },
-  fallaLocation: {
+  heartIcon: {
+    fontSize: 20,
+  },
+  itemMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: spacing.xs,
+    flexWrap: 'wrap',
   },
-  fallaAddress: {
-    fontSize: typography.sizes.caption,
-    color: colors.text.tertiary,
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255, 184, 0, 0.2)',
   },
-  fallaCategory: {
-    fontSize: typography.sizes.small,
-    color: colors.primary.orange,
-    fontWeight: '500',
-    marginBottom: spacing.sm,
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#B8860B',
+    textTransform: 'uppercase',
   },
-  // Action Buttons
-  actionButton: {
+  timeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  timeIcon: {
+    fontSize: 12,
+  },
+  timeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#666',
+  },
+  locationIcon: {
+    fontSize: 12,
+  },
+  locationText: {
+    fontSize: 11,
+    color: '#666',
+  },
+  // Actions
+  itemActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4,
+  },
+  primaryButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: spacing.md,
-    borderRadius: borderRadius.pill,
     gap: 6,
+    height: 36,
+    borderRadius: 50,
+    backgroundColor: COLORS.primary,
   },
-  actionButtonVisited: {
-    backgroundColor: '#10B981',
+  primaryButtonIcon: {
+    fontSize: 14,
   },
-  actionButtonMark: {
-    backgroundColor: colors.primary.orange,
-  },
-  actionButtonTextVisited: {
+  primaryButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
     color: '#fff',
-    fontSize: typography.sizes.caption,
-    fontWeight: '600',
   },
-  actionButtonTextMark: {
-    color: '#fff',
-    fontSize: typography.sizes.caption,
-    fontWeight: '600',
+  secondaryButton: {
+    paddingHorizontal: 16,
+    height: 36,
+    borderRadius: 50,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  secondaryButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#666',
+  },
+  // Empty State
+  emptyState: {
+    alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xxl,
+  },
+  emptyEmoji: {
+    fontSize: 48,
+    marginBottom: spacing.md,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: spacing.xs,
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    color: 'rgba(0,0,0,0.6)',
+    textAlign: 'center',
   },
 });

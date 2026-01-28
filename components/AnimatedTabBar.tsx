@@ -5,6 +5,7 @@ import Animated, {
   useSharedValue,
   withSpring,
   withSequence,
+  withTiming,
   interpolateColor,
 } from 'react-native-reanimated';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -24,15 +25,11 @@ export function AnimatedTabIcon({ emoji, icon, focused, color }: TabIconProps) {
 
   useEffect(() => {
     if (focused) {
-      // Bounce animation when selected
-      scale.value = withSequence(
-        withSpring(1.2, { damping: 8, stiffness: 300 }),
-        withSpring(1.1, { damping: 10, stiffness: 200 })
-      );
-      translateY.value = withSpring(-2, { damping: 15, stiffness: 150 });
+      scale.value = withTiming(1.15, { duration: 300 });
+      translateY.value = withTiming(-4, { duration: 300 });
     } else {
-      scale.value = withSpring(1, { damping: 15 });
-      translateY.value = withSpring(0, { damping: 15 });
+      scale.value = withTiming(1, { duration: 250 });
+      translateY.value = withTiming(0, { duration: 250 });
     }
   }, [focused]);
 
@@ -75,9 +72,9 @@ interface CustomTabBarProps extends BottomTabBarProps {
   inactiveColor?: string;
 }
 
-export function CustomTabBar({ 
-  state, 
-  descriptors, 
+export function CustomTabBar({
+  state,
+  descriptors,
   navigation,
   activeColor = colors.primary.orange,
   inactiveColor = colors.text.tertiary,
@@ -88,11 +85,11 @@ export function CustomTabBar({
         const { options } = descriptors[route.key];
         const label = options.tabBarLabel ?? options.title ?? route.name;
         const isFocused = state.index === index;
-        
-        const icon = options.tabBarIcon?.({ 
-          focused: isFocused, 
+
+        const icon = options.tabBarIcon?.({
+          focused: isFocused,
           color: isFocused ? activeColor : inactiveColor,
-          size: components.tabBar.iconSize 
+          size: components.tabBar.iconSize
         });
 
         const onPress = () => {
@@ -144,7 +141,7 @@ function AnimatedTabButton({
   const bgOpacity = useSharedValue(isFocused ? 0.12 : 0);
 
   useEffect(() => {
-    bgOpacity.value = withSpring(isFocused ? 0.12 : 0, { damping: 20 });
+    bgOpacity.value = withTiming(isFocused ? 0.12 : 0, { duration: 200 });
   }, [isFocused]);
 
   const containerStyle = useAnimatedStyle(() => ({
@@ -153,11 +150,11 @@ function AnimatedTabButton({
   }));
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.92, { damping: 15, stiffness: 300 });
+    scale.value = withTiming(0.95, { duration: 100 });
   };
 
   const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15, stiffness: 200 });
+    scale.value = withTiming(1, { duration: 100 });
   };
 
   return (
@@ -169,9 +166,9 @@ function AnimatedTabButton({
     >
       <Animated.View style={[styles.tabButtonInner, containerStyle]}>
         {icon}
-        <Text 
+        <Text
           style={[
-            styles.tabLabel, 
+            styles.tabLabel,
             { color: isFocused ? activeColor : inactiveColor }
           ]}
         >

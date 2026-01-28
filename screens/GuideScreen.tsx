@@ -1,17 +1,17 @@
 import React, { useEffect } from 'react';
-import { 
-  View, 
-  Text, 
+import {
+  View,
+  Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Image,
   Platform,
   Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { MotiView } from 'moti';
 import Animated, {
   useSharedValue,
@@ -22,10 +22,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import { RootStackParamList } from '../App';
 import { useLanguage } from '../contexts/LanguageContext';
-import { 
-  colors, 
-  typography, 
-  spacing, 
+import {
+  colors,
+  typography,
+  spacing,
   borderRadius,
   shadows,
 } from '../lib/theme';
@@ -33,7 +33,15 @@ import {
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_SIZE = (SCREEN_WIDTH - spacing.md * 3) / 2;
+const CARD_WIDTH = (SCREEN_WIDTH - spacing.md * 3) / 2;
+
+// Colors matching the design
+const COLORS = {
+  primary: '#FF6B35',
+  flameRed: '#E63946',
+  warmCream: '#FFF8F0',
+  gold: '#FFB800',
+};
 
 interface GuideCategory {
   id: string;
@@ -44,112 +52,113 @@ interface GuideCategory {
   screen: keyof RootStackParamList;
 }
 
-// Updated to match design with gradients and emojis
-const GUIDE_CATEGORIES: GuideCategory[] = [
-  {
-    id: 'fireworks',
-    titleKey: 'guide.fireworks',
-    subtitleKey: 'Fireworks Guide',
-    emoji: '🎆',
-    gradient: ['#E63946', '#FF6B35'],
-    screen: 'GuideFireworks',
-  },
-  {
-    id: 'transport',
-    titleKey: 'guide.transport',
-    subtitleKey: 'Getting Around',
-    emoji: '🚇',
-    gradient: ['#10B981', '#34D399'],
-    screen: 'GuideTransport',
-  },
-  {
-    id: 'exhibitions',
-    titleKey: 'guide.exhibitions',
-    subtitleKey: 'Art & Culture',
-    emoji: '🎨',
-    gradient: ['#3B82F6', '#60A5FA'],
-    screen: 'GuideExhibitions',
-  },
-  {
-    id: 'fairs',
-    titleKey: 'guide.fairs',
-    subtitleKey: 'Local Fairs',
-    emoji: '🎪',
-    gradient: ['#FF6B35', '#FFB800'],
-    screen: 'GuideFairs',
-  },
-  {
-    id: 'nightlife',
-    titleKey: 'guide.nightlife',
-    subtitleKey: 'Night Fun',
-    emoji: '🌙',
-    gradient: ['#8B5CF6', '#A78BFA'],
-    screen: 'GuideNightlife',
-  },
-  {
-    id: 'bullfighting',
-    titleKey: 'guide.bullfighting',
-    subtitleKey: 'Tradition',
-    emoji: '🐂',
-    gradient: ['#1E3A5F', '#3B5998'],
-    screen: 'GuideBullfighting',
-  },
-  {
-    id: 'glossary',
-    titleKey: 'guide.glossary',
-    subtitleKey: 'Terms & Words',
-    emoji: '📖',
-    gradient: ['#EC4899', '#F472B6'],
-    screen: 'GuideGlossary',
-  },
+// Topics matching design
+const GUIDE_TOPICS: GuideCategory[] = [
   {
     id: 'history',
     titleKey: 'guide.history',
-    subtitleKey: 'Fallas Origins',
+    subtitleKey: 'Origins & Evolution',
+    emoji: '📜',
+    gradient: [COLORS.primary, COLORS.flameRed],
+    screen: 'GuideGlossary',
+  },
+  {
+    id: 'crema',
+    titleKey: 'guide.crema',
+    subtitleKey: 'The Grand Finale',
     emoji: '🔥',
-    gradient: ['#F59E0B', '#FBBF24'],
-    screen: 'GuideGlossary', // Reuse glossary for now
+    gradient: [COLORS.flameRed, '#FF4500'],
+    screen: 'GuideFireworks',
+  },
+  {
+    id: 'fireworks',
+    titleKey: 'guide.fireworks',
+    subtitleKey: 'Firework Shows',
+    emoji: '💥',
+    gradient: [COLORS.gold, '#FFD700'],
+    screen: 'GuideFireworks',
+  },
+  {
+    id: 'food',
+    titleKey: 'guide.food',
+    subtitleKey: 'Gastronomy Guide',
+    emoji: '🥘',
+    gradient: [COLORS.primary, COLORS.gold],
+    screen: 'GuideFairs',
+  },
+  {
+    id: 'artists',
+    titleKey: 'guide.artists',
+    subtitleKey: 'Meet the Creators',
+    emoji: '🎨',
+    gradient: ['#9333EA', '#C084FC'],
+    screen: 'GuideExhibitions',
+  },
+  {
+    id: 'music',
+    titleKey: 'guide.music',
+    subtitleKey: 'Traditional Performances',
+    emoji: '🎵',
+    gradient: ['#EC4899', '#F472B6'],
+    screen: 'GuideNightlife',
   },
 ];
 
-// Shine animation component
-function ShineOverlay({ delay = 0 }: { delay?: number }) {
-  const translateX = useSharedValue(-CARD_SIZE);
+const QUICK_TIPS = [
+  {
+    icon: '💡',
+    titleKey: 'guide.tip1',
+    descriptionKey: 'guide.tip1Desc',
+  },
+  {
+    icon: '🕐',
+    titleKey: 'guide.tip2',
+    descriptionKey: 'guide.tip2Desc',
+  },
+  {
+    icon: '📷',
+    titleKey: 'guide.tip3',
+    descriptionKey: 'guide.tip3Desc',
+  },
+];
 
-  useEffect(() => {
-    translateX.value = withDelay(
-      delay,
-      withRepeat(
-        withTiming(CARD_SIZE * 2, { duration: 3000 }),
-        -1,
-        false
-      )
+const GLOSSARY_ITEMS = [
+  { term: 'Falla', definition: 'Satirical monument made of wood and papier-mâché' },
+  { term: 'Fallero/Fallera', definition: 'Person who participates in the festival' },
+  { term: 'Ninot', definition: 'Individual figure that makes up a Falla' },
+];
+
+// Glassmorphism Card wrapper
+function GlassCard({
+  children,
+  style,
+}: {
+  children: React.ReactNode;
+  style?: any;
+}) {
+  // Use BlurView on native, fallback on web
+  if (Platform.OS === 'web') {
+    return (
+      <View style={[styles.glassCardWeb, style]}>
+        {children}
+      </View>
     );
-  }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-  }));
+  }
 
   return (
-    <Animated.View style={[styles.shineOverlay, animatedStyle]}>
-      <LinearGradient
-        colors={['transparent', 'rgba(255,255,255,0.3)', 'transparent']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.shineGradient}
-      />
-    </Animated.View>
+    <BlurView intensity={80} tint="light" style={[styles.glassCard, style]}>
+      {children}
+    </BlurView>
   );
 }
 
-// Guide Card Component
-function GuideCard({ 
-  category, 
-  index, 
-  onPress 
-}: { 
-  category: GuideCategory; 
+// Topic Card Component
+function TopicCard({
+  topic,
+  index,
+  onPress
+}: {
+  topic: GuideCategory;
   index: number;
   onPress: () => void;
 }) {
@@ -157,105 +166,57 @@ function GuideCard({
 
   return (
     <MotiView
-      from={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'timing', duration: 300, delay: index * 50 }}
+      from={{ opacity: 0, translateY: 10 }}
+      animate={{ opacity: 1, translateY: 0 }}
+      transition={{ type: 'timing', duration: 400, delay: index * 50 }}
     >
-      <TouchableOpacity
-        onPress={onPress}
-        activeOpacity={0.85}
-        style={styles.cardWrapper}
-      >
-        <View style={styles.card}>
-          {/* Gradient Background */}
+      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+        <GlassCard style={styles.topicCard}>
           <LinearGradient
-            colors={category.gradient}
+            colors={topic.gradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.cardGradient}
-          />
-          
-          {/* Glass overlay */}
-          <View style={styles.glassOverlay} />
-          
-          {/* Dot pattern (simplified) */}
-          <View style={styles.patternOverlay}>
-            {[...Array(6)].map((_, i) => (
-              <View
-                key={i}
-                style={[
-                  styles.dot,
-                  {
-                    top: 10 + (i % 3) * 30,
-                    left: 10 + Math.floor(i / 3) * 30,
-                  },
-                ]}
-              />
-            ))}
+            style={styles.topicGradient}
+          >
+            <Text style={styles.topicEmoji}>{topic.emoji}</Text>
+          </LinearGradient>
+          <View style={styles.topicInfo}>
+            <Text style={styles.topicTitle}>{t(topic.titleKey)}</Text>
+            <Text style={styles.topicSubtitle}>{topic.subtitleKey}</Text>
           </View>
-
-          {/* Content */}
-          <View style={styles.cardContent}>
-            {/* Emoji + Icon circle */}
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardEmoji}>{category.emoji}</Text>
-              <View style={styles.iconCircle}>
-                <Text style={styles.iconCircleText}>→</Text>
-              </View>
-            </View>
-
-            {/* Text */}
-            <View style={styles.cardFooter}>
-              <Text style={styles.cardTitle}>{t(category.titleKey)}</Text>
-              <Text style={styles.cardSubtitle}>{category.subtitleKey}</Text>
-            </View>
-          </View>
-
-          {/* Shine effect */}
-          <ShineOverlay delay={index * 500 + 2000} />
-        </View>
+        </GlassCard>
       </TouchableOpacity>
     </MotiView>
   );
 }
 
-// Featured Card Component
-function FeaturedCard() {
-  const { language } = useLanguage();
-  
+// Tip Card Component
+function TipCard({
+  tip,
+  index
+}: {
+  tip: typeof QUICK_TIPS[0];
+  index: number;
+}) {
+  const { t } = useLanguage();
+
   return (
     <MotiView
-      from={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', damping: 20 }}
-      style={styles.featuredWrapper}
+      from={{ opacity: 0, translateX: -20 }}
+      animate={{ opacity: 1, translateX: 0 }}
+      transition={{ type: 'timing', duration: 300, delay: index * 100 }}
     >
-      <TouchableOpacity activeOpacity={0.9}>
-        <View style={styles.featuredCard}>
-          <Image
-            source={{
-              uri: 'https://images.unsplash.com/photo-1515443961218-a51367888e4b?w=800',
-            }}
-            style={styles.featuredImage}
-            resizeMode="cover"
-          />
-          <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.4)', 'rgba(0,0,0,0.8)']}
-            style={styles.featuredGradient}
-          />
-          
-          {/* Glassmorphism content */}
-          <View style={styles.featuredContent}>
-            <Text style={styles.featuredTitle}>
-              {language === 'es' ? 'Sabores de Valencia' : 'Taste of Valencia'}
-            </Text>
-            <Text style={styles.featuredSubtitle}>
-              {language === 'es' 
-                ? 'Descubre la gastronomía tradicional' 
-                : 'Discover traditional Valencian dishes'}
-            </Text>
+      <TouchableOpacity activeOpacity={0.8}>
+        <GlassCard style={styles.tipCard}>
+          <View style={styles.tipIconContainer}>
+            <Text style={styles.tipIcon}>{tip.icon}</Text>
           </View>
-        </View>
+          <View style={styles.tipContent}>
+            <Text style={styles.tipTitle}>{t(tip.titleKey)}</Text>
+            <Text style={styles.tipDescription}>{t(tip.descriptionKey)}</Text>
+          </View>
+          <Text style={styles.tipArrow}>›</Text>
+        </GlassCard>
       </TouchableOpacity>
     </MotiView>
   );
@@ -266,42 +227,106 @@ export default function GuideScreen() {
   const { t, language } = useLanguage();
 
   return (
-    <ScrollView 
-      style={styles.container} 
-      contentContainerStyle={styles.content}
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
     >
       {/* Header */}
-      <Text style={styles.header}>
-        {language === 'es' ? 'Guía' : 'Guide'}
-      </Text>
-      <Text style={styles.subheader}>
-        {language === 'es' 
-          ? 'Todo lo que necesitas saber sobre las Fallas' 
-          : 'Everything you need to know about Fallas'}
-      </Text>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.title}>
+            {language === 'es' ? 'Guía Cultural' : 'Cultural Guide'}
+          </Text>
+          <Text style={styles.subtitle}>
+            {language === 'es' ? 'Aprende sobre las Fallas' : 'Learn about Las Fallas'}
+          </Text>
+        </View>
+        <TouchableOpacity style={styles.searchButton}>
+          <Text style={styles.searchIcon}>🔍</Text>
+        </TouchableOpacity>
+      </View>
 
-      {/* Featured Card */}
-      <FeaturedCard />
+      {/* Featured Banner */}
+      <MotiView
+        from={{ opacity: 0, translateY: 15 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: 'timing', duration: 600 }}
+      >
+        <GlassCard style={styles.featuredBanner}>
+          <LinearGradient
+            colors={[COLORS.primary, COLORS.flameRed]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.featuredGradient}
+          >
+            <View style={styles.featuredContent}>
+              <Text style={styles.featuredEmoji}>🎊</Text>
+              <View style={styles.featuredTextContainer}>
+                <Text style={styles.featuredTitle}>
+                  {language === 'es' ? '¡Bienvenido a Fallas!' : 'Welcome to Fallas!'}
+                </Text>
+                <Text style={styles.featuredSubtitle}>
+                  {language === 'es'
+                    ? 'Tu guía completa del festival más grande de Valencia'
+                    : "Your complete guide to Valencia's biggest festival"}
+                </Text>
+              </View>
+              <Text style={styles.featuredArrow}>→</Text>
+            </View>
+          </LinearGradient>
+        </GlassCard>
+      </MotiView>
 
-      {/* Section Title */}
-      <Text style={styles.sectionTitle}>
-        {language === 'es' ? 'Temas' : 'Topics'}
-      </Text>
+      {/* Topics Grid */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>
+          {language === 'es' ? 'Explorar Temas' : 'Explore Topics'}
+        </Text>
+        <View style={styles.topicsGrid}>
+          {GUIDE_TOPICS.map((topic, index) => (
+            <TopicCard
+              key={topic.id}
+              topic={topic}
+              index={index}
+              onPress={() => navigation.navigate(topic.screen as any)}
+            />
+          ))}
+        </View>
+      </View>
 
-      {/* Grid of Cards */}
-      <View style={styles.grid}>
-        {GUIDE_CATEGORIES.map((category, index) => (
-          <GuideCard
-            key={category.id}
-            category={category}
-            index={index}
-            onPress={() => navigation.navigate(category.screen as any)}
-          />
+      {/* Quick Tips */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>
+          {language === 'es' ? 'Consejos Rápidos' : 'Quick Tips'}
+        </Text>
+        {QUICK_TIPS.map((tip, index) => (
+          <TipCard key={index} tip={tip} index={index} />
         ))}
       </View>
 
-      {/* Bottom spacing */}
+      {/* Glossary Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>
+          {language === 'es' ? 'Términos Comunes' : 'Common Terms'}
+        </Text>
+        <GlassCard style={styles.glossaryCard}>
+          {GLOSSARY_ITEMS.map((item, index, arr) => (
+            <View key={index}>
+              <View style={styles.glossaryItem}>
+                <View style={styles.glossaryDot} />
+                <View style={styles.glossaryText}>
+                  <Text style={styles.glossaryTerm}>{item.term}</Text>
+                  <Text style={styles.glossaryDefinition}>{item.definition}</Text>
+                </View>
+              </View>
+              {index < arr.length - 1 && <View style={styles.glossaryDivider} />}
+            </View>
+          ))}
+        </GlassCard>
+      </View>
+
+      {/* Bottom Padding */}
       <View style={{ height: 100 }} />
     </ScrollView>
   );
@@ -312,154 +337,202 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background.cream,
   },
-  content: {
-    padding: spacing.md,
+  contentContainer: {
+    paddingTop: 60,
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  title: {
     fontSize: 36,
     fontWeight: '700',
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+    color: '#1a1a1a',
   },
-  subheader: {
-    fontSize: typography.sizes.body,
-    color: colors.text.secondary,
-    marginBottom: spacing.lg,
+  subtitle: {
+    fontSize: 14,
+    color: 'rgba(0,0,0,0.6)',
+    marginTop: 4,
   },
-  sectionTitle: {
-    fontSize: typography.sizes.h3,
-    fontWeight: '600',
-    color: colors.text.primary,
-    marginBottom: spacing.md,
-    marginTop: spacing.sm,
+  searchButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255,107,53,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  // Featured Card
-  featuredWrapper: {
-    marginBottom: spacing.lg,
+  searchIcon: {
+    fontSize: 20,
   },
-  featuredCard: {
-    height: 160,
-    borderRadius: borderRadius.xl,
+  // Glass Card styles
+  glassCard: {
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     overflow: 'hidden',
-    ...shadows.card,
   },
-  featuredImage: {
-    ...StyleSheet.absoluteFillObject,
+  glassCardWeb: {
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    overflow: 'hidden',
+    ...Platform.select({
+      web: {
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+      },
+    }),
+  },
+  // Featured Banner
+  featuredBanner: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
   },
   featuredGradient: {
-    ...StyleSheet.absoluteFillObject,
+    padding: spacing.md,
   },
   featuredContent: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: spacing.md,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.2)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  featuredEmoji: {
+    fontSize: 32,
+  },
+  featuredTextContainer: {
+    flex: 1,
   },
   featuredTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     color: '#fff',
-    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   featuredSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.9)',
   },
-  // Grid - 2 columns like design
-  grid: {
+  featuredArrow: {
+    fontSize: 24,
+    color: '#fff',
+  },
+  // Sections
+  section: {
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: spacing.md,
+  },
+  // Topics Grid
+  topicsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
   },
-  // Card - exactly 2 columns (use calc for web)
-  cardWrapper: {
-    flex: 1,
-    minWidth: 150,
-    maxWidth: '48%',
-    height: 180, // Fixed height for web compatibility
+  topicCard: {
+    width: CARD_WIDTH,
     marginBottom: 0,
   },
-  card: {
-    flex: 1,
-    borderRadius: borderRadius.xl,
-    overflow: 'hidden',
-    ...shadows.card,
-  },
-  cardGradient: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  glassOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  patternOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    opacity: 0.1,
-  },
-  dot: {
-    position: 'absolute',
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#fff',
-  },
-  cardContent: {
-    flex: 1,
-    padding: spacing.md,
-    justifyContent: 'space-between',
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  cardEmoji: {
-    fontSize: 40,
-  },
-  iconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    justifyContent: 'center',
+  topicGradient: {
+    height: 80,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  iconCircleText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
+  topicEmoji: {
+    fontSize: 36,
   },
-  cardFooter: {
-    marginTop: 'auto',
+  topicInfo: {
+    padding: 12,
   },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
+  topicTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1a1a1a',
     marginBottom: 2,
   },
-  cardSubtitle: {
+  topicSubtitle: {
     fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(0,0,0,0.6)',
   },
-  // Shine
-  shineOverlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: 60,
-    overflow: 'hidden',
+  // Tip Cards
+  tipCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.md,
+    marginBottom: 12,
+    gap: 12,
   },
-  shineGradient: {
+  tipIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: borderRadius.sm,
+    backgroundColor: 'rgba(255,107,53,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tipIcon: {
+    fontSize: 24,
+  },
+  tipContent: {
     flex: 1,
-    width: 60,
+  },
+  tipTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 2,
+  },
+  tipDescription: {
+    fontSize: 13,
+    color: 'rgba(0,0,0,0.6)',
+  },
+  tipArrow: {
+    fontSize: 24,
+    color: '#ccc',
+  },
+  // Glossary
+  glossaryCard: {
+    padding: spacing.md,
+  },
+  glossaryItem: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingVertical: 12,
+  },
+  glossaryDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: COLORS.primary,
+    marginTop: 6,
+  },
+  glossaryText: {
+    flex: 1,
+  },
+  glossaryTerm: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 2,
+  },
+  glossaryDefinition: {
+    fontSize: 13,
+    color: 'rgba(0,0,0,0.6)',
+    lineHeight: 18,
+  },
+  glossaryDivider: {
+    height: 1,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    marginLeft: 20,
   },
 });

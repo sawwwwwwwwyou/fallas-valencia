@@ -13,7 +13,7 @@ const translations: Record<Language, Translations> = {
     'tab.map': 'Map',
     'tab.guide': 'Guide',
     'tab.events': 'Events',
-    
+
     // Events screen
     'events.today': 'Today',
     'events.tomorrow': 'Tomorrow',
@@ -21,7 +21,7 @@ const translations: Record<Language, Translations> = {
     'events.noEvents': 'No events scheduled',
     'events.checkLater': 'Check back later for upcoming events',
     'events.headerTitle': 'What\'s happening',
-    
+
     // Headers
     'header.main': 'Fallas Valencia 2025',
     'header.map': 'Fallas Map',
@@ -34,11 +34,11 @@ const translations: Record<Language, Translations> = {
     'header.nightlife': 'Nightlife',
     'header.bullfighting': 'Bullfighting',
     'header.glossary': 'Glossary',
-    
+
     // Categories
     'category.special': 'Special Section',
     'category.firstA': 'First A',
-    
+
     // Guide screen
     'guide.title': 'Useful Information',
     'guide.subtitle': 'Everything you need to know about Fallas',
@@ -50,12 +50,22 @@ const translations: Record<Language, Translations> = {
     'guide.bullfighting': 'Bullfighting',
     'guide.glossary': 'Glossary',
     'guide.history': 'History',
-    
+    'guide.crema': 'La Cremà',
+    'guide.food': 'Traditional Food',
+    'guide.artists': 'Fallero Artists',
+    'guide.music': 'Music & Dance',
+    'guide.tip1': 'Best viewing spots',
+    'guide.tip1Desc': 'Top locations to experience the festivities',
+    'guide.tip2': 'Avoid the crowds',
+    'guide.tip2Desc': 'Timing tips for a better experience',
+    'guide.tip3': 'Photo opportunities',
+    'guide.tip3Desc': 'Most Instagrammable moments',
+
     // Map screen
     'map.title': '🗺️ Valencia Center',
     'map.legend.special': 'Special Section',
     'map.legend.firstA': 'First A',
-    
+
     // Detail screen
     'detail.description': 'Description',
     'detail.events': 'Events',
@@ -63,7 +73,7 @@ const translations: Record<Language, Translations> = {
     'detail.addToFavorites': '⭐ Add to favorites',
     'detail.mascleta': 'Mascletà',
     'detail.crema': 'Cremà',
-    
+
     // Fireworks screen
     'fireworks.banHours': 'Restricted hours',
     'fireworks.banText': 'Fireworks prohibited: 9:00-10:00 and 15:00-17:00',
@@ -80,7 +90,7 @@ const translations: Record<Language, Translations> = {
     'fireworks.kiosks': 'Street kiosks',
     'fireworks.kiosksInfo': 'Appear from March 1 in the center',
     'fireworks.tempKiosk': 'Mercado Central (temporary kiosk)',
-    
+
     // Transport screen
     'transport.metro': 'Metro',
     'transport.hours': 'Operating hours',
@@ -99,7 +109,7 @@ const translations: Record<Language, Translations> = {
     'transport.parkingFree': 'Free with metro ticket',
     'transport.taxi': 'Taxi and Cabify',
     'transport.taxiInfo': "Taxis work, but the center is difficult — streets closed. Uber doesn't work in Valencia!",
-    
+
     // Exhibitions screen
     'exhibitions.intro': 'Dive into Fallas culture through museums and exhibitions',
     'exhibitions.ninot': 'Ninot Exhibition',
@@ -116,7 +126,7 @@ const translations: Record<Language, Translations> = {
     'exhibitions.free': 'Free',
     'exhibitions.freeSunday': 'Free on Sunday',
     'exhibitions.showOnMap': '📍 Show on map',
-    
+
     // Fairs screen
     'fairs.filter.all': 'All',
     'fairs.filter.food': 'Food',
@@ -138,7 +148,7 @@ const translations: Record<Language, Translations> = {
     'fairs.type.souvenirs': 'Souvenirs',
     'fairs.type.pyro': 'Pyro',
     'fairs.type.entertainment': 'Entertainment',
-    
+
     // Nightlife screen
     'nightlife.info': 'During Fallas, clubs and bars are open until 4:00-5:00 AM!',
     'nightlife.verbenas': '💃 Verbenas',
@@ -146,7 +156,7 @@ const translations: Record<Language, Translations> = {
     'nightlife.concerts': '🎵 Concerts',
     'nightlife.clubs': '🎧 Clubs and Bars',
     'nightlife.mapLink': '🗺️ Nightlife Map (Jacoveo)',
-    
+
     // Bullfighting screen
     'bullfighting.hero': 'Plaza de Toros de Valencia',
     'bullfighting.heroSub': 'One of the oldest arenas in Spain (1851)',
@@ -165,7 +175,7 @@ const translations: Record<Language, Translations> = {
     'bullfighting.metro': 'Metro: Xàtiva (lines 3, 5, 9)',
     'bullfighting.walk': '5 min from Estación del Norte',
     'bullfighting.openMap': '🗺️ Open on map',
-    
+
     // Glossary screen
     'glossary.search': 'Search term...',
     'glossary.notFound': 'Term not found',
@@ -193,7 +203,7 @@ const translations: Record<Language, Translations> = {
     'glossary.despertaDef': '"Awakening" — at 8 AM falleros walk through streets and set off firecrackers to wake up neighbors. Tradition!',
     'glossary.nitDelFoc': 'Nit del Foc',
     'glossary.nitDelFocDef': '"Night of Fire" — main fireworks of the year, March 18. Lasts 20-25 minutes. Best spot — Paseo de la Alameda.',
-    
+
     // Common
     'common.from': 'from',
     'common.until': 'until',
@@ -205,7 +215,7 @@ const translations: Record<Language, Translations> = {
     'tab.map': 'Mapa',
     'tab.guide': 'Guía',
     'tab.events': 'Eventos',
-    
+
     // Events screen
     'events.today': 'Hoy',
     'events.tomorrow': 'Mañana',
@@ -213,7 +223,7 @@ const translations: Record<Language, Translations> = {
     'events.noEvents': 'No hay eventos programados',
     'events.checkLater': 'Vuelve más tarde para ver próximos eventos',
     'events.headerTitle': 'Qué pasa hoy',
-    
+
     // Headers
     'header.main': 'Fallas Valencia 2025',
     'header.map': 'Mapa de Fallas',
@@ -226,11 +236,11 @@ const translations: Record<Language, Translations> = {
     'header.nightlife': 'Vida Nocturna',
     'header.bullfighting': 'Toros',
     'header.glossary': 'Glosario',
-    
+
     // Categories
     'category.special': 'Sección Especial',
     'category.firstA': 'Primera A',
-    
+
     // Guide screen
     'guide.title': 'Información Útil',
     'guide.subtitle': 'Todo lo que necesitas saber sobre las Fallas',
@@ -242,12 +252,22 @@ const translations: Record<Language, Translations> = {
     'guide.bullfighting': 'Toros',
     'guide.glossary': 'Glosario',
     'guide.history': 'Historia',
-    
+    'guide.crema': 'La Cremà',
+    'guide.food': 'Gastronomía',
+    'guide.artists': 'Artistas Falleros',
+    'guide.music': 'Música y Baile',
+    'guide.tip1': 'Mejores miradores',
+    'guide.tip1Desc': 'Los mejores lugares para disfrutar de las fiestas',
+    'guide.tip2': 'Evita las multitudes',
+    'guide.tip2Desc': 'Consejos de horarios para una mejor experiencia',
+    'guide.tip3': 'Oportunidades de foto',
+    'guide.tip3Desc': 'Los momentos más instagrameables',
+
     // Map screen
     'map.title': '🗺️ Valencia Centro',
     'map.legend.special': 'Sección Especial',
     'map.legend.firstA': 'Primera A',
-    
+
     // Detail screen
     'detail.description': 'Descripción',
     'detail.events': 'Eventos',
@@ -255,7 +275,7 @@ const translations: Record<Language, Translations> = {
     'detail.addToFavorites': '⭐ Añadir a favoritos',
     'detail.mascleta': 'Mascletà',
     'detail.crema': 'Cremà',
-    
+
     // Fireworks screen
     'fireworks.banHours': 'Horas de prohibición',
     'fireworks.banText': 'Petardos prohibidos: 9:00-10:00 y 15:00-17:00',
@@ -272,7 +292,7 @@ const translations: Record<Language, Translations> = {
     'fireworks.kiosks': 'Quioscos en la calle',
     'fireworks.kiosksInfo': 'Aparecen desde el 1 de marzo en el centro',
     'fireworks.tempKiosk': 'Mercado Central (quiosco temporal)',
-    
+
     // Transport screen
     'transport.metro': 'Metro',
     'transport.hours': 'Horario',
@@ -291,7 +311,7 @@ const translations: Record<Language, Translations> = {
     'transport.parkingFree': 'Gratis con billete de metro',
     'transport.taxi': 'Taxi y Cabify',
     'transport.taxiInfo': 'Los taxis funcionan, pero el centro es difícil — calles cortadas. ¡Uber no funciona en Valencia!',
-    
+
     // Exhibitions screen
     'exhibitions.intro': 'Sumérgete en la cultura fallera a través de museos y exposiciones',
     'exhibitions.ninot': 'Exposición del Ninot',
@@ -308,7 +328,7 @@ const translations: Record<Language, Translations> = {
     'exhibitions.free': 'Gratis',
     'exhibitions.freeSunday': 'Gratis los domingos',
     'exhibitions.showOnMap': '📍 Ver en el mapa',
-    
+
     // Fairs screen
     'fairs.filter.all': 'Todos',
     'fairs.filter.food': 'Comida',
@@ -330,7 +350,7 @@ const translations: Record<Language, Translations> = {
     'fairs.type.souvenirs': 'Souvenirs',
     'fairs.type.pyro': 'Pirotecnia',
     'fairs.type.entertainment': 'Ocio',
-    
+
     // Nightlife screen
     'nightlife.info': '¡Durante las Fallas, clubs y bares abren hasta las 4:00-5:00!',
     'nightlife.verbenas': '💃 Verbenas',
@@ -338,7 +358,7 @@ const translations: Record<Language, Translations> = {
     'nightlife.concerts': '🎵 Conciertos',
     'nightlife.clubs': '🎧 Clubs y Bares',
     'nightlife.mapLink': '🗺️ Mapa de vida nocturna (Jacoveo)',
-    
+
     // Bullfighting screen
     'bullfighting.hero': 'Plaza de Toros de Valencia',
     'bullfighting.heroSub': 'Una de las plazas más antiguas de España (1851)',
@@ -357,7 +377,7 @@ const translations: Record<Language, Translations> = {
     'bullfighting.metro': 'Metro: Xàtiva (líneas 3, 5, 9)',
     'bullfighting.walk': '5 min de la Estación del Norte',
     'bullfighting.openMap': '🗺️ Abrir en el mapa',
-    
+
     // Glossary screen
     'glossary.search': 'Buscar término...',
     'glossary.notFound': 'Término no encontrado',
@@ -385,7 +405,7 @@ const translations: Record<Language, Translations> = {
     'glossary.despertaDef': '"Despertar" — a las 8 de la mañana los falleros recorren las calles tirando petardos para despertar a los vecinos. ¡Tradición!',
     'glossary.nitDelFoc': 'Nit del Foc',
     'glossary.nitDelFocDef': '"Noche del Fuego" — fuegos artificiales principales del año, 18 de marzo. Dura 20-25 minutos. Mejor sitio — Paseo de la Alameda.',
-    
+
     // Common
     'common.from': 'desde',
     'common.until': 'hasta',

@@ -24,19 +24,18 @@ interface WebMapboxProps {
 function createFireMarkerElement(marker: FallaMarker, isSelected: boolean): HTMLDivElement {
   const el = document.createElement('div');
   const isSpecial = marker.category === 'special';
-  
+
   el.className = 'fallas-marker';
   el.innerHTML = `
     <div class="fire-marker ${isSpecial ? 'special' : ''} ${isSelected ? 'selected' : ''}">
-      ${isSpecial ? '<div class="marker-pulse"></div>' : ''}
-      ${isSelected ? '<div class="marker-selected-ring"></div>' : ''}
+      ${isSelected ? '<div class="marker-selected-ring"></div><div class="marker-selected-ring delay"></div>' : ''}
       <div class="marker-body">
         <span class="marker-icon">🔥</span>
       </div>
       <div class="marker-tail"></div>
     </div>
   `;
-  
+
   return el;
 }
 
@@ -99,10 +98,10 @@ export default function WebMapbox({
     // Add new markers
     markers.forEach(marker => {
       const el = createFireMarkerElement(marker, selectedMarkerId === marker.id);
-      
+
       el.addEventListener('click', () => {
         onMarkerClick?.(marker);
-        
+
         // Fly to marker
         map.current?.flyTo({
           center: [marker.longitude, marker.latitude],
@@ -127,10 +126,10 @@ export default function WebMapbox({
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          
+
           // Remove old user marker
           userMarkerRef.current?.remove();
-          
+
           // Add new user marker
           const el = createUserLocationElement();
           userMarkerRef.current = new maplibregl.Marker({ element: el, anchor: 'center' })
@@ -147,7 +146,7 @@ export default function WebMapbox({
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />
-      
+
       {/* Inject styles */}
       <style>{`
         .fallas-marker {
@@ -224,49 +223,59 @@ export default function WebMapbox({
         
         .marker-pulse {
           position: absolute;
-          width: 60px;
-          height: 60px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(255, 184, 0, 0.4) 0%, transparent 70%);
-          animation: pulse 2s ease-in-out infinite;
+          border: 2px solid rgba(255, 184, 0, 0.6);
+          animation: ripple 2s linear infinite;
           z-index: 1;
-          top: 50%;
+          top: 22px; /* Center of marker body */
           left: 50%;
           transform: translate(-50%, -50%);
+          pointer-events: none;
         }
         
-        @keyframes pulse {
-          0%, 100% {
+        .marker-pulse.delay {
+          animation-delay: 1s;
+        }
+        
+        @keyframes ripple {
+          0% {
             transform: translate(-50%, -50%) scale(1);
-            opacity: 0.6;
+            opacity: 1;
           }
-          50% {
-            transform: translate(-50%, -50%) scale(1.5);
+          100% {
+            transform: translate(-50%, -50%) scale(2.5);
             opacity: 0;
           }
         }
         
         .marker-selected-ring {
           position: absolute;
-          width: 56px;
-          height: 56px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
-          border: 3px solid #FFB800;
-          animation: ring-pulse 1.5s ease-in-out infinite;
+          background: rgba(255, 184, 0, 0.4);
+          animation: ring-ripple 3s linear infinite;
           z-index: 1;
-          top: 50%;
+          top: 22px;
           left: 50%;
           transform: translate(-50%, -50%);
+          pointer-events: none;
         }
         
-        @keyframes ring-pulse {
-          0%, 100% {
+        .marker-selected-ring.delay {
+          animation-delay: 1.5s;
+        }
+        
+        @keyframes ring-ripple {
+          0% {
             transform: translate(-50%, -50%) scale(1);
             opacity: 1;
           }
-          50% {
-            transform: translate(-50%, -50%) scale(1.2);
-            opacity: 0.5;
+          100% {
+            transform: translate(-50%, -50%) scale(2.2);
+            opacity: 0;
           }
         }
         
@@ -348,7 +357,7 @@ export default function WebMapbox({
           color: rgba(255,255,255,0.6) !important;
         }
       `}</style>
-      
+
       {/* Attribution overlay */}
       <div style={{
         position: 'absolute',

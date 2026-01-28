@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  Platform, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
   Linking,
   Image,
   Dimensions,
@@ -38,55 +38,55 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // Real Valencia coordinates for fallas
 const FALLA_MARKERS = [
-  { 
-    id: '1', 
-    name: 'Falla Plaza del Ayuntamiento', 
-    district: 'Plaza del Ayuntamiento', 
+  {
+    id: '1',
+    name: 'Falla Plaza del Ayuntamiento',
+    district: 'Plaza del Ayuntamiento',
     category: 'special' as const,
     image: 'https://images.unsplash.com/photo-1647693680958-e2bd830cdbfb?w=400',
     latitude: 39.4699,
     longitude: -0.3763,
   },
-  { 
-    id: '2', 
-    name: 'Falla Convento Jerusalén', 
-    district: 'Ruzafa', 
+  {
+    id: '2',
+    name: 'Falla Convento Jerusalén',
+    district: 'Ruzafa',
     category: 'special' as const,
     image: 'https://images.unsplash.com/photo-1760121002397-70751ea3c113?w=400',
     latitude: 39.4589,
     longitude: -0.3723,
   },
-  { 
-    id: '3', 
-    name: 'Falla Na Jordana', 
-    district: 'El Carmen', 
+  {
+    id: '3',
+    name: 'Falla Na Jordana',
+    district: 'El Carmen',
     category: 'special' as const,
     image: 'https://images.unsplash.com/photo-1671639045782-93f73d559236?w=400',
     latitude: 39.4789,
     longitude: -0.3803,
   },
-  { 
-    id: '4', 
-    name: 'Falla Antiga de Campanar', 
-    district: 'Campanar', 
+  {
+    id: '4',
+    name: 'Falla Antiga de Campanar',
+    district: 'Campanar',
     category: 'firstA' as const,
     image: 'https://images.unsplash.com/photo-1671639045782-93f73d559236?w=400',
     latitude: 39.4820,
     longitude: -0.4010,
   },
-  { 
-    id: '5', 
-    name: 'Falla Cuba-Literato Azorín', 
-    district: 'Ruzafa', 
+  {
+    id: '5',
+    name: 'Falla Cuba-Literato Azorín',
+    district: 'Ruzafa',
     category: 'firstA' as const,
     image: 'https://images.unsplash.com/photo-1647693680958-e2bd830cdbfb?w=400',
     latitude: 39.4560,
     longitude: -0.3670,
   },
-  { 
-    id: '6', 
-    name: 'Falla Exposición', 
-    district: 'Exposición', 
+  {
+    id: '6',
+    name: 'Falla Exposición',
+    district: 'Exposición',
     category: 'special' as const,
     image: 'https://images.unsplash.com/photo-1760121002397-70751ea3c113?w=400',
     latitude: 39.4750,
@@ -95,12 +95,12 @@ const FALLA_MARKERS = [
 ];
 
 // Filter Pill Component
-function FilterPill({ 
-  icon, 
-  label, 
+function FilterPill({
+  icon,
+  label,
   active = false,
   onPress,
-}: { 
+}: {
   icon: React.ReactNode;
   label: string;
   active?: boolean;
@@ -108,9 +108,9 @@ function FilterPill({
 }) {
   return (
     <MotiView
-      from={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: 'spring', damping: 15 }}
+      from={{ opacity: 0, translateY: 5 }}
+      animate={{ opacity: 1, translateY: 0 }}
+      transition={{ type: 'timing', duration: 300 }}
     >
       <TouchableOpacity
         style={[
@@ -130,46 +130,88 @@ function FilterPill({
 }
 
 // Animated Map Marker (for native fallback)
-function MapMarker({ 
-  special = false, 
-  delay = 0,
+function MapMarker({
+  active = false,
   style,
   onPress,
-}: { 
-  special?: boolean;
-  delay?: number;
+}: {
+  active?: boolean;
   style?: any;
   onPress?: () => void;
 }) {
-  const bounce = useSharedValue(0);
+  const ripple1Scale = useSharedValue(1);
+  const ripple1Opacity = useSharedValue(1);
+  const ripple2Scale = useSharedValue(1);
+  const ripple2Opacity = useSharedValue(1);
 
   React.useEffect(() => {
-    bounce.value = withRepeat(
-      withSequence(
-        withTiming(-5, { duration: 1000 }),
-        withTiming(0, { duration: 1000 })
-      ),
-      -1,
-      true
-    );
-  }, []);
+    if (!active) {
+      ripple1Scale.value = 1;
+      ripple1Opacity.value = 0;
+      ripple2Scale.value = 1;
+      ripple2Opacity.value = 0;
+      return;
+    }
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: bounce.value }],
+    // First ripple - 4s duration (2x slower)
+    ripple1Scale.value = withRepeat(
+      withTiming(2.5, { duration: 4000 }),
+      -1,
+      false
+    );
+    ripple1Opacity.value = withRepeat(
+      withTiming(0, { duration: 4000 }),
+      -1,
+      false
+    );
+
+    // Second staggered ripple
+    const staggeredDelay = 2000;
+    const timeout = setTimeout(() => {
+      ripple2Scale.value = withRepeat(
+        withTiming(2.5, { duration: 4000 }),
+        -1,
+        false
+      );
+      ripple2Opacity.value = withRepeat(
+        withTiming(0, { duration: 4000 }),
+        -1,
+        false
+      );
+    }, staggeredDelay);
+
+    return () => clearTimeout(timeout);
+  }, [active]);
+
+  const ripple1Style = useAnimatedStyle(() => ({
+    transform: [{ scale: ripple1Scale.value }],
+    opacity: ripple1Opacity.value,
+  }));
+
+  const ripple2Style = useAnimatedStyle(() => ({
+    transform: [{ scale: ripple2Scale.value }],
+    opacity: ripple2Opacity.value,
   }));
 
   return (
-    <Animated.View style={[styles.markerContainer, style, animatedStyle]}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-        {special && <View style={styles.markerGlow} />}
+    <View style={[styles.markerContainer, style]}>
+      {/* Ripple Rings - Only for active */}
+      {active && (
+        <>
+          <Animated.View style={[styles.markerRipple, ripple1Style]} />
+          <Animated.View style={[styles.markerRipple, ripple2Style]} />
+        </>
+      )}
+
+      <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.markerOutline}>
         <LinearGradient
           colors={['#FF6B35', '#E63946']}
-          style={[styles.marker, special && styles.markerSpecial]}
+          style={[styles.marker, active && styles.markerSpecial]}
         >
           <Text style={styles.markerEmoji}>🔥</Text>
         </LinearGradient>
       </TouchableOpacity>
-    </Animated.View>
+    </View>
   );
 }
 
@@ -208,12 +250,12 @@ function UserLocationPulse() {
 }
 
 // Bottom Preview Card
-function PreviewCard({ 
-  marker, 
+function PreviewCard({
+  marker,
   onPress,
   onGetDirections,
   language,
-}: { 
+}: {
   marker: typeof FALLA_MARKERS[0];
   onPress: () => void;
   onGetDirections: () => void;
@@ -221,53 +263,81 @@ function PreviewCard({
 }) {
   const isSpecial = marker.category === 'special';
 
-  const CardWrapper = Platform.OS === 'web' ? View : BlurView;
-  const cardProps = Platform.OS === 'web' 
-    ? { style: styles.previewCardWeb }
-    : { intensity: 80, tint: 'light' as const, style: styles.previewCard };
-
   return (
     <MotiView
-      from={{ translateY: 100, opacity: 0 }}
+      from={{ translateY: 50, opacity: 0 }}
       animate={{ translateY: 0, opacity: 1 }}
-      transition={{ type: 'spring', damping: 20 }}
+      transition={{ type: 'timing', duration: 400 }}
       style={styles.previewWrapper}
     >
-      <CardWrapper {...cardProps}>
-        <TouchableOpacity 
-          style={styles.previewContent}
-          onPress={onPress}
-          activeOpacity={0.9}
-        >
-          <Image
-            source={{ uri: marker.image }}
-            style={styles.previewImage}
-            resizeMode="cover"
-          />
+      <View style={styles.previewCard}>
+        {/* Orange gradient top line */}
+        <LinearGradient
+          colors={['#FF6B35', '#FFB800', '#FF6B35']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.previewTopGradient}
+        />
+
+        <View style={styles.previewContent}>
+          {/* Character Illustration */}
+          <View style={styles.previewImageContainer}>
+            <LinearGradient
+              colors={['#FFF8F0', '#FFE8D6', '#FFF8F0']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.characterBackground}
+            >
+              {/* You can replace this emoji with an actual Image component */}
+              {/* <Image source={require('./path-to-character.png')} style={styles.characterImage} /> */}
+              <Text style={styles.characterEmoji}>🎭</Text>
+            </LinearGradient>
+          </View>
+
+          {/* Info Section */}
           <View style={styles.previewInfo}>
+            {/* Title and Heart */}
             <View style={styles.previewHeader}>
-              <Text style={styles.previewTitle} numberOfLines={2}>
+              <Text style={styles.previewTitle} numberOfLines={1}>
                 {marker.name}
               </Text>
+              <TouchableOpacity style={styles.heartButton}>
+                <Text style={styles.heartIcon}>♡</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Badge and Distance */}
+            <View style={styles.previewMeta}>
               {isSpecial && (
-                <StarIcon size={20} color="#FFB800" filled />
+                <View style={styles.especialBadge}>
+                  <Text style={styles.especialBadgeText}>ESPECIAL</Text>
+                </View>
               )}
+              <Text style={styles.distanceText}>• 350m away</Text>
             </View>
-            <View style={styles.previewLocation}>
-              <LocationIcon size={14} color={colors.text.tertiary} />
-              <Text style={styles.previewDistrict}>{marker.district}</Text>
+
+            {/* Action Buttons */}
+            <View style={styles.previewActions}>
+              <TouchableOpacity
+                style={styles.navigateButton}
+                onPress={onGetDirections}
+                activeOpacity={0.8}
+              >
+                <NavigationIcon size={16} color="#FFFFFF" />
+                <Text style={styles.navigateButtonText}>Navigate</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.detailsButton}
+                onPress={onPress}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.detailsButtonText}>Details</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity 
-              style={styles.directionsButton}
-              onPress={onGetDirections}
-            >
-              <Text style={styles.directionsButtonText}>
-                {language === 'es' ? 'Cómo llegar' : 'Get Directions'}
-              </Text>
-            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
-      </CardWrapper>
+        </View>
+      </View>
     </MotiView>
   );
 }
@@ -291,7 +361,7 @@ export default function MapScreen() {
 
   const handleNavigateToFalla = () => {
     if (!selectedMarker) return;
-    
+
     const falla: Falla = {
       id: selectedMarker.id,
       name: selectedMarker.name,
@@ -339,26 +409,25 @@ export default function MapScreen() {
                 {language === 'es' ? 'Mapa de Valencia' : 'Valencia Map'}
               </Text>
             </View>
-            
+
             {/* Animated Markers overlay */}
             <View style={styles.markersOverlay}>
-              <MapMarker 
-                special 
+              <MapMarker
+                active={selectedMarker?.id === FALLA_MARKERS[0].id}
                 style={{ top: '25%', left: '35%' }}
                 onPress={() => handleMarkerPress(FALLA_MARKERS[0])}
               />
-              <MapMarker 
-                special 
-                delay={300}
+              <MapMarker
+                active={selectedMarker?.id === FALLA_MARKERS[1].id}
                 style={{ top: '45%', left: '55%' }}
                 onPress={() => handleMarkerPress(FALLA_MARKERS[1])}
               />
-              <MapMarker 
-                delay={600}
+              <MapMarker
+                active={selectedMarker?.id === FALLA_MARKERS[3].id}
                 style={{ top: '60%', left: '30%' }}
                 onPress={() => handleMarkerPress(FALLA_MARKERS[3])}
               />
-              
+
               {/* User location */}
               <View style={styles.userLocationContainer}>
                 <UserLocationPulse />
@@ -463,6 +532,20 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#FFB800',
   },
+  markerOutline: {
+    borderRadius: 20,
+    backgroundColor: 'white',
+    padding: 2,
+    ...shadows.card,
+  },
+  markerRipple: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 184, 0, 0.4)',
+    zIndex: -1,
+  },
   markerEmoji: {
     fontSize: 20,
   },
@@ -538,30 +621,57 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   previewCard: {
-    borderRadius: borderRadius.xl,
+    borderRadius: 24,
+    backgroundColor: '#F8F6F5',
     overflow: 'hidden',
-    ...shadows.card,
-  },
-  previewCardWeb: {
-    borderRadius: borderRadius.xl,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    // @ts-ignore
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 40,
+    elevation: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.4)',
-    ...shadows.card,
+    borderColor: 'rgba(255, 255, 255, 0.6)',
+  },
+  previewTopGradient: {
+    height: 4,
+    width: '100%',
+    opacity: 0.8,
   },
   previewContent: {
     flexDirection: 'row',
-    padding: spacing.md,
-    gap: spacing.md,
+    padding: 12,
+    gap: 12,
   },
-  previewImage: {
-    width: 96,
-    height: 96,
-    borderRadius: borderRadius.lg,
+  previewImageContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    overflow: 'hidden',
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#FF6B35',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+  },
+  characterBackground: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  characterEmoji: {
+    fontSize: 48,
+    textAlign: 'center',
+  },
+  characterImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
   previewInfo: {
     flex: 1,
@@ -571,34 +681,82 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
+    marginBottom: 4,
   },
   previewTitle: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '800',
     color: colors.text.primary,
     flex: 1,
     marginRight: 8,
   },
-  previewLocation: {
+  heartButton: {
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heartIcon: {
+    fontSize: 20,
+    color: '#9CA3AF',
+  },
+  previewMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    marginBottom: 8,
   },
-  previewDistrict: {
-    fontSize: 14,
+  especialBadge: {
+    backgroundColor: '#FFF8E7',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  especialBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#8B6914',
+    letterSpacing: 0.5,
+  },
+  distanceText: {
+    fontSize: 10,
     color: colors.text.tertiary,
-  },
-  directionsButton: {
-    backgroundColor: colors.primary.orange,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-  },
-  directionsButtonText: {
-    color: '#fff',
-    fontSize: 14,
     fontWeight: '500',
+  },
+  previewActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  navigateButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: colors.primary.orange,
+    paddingVertical: 10,
+    borderRadius: 20,
+    shadowColor: colors.primary.orange,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  navigateButtonText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  detailsButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: '#E8E5E3',
+  },
+  detailsButtonText: {
+    color: colors.text.primary,
+    fontSize: 13,
+    fontWeight: '700',
   },
   // Legend
   legendContainer: {
