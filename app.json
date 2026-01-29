@@ -14,7 +14,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.fallas-app"
+      "bundleIdentifier": "com.anonymous.fallas-app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to show nearby fallas on the map.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "We need your location to show nearby fallas on the map."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -22,10 +26,20 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.fallasapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsDownloadToken": "",
+          "RNMapboxMapsImpl": "mapbox"
+        }
+      ]
+    ]
   }
 }

@@ -117,21 +117,21 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Guardado"
-        component={SavedTabScreen}
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <AnimatedTabIcon icon="favorites" focused={focused} color={color} />
-          ),
-          headerShown: false, // Hidden to match design
-        }}
-      />
-      <Tab.Screen
         name="Guía"
         component={GuideScreen}
         options={{
           tabBarIcon: ({ color, focused }) => (
             <AnimatedTabIcon icon="guide" focused={focused} color={color} />
+          ),
+          headerShown: false, // Hidden to match design
+        }}
+      />
+      <Tab.Screen
+        name="Guardado"
+        component={SavedTabScreen}
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <AnimatedTabIcon icon="favorites" focused={focused} color={color} />
           ),
           headerShown: false, // Hidden to match design
         }}

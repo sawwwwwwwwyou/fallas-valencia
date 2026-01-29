@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
   Dimensions,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp, CommonActions } from '@react-navigation/native';
@@ -18,7 +18,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { RootStackParamList } from '../App';
 import { useLanguage } from '../contexts/LanguageContext';
-import { 
+import {
   ScaleInScreen,
   IconButton,
   RippleButton,
@@ -26,11 +26,11 @@ import {
   LiveBadge,
   StaggerItem,
 } from '../components';
-import { 
-  colors, 
-  getCategoryColor, 
-  typography, 
-  spacing, 
+import {
+  colors,
+  getCategoryColor,
+  typography,
+  spacing,
   borderRadius,
   shadows,
 } from '../lib/theme';
@@ -43,7 +43,7 @@ const { width, height } = Dimensions.get('window');
 // Category Badge Component
 function CategoryBadge({ category }: { category: string }) {
   const catColor = getCategoryColor(category);
-  
+
   return (
     <View style={[styles.categoryBadge, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
       <Text style={[styles.categoryBadgeText, { color: colors.text.inverse }]}>
@@ -106,16 +106,16 @@ export default function FallaDetailScreen() {
       <MotiView
         from={{ opacity: 0, translateY: -20 }}
         animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'spring', damping: 20, delay: 100 }}
+        transition={{ type: 'timing', duration: 400, delay: 100 }}
         style={styles.header}
       >
-        <IconButton 
+        <IconButton
           icon="✕"
           onPress={() => navigation.goBack()}
           backgroundColor={colors.background.ash}
         />
         <Text style={styles.headerTitle}>{t('header.detail')}</Text>
-        <FavoriteStar 
+        <FavoriteStar
           initialFavorite={isFavorite}
           onToggle={setIsFavorite}
           size={28}
@@ -126,18 +126,18 @@ export default function FallaDetailScreen() {
       <MotiView
         from={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: 'spring', damping: 15, delay: 200 }}
+        transition={{ type: 'timing', duration: 500, delay: 200 }}
         style={styles.heroContainer}
       >
         <Animated.View style={[
-          styles.hero, 
+          styles.hero,
           { backgroundColor: catColor.primary },
           heroAnimatedStyle
         ]}>
           <MotiView
             from={{ scale: 0.5, rotate: '-20deg' }}
             animate={{ scale: 1, rotate: '0deg' }}
-            transition={{ type: 'spring', damping: 10, delay: 400 }}
+            transition={{ type: 'timing', duration: 600, delay: 400 }}
           >
             <Text style={styles.heroEmoji}>🔥</Text>
           </MotiView>
@@ -147,7 +147,7 @@ export default function FallaDetailScreen() {
       </MotiView>
 
       {/* Content */}
-      <ScrollView 
+      <ScrollView
         style={styles.content}
         contentContainerStyle={[styles.contentContainer, { paddingBottom: insets.bottom + 20 }]}
         showsVerticalScrollIndicator={false}
@@ -155,7 +155,7 @@ export default function FallaDetailScreen() {
         <StaggerItem index={0} delay={300}>
           <Text style={styles.title}>{falla.name}</Text>
         </StaggerItem>
-        
+
         <StaggerItem index={1} delay={300}>
           <View style={styles.infoRow}>
             <Text style={styles.infoIcon}>📍</Text>
@@ -191,11 +191,11 @@ export default function FallaDetailScreen() {
         <StaggerItem index={4} delay={300}>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{t('detail.events')}</Text>
-            
+
             <MotiView
               from={{ opacity: 0, translateX: -20 }}
               animate={{ opacity: 1, translateX: 0 }}
-              transition={{ type: 'spring', damping: 15, delay: 500 }}
+              transition={{ type: 'timing', duration: 400, delay: 500 }}
             >
               <View style={styles.eventCard}>
                 <Text style={styles.eventIcon}>🎆</Text>
@@ -210,7 +210,7 @@ export default function FallaDetailScreen() {
             <MotiView
               from={{ opacity: 0, translateX: -20 }}
               animate={{ opacity: 1, translateX: 0 }}
-              transition={{ type: 'spring', damping: 15, delay: 600 }}
+              transition={{ type: 'timing', duration: 400, delay: 600 }}
             >
               <View style={styles.eventCard}>
                 <Text style={styles.eventIcon}>🔥</Text>
@@ -224,7 +224,7 @@ export default function FallaDetailScreen() {
         </StaggerItem>
 
         <StaggerItem index={5} delay={300}>
-          <RippleButton 
+          <RippleButton
             title={t('detail.viewOnMap')}
             color={colors.primary.orange}
             style={styles.primaryButton}
@@ -233,7 +233,7 @@ export default function FallaDetailScreen() {
         </StaggerItem>
 
         <StaggerItem index={6} delay={300}>
-          <RippleButton 
+          <RippleButton
             title={isFavorite ? "⭐ ✓" : t('detail.addToFavorites')}
             color={isFavorite ? colors.primary.gold : colors.background.ash}
             textStyle={{ color: isFavorite ? colors.text.inverse : colors.text.primary }}

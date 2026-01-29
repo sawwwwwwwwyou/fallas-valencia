@@ -26,11 +26,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { LocationIcon, StarIcon, NavigationIcon } from '../components/icons';
 import { colors, spacing, borderRadius, shadows } from '../lib/theme';
 
-// Conditionally import WebMapbox only on web
-let WebMapbox: React.ComponentType<any> | null = null;
-if (Platform.OS === 'web') {
-  WebMapbox = require('../components/WebMapbox').default;
-}
+import MapComponent from '../components/MapComponent';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -389,57 +385,12 @@ export default function MapScreen() {
     <View style={styles.container}>
       {/* Map */}
       <View style={styles.mapContainer}>
-        {Platform.OS === 'web' && WebMapbox ? (
-          <WebMapbox
-            markers={filteredMarkers}
-            onMarkerClick={handleMarkerPress}
-            selectedMarkerId={selectedMarker?.id}
-            showUserLocation={true}
-          />
-        ) : (
-          // Native fallback with placeholder and overlay markers
-          <>
-            <View style={styles.mapPlaceholder}>
-              <LinearGradient
-                colors={['#1A1A1A', '#0D0D0D', '#1A1A1A']}
-                style={StyleSheet.absoluteFillObject}
-              />
-              <Text style={styles.mapPlaceholderText}>🗺️</Text>
-              <Text style={styles.mapPlaceholderSubtext}>
-                {language === 'es' ? 'Mapa de Valencia' : 'Valencia Map'}
-              </Text>
-            </View>
-
-            {/* Animated Markers overlay */}
-            <MotiView
-              from={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ type: 'timing', duration: 800 }}
-              style={styles.markersOverlay}
-            >
-              <MapMarker
-                active={selectedMarker?.id === FALLA_MARKERS[0].id}
-                style={{ top: '25%', left: '35%' }}
-                onPress={() => handleMarkerPress(FALLA_MARKERS[0])}
-              />
-              <MapMarker
-                active={selectedMarker?.id === FALLA_MARKERS[1].id}
-                style={{ top: '45%', left: '55%' }}
-                onPress={() => handleMarkerPress(FALLA_MARKERS[1])}
-              />
-              <MapMarker
-                active={selectedMarker?.id === FALLA_MARKERS[3].id}
-                style={{ top: '60%', left: '30%' }}
-                onPress={() => handleMarkerPress(FALLA_MARKERS[3])}
-              />
-
-              {/* User location */}
-              <View style={styles.userLocationContainer}>
-                <UserLocationPulse />
-              </View>
-            </MotiView>
-          </>
-        )}
+        <MapComponent
+          markers={filteredMarkers}
+          onMarkerClick={handleMarkerPress}
+          selectedMarkerId={selectedMarker?.id}
+          showUserLocation={true}
+        />
       </View>
 
       {/* Filter Pills */}

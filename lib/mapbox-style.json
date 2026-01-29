@@ -1,0 +1,133 @@
+{
+  "version": 8,
+  "name": "Fallas Valencia Custom",
+  "sprite": "mapbox://sprites/mapbox/dark-v11",
+  "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+  "sources": {
+    "mapbox-streets": {
+      "type": "vector",
+      "url": "mapbox://mapbox.mapbox-streets-v8"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#0D0D0D"
+      }
+    },
+    {
+      "id": "land",
+      "type": "fill",
+      "source": "mapbox-streets",
+      "source-layer": "land",
+      "paint": {
+        "fill-color": "#1A1A1A"
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "mapbox-streets",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "#0A1929",
+        "fill-outline-color": "#1E3A5F"
+      }
+    },
+    {
+      "id": "road-minor",
+      "type": "line",
+      "source": "mapbox-streets",
+      "source-layer": "road",
+      "filter": [
+        "all",
+        ["match", ["get", "class"], ["street", "street_limited", "service"], true, false]
+      ],
+      "paint": {
+        "line-color": "#4A2800",
+        "line-width": [
+          "interpolate",
+          ["exponential", 1.5],
+          ["zoom"],
+          12,
+          0.5,
+          14,
+          1,
+          16,
+          3
+        ],
+        "line-opacity": 0.8
+      }
+    },
+    {
+      "id": "road-primary",
+      "type": "line",
+      "source": "mapbox-streets",
+      "source-layer": "road",
+      "filter": ["==", ["get", "class"], "primary"],
+      "paint": {
+        "line-color": "#CC5500",
+        "line-width": [
+          "interpolate",
+          ["exponential", 1.5],
+          ["zoom"],
+          10,
+          1.5,
+          14,
+          4,
+          16,
+          8
+        ]
+      }
+    },
+    {
+      "id": "road-motorway",
+      "type": "line",
+      "source": "mapbox-streets",
+      "source-layer": "road",
+      "filter": ["==", ["get", "class"], "motorway"],
+      "paint": {
+        "line-color": "#FF6B35",
+        "line-width": [
+          "interpolate",
+          ["exponential", 1.5],
+          ["zoom"],
+          8,
+          1,
+          12,
+          4,
+          16,
+          12
+        ]
+      }
+    },
+    {
+      "id": "place-label-city",
+      "type": "symbol",
+      "source": "mapbox-streets",
+      "source-layer": "place_label",
+      "filter": ["==", ["get", "class"], "city"],
+      "layout": {
+        "text-field": ["get", "name"],
+        "text-font": ["DIN Pro Bold", "Arial Unicode MS Bold"],
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          8,
+          14,
+          12,
+          22
+        ],
+        "text-transform": "uppercase"
+      },
+      "paint": {
+        "text-color": "#FFB347",
+        "text-halo-color": "#0D0D0D",
+        "text-halo-width": 2
+      }
+    }
+  ]
+}

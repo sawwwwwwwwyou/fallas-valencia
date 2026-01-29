@@ -9,11 +9,11 @@ interface StaggerListProps {
   style?: ViewStyle;
 }
 
-export function StaggerList({ 
-  children, 
-  delay = 0, 
+export function StaggerList({
+  children,
+  delay = 0,
   staggerDelay = 100,
-  style 
+  style
 }: StaggerListProps) {
   return (
     <View style={style}>
@@ -63,9 +63,8 @@ export function StaggerItem({ children, index, delay = 0 }: StaggerItemProps) {
         scale: 1,
       }}
       transition={{
-        type: 'spring',
-        damping: 15,
-        stiffness: 100,
+        type: 'timing',
+        duration: 500,
         delay: delay + (index * 80),
       }}
     >

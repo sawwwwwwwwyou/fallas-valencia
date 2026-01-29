@@ -8,6 +8,7 @@ import {
   Image,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -176,13 +177,15 @@ function ProgressCard({ visitedCount, totalCount }: { visitedCount: number; tota
 function SavedItemCard({
   item,
   index,
-  onPress,
+  onNavigate,
+  onDetails,
   onToggleSaved,
   language,
 }: {
   item: SavedItem;
   index: number;
-  onPress: () => void;
+  onNavigate: () => void;
+  onDetails: () => void;
   onToggleSaved: () => void;
   language: string;
 }) {
@@ -213,7 +216,11 @@ function SavedItemCard({
                 {item.name}
               </Text>
               <TouchableOpacity onPress={onToggleSaved}>
-                <Text style={styles.heartIcon}>{item.saved ? '❤️' : '🤍'}</Text>
+                <HeartIcon
+                  size={20}
+                  color={item.saved ? COLORS.flameRed : '#9CA3AF'}
+                  filled={item.saved}
+                />
               </TouchableOpacity>
             </View>
 
@@ -235,13 +242,13 @@ function SavedItemCard({
 
             {/* Actions */}
             <View style={styles.itemActions}>
-              <TouchableOpacity style={styles.primaryButton} onPress={onPress}>
+              <TouchableOpacity style={styles.primaryButton} onPress={onNavigate}>
                 <Text style={styles.primaryButtonIcon}>🧭</Text>
                 <Text style={styles.primaryButtonText}>
                   {t('saved.navigate')}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.secondaryButton}>
+              <TouchableOpacity style={styles.secondaryButton} onPress={onDetails}>
                 <Text style={styles.secondaryButtonText}>
                   {t('saved.details')}
                 </Text>
@@ -256,7 +263,7 @@ function SavedItemCard({
 
 export default function SavedScreen() {
   const navigation = useNavigation<NavigationProp>();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { language, t } = useLanguage();
   const insets = useSafeAreaInsets();
 
@@ -272,6 +279,27 @@ export default function SavedScreen() {
   });
 
   const toggleSaved = (id: string) => {
+    // Check if user is logged in
+    if (!user) {
+      // Show login prompt
+      Alert.alert(
+        t('saved.loginTitle'),
+        t('saved.loginSubtitle'),
+        [
+          {
+            text: language === 'es' ? 'Cancelar' : 'Cancel',
+            style: 'cancel',
+          },
+          {
+            text: t('saved.loginButton'),
+            onPress: () => navigation.navigate('Login' as any),
+          },
+        ]
+      );
+      return;
+    }
+
+    // Toggle saved state if logged in
     setItems((prev) =>
       prev.map((item) =>
         item.id === id ? { ...item, saved: !item.saved } : item
@@ -284,7 +312,15 @@ export default function SavedScreen() {
     setTimeout(() => setRefreshing(false), 1000);
   }, []);
 
-  const handleItemPress = (item: SavedItem) => {
+  // Navigate to map with selected falla
+  const handleNavigate = (item: SavedItem) => {
+    // Switch to Map tab
+    navigation.navigate('Mapa' as any);
+    // TODO: Pass marker ID to highlight on map
+  };
+
+  // Open details screen
+  const handleDetails = (item: SavedItem) => {
     if (item.type === 'falla') {
       navigation.navigate('FallaDetail', {
         falla: {
@@ -292,7 +328,9 @@ export default function SavedScreen() {
           name: item.name,
           category: item.category || '',
           address: item.location,
-          description: '',
+          description: language === 'es'
+            ? `Una de las fallas más emblemáticas de Valencia.`
+            : `One of the most emblematic fallas of Valencia.`,
         },
       });
     }
@@ -358,7 +396,8 @@ export default function SavedScreen() {
               key={item.id}
               item={item}
               index={index}
-              onPress={() => handleItemPress(item)}
+              onNavigate={() => handleNavigate(item)}
+              onDetails={() => handleDetails(item)}
               onToggleSaved={() => toggleSaved(item.id)}
               language={language}
             />
@@ -687,5 +726,45 @@ const styles = StyleSheet.create({
   },
   progressEmoji: {
     fontSize: 48,
+  },
+  // Login Screen
+  loginContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xl,
+  },
+  loginEmoji: {
+    fontSize: 64,
+    marginBottom: spacing.lg,
+  },
+  loginTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: spacing.sm,
+    textAlign: 'center',
+  },
+  loginSubtitle: {
+    fontSize: 16,
+    color: 'rgba(0,0,0,0.6)',
+    textAlign: 'center',
+    marginBottom: spacing.xl,
+  },
+  loginButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderRadius: 50,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  loginButtonText: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fff',
   },
 });

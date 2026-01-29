@@ -12,6 +12,7 @@ export { AnimatedTabIcon, CustomTabBar } from './AnimatedTabBar';
 export { FloatingTabBar } from './FloatingTabBar';
 export { EventsFeed } from './EventsFeed';
 export { LanguageSwitcher, FloatingLanguageSwitcher } from './LanguageSwitcher';
+export { default as MapComponent } from './MapComponent';
 
 // Custom SVG Icons
 export * from './icons';

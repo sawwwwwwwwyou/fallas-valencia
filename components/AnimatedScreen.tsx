@@ -39,9 +39,8 @@ export function SlideInScreen({ children, style }: AnimatedScreenProps) {
         translateX: 0,
       }}
       transition={{
-        type: 'spring',
-        damping: 20,
-        stiffness: 100,
+        type: 'timing',
+        duration: 400,
       }}
       style={[{ flex: 1 }, style]}
     >
@@ -62,9 +61,8 @@ export function ScaleInScreen({ children, style }: AnimatedScreenProps) {
         scale: 1,
       }}
       transition={{
-        type: 'spring',
-        damping: 15,
-        stiffness: 100,
+        type: 'timing',
+        duration: 400,
       }}
       style={[{ flex: 1 }, style]}
     >
