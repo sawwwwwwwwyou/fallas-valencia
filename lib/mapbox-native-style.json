@@ -49,9 +49,10 @@
       "type": "fill",
       "source": "openmaptiles",
       "source-layer": "building",
+      "minzoom": 12,
       "paint": {
-        "fill-color": "#262626",
-        "fill-opacity": 0.6
+        "fill-color": "#2D1A1A",
+        "fill-opacity": 0.7
       }
     },
     {

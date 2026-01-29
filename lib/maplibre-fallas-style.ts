@@ -84,16 +84,10 @@ export const FALLAS_MAPLIBRE_STYLE: StyleSpecification = {
       type: 'fill',
       source: 'osm',
       'source-layer': 'building',
-      minzoom: 13,
+      minzoom: 12,
       paint: {
         'fill-color': '#2D1A1A',
-        'fill-opacity': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          13, 0,
-          15, 0.9,
-        ],
+        'fill-opacity': 0.7,
       },
     },
     // Building outlines - ember glow

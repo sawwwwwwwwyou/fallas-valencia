@@ -104,6 +104,17 @@
       }
     },
     {
+      "id": "building",
+      "type": "fill",
+      "source": "mapbox-streets",
+      "source-layer": "building",
+      "minzoom": 12,
+      "paint": {
+        "fill-color": "#2D1A1A",
+        "fill-opacity": 0.7
+      }
+    },
+    {
       "id": "place-label-city",
       "type": "symbol",
       "source": "mapbox-streets",
