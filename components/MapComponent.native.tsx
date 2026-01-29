@@ -33,8 +33,8 @@ interface NativeMapboxProps {
   showUserLocation?: boolean;
 }
 
-// Your custom Mapbox style with orange roads
-const FALLAS_STYLE_URL = 'mapbox://styles/clawdik/cmkz9uuer004401r4cvjn36fy';
+// Custom Fallas style with orange roads (identical to web)
+const FALLAS_STYLE_URL = 'mapbox://styles/clawdik/cmkzi1tq6000c01sa71184yeo';
 
 // Animated marker component with ripple rings
 function AnimatedMarker({
