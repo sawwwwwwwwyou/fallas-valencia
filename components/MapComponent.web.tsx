@@ -1,7 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { FALLAS_MAPLIBRE_STYLE, INITIAL_VIEW_STATE } from '../lib/maplibre-fallas-style';
+import { INITIAL_VIEW_STATE } from '../lib/maplibre-fallas-style';
+
+// Use same Mapbox style as native
+const MAPBOX_TOKEN = process.env.EXPO_PUBLIC_MAPBOX_TOKEN || '';
+const FALLAS_MAPBOX_STYLE = `https://api.mapbox.com/styles/v1/clawdik/cmkzi1tq6000c01sa71184yeo?access_token=${MAPBOX_TOKEN}`;
 
 export interface FallaMarker {
   id: string;
@@ -78,7 +82,7 @@ export default function WebMapbox({
 
     map.current = new maplibregl.Map({
       container: mapContainer.current,
-      style: FALLAS_MAPLIBRE_STYLE,
+      style: FALLAS_MAPBOX_STYLE,
       center: [INITIAL_VIEW_STATE.longitude, INITIAL_VIEW_STATE.latitude],
       zoom: INITIAL_VIEW_STATE.zoom,
       attributionControl: false,
