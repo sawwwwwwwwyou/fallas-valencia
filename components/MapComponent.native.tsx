@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Platform } from 'react-native';
 import Mapbox from '@rnmapbox/maps';
 import Animated, {
   useSharedValue,
@@ -42,20 +42,25 @@ function AnimatedMarker({
   isSelected,
   isSpecial,
   onPress,
+  scale = 1,
 }: {
   marker: FallaMarker;
   isSelected: boolean;
   isSpecial: boolean;
   onPress: () => void;
+  scale?: number;
 }) {
+  // Dynamic sizes based on zoom scale
+  const markerSize = Math.round(44 * scale);
+  const containerSize = Math.round(80 * scale);
+  const emojiSize = Math.round(22 * scale);
+  const tailWidth = Math.round(8 * scale);
+  const tailHeight = Math.round(12 * scale);
   // Ripple animation for selected marker
   const ripple1Scale = useSharedValue(1);
   const ripple1Opacity = useSharedValue(0);
   const ripple2Scale = useSharedValue(1);
   const ripple2Opacity = useSharedValue(0);
-
-  // Glow animation for special markers
-  const glowOpacity = useSharedValue(0.6);
 
   useEffect(() => {
     if (isSelected) {
@@ -96,19 +101,6 @@ function AnimatedMarker({
     }
   }, [isSelected]);
 
-  useEffect(() => {
-    if (isSpecial) {
-      glowOpacity.value = withRepeat(
-        withSequence(
-          withTiming(0.8, { duration: 2000 }),
-          withTiming(0.4, { duration: 2000 })
-        ),
-        -1,
-        true
-      );
-    }
-  }, [isSpecial]);
-
   const ripple1Style = useAnimatedStyle(() => ({
     transform: [{ scale: ripple1Scale.value }],
     opacity: ripple1Opacity.value,
@@ -119,29 +111,35 @@ function AnimatedMarker({
     opacity: ripple2Opacity.value,
   }));
 
-  const glowStyle = useAnimatedStyle(() => ({
-    opacity: glowOpacity.value,
-  }));
-
   return (
-    <View style={styles.markerContainer}>
+    <View style={[styles.markerContainer, { width: containerSize, height: containerSize }]}>
       {/* Ripple rings for selected marker */}
       {isSelected && (
         <>
-          <Animated.View style={[styles.selectedRing, ripple1Style]} />
-          <Animated.View style={[styles.selectedRing, ripple2Style]} />
+          <Animated.View style={[styles.selectedRing, ripple1Style, { 
+            width: markerSize, 
+            height: markerSize, 
+            borderRadius: markerSize / 2,
+            top: (containerSize - markerSize) / 2,
+            left: (containerSize - markerSize) / 2,
+          }]} />
+          <Animated.View style={[styles.selectedRing, ripple2Style, { 
+            width: markerSize, 
+            height: markerSize, 
+            borderRadius: markerSize / 2,
+            top: (containerSize - markerSize) / 2,
+            left: (containerSize - markerSize) / 2,
+          }]} />
         </>
       )}
 
-      {/* Glow effect for special markers */}
-      {isSpecial && (
-        <Animated.View style={[styles.markerGlow, glowStyle]} />
-      )}
+      {/* Glow effect removed - only ripple animation on selected */}
 
       {/* Marker body with gradient */}
       <View
         style={[
           styles.markerBody,
+          { width: markerSize, height: markerSize, borderRadius: markerSize / 2 },
           isSpecial && styles.markerSpecial,
           isSelected && styles.markerSelected,
         ]}
@@ -153,12 +151,16 @@ function AnimatedMarker({
           end={{ x: 1, y: 1 }}
           style={styles.markerGradient}
         >
-          <Text style={styles.markerEmoji}>🔥</Text>
+          <Text style={[styles.markerEmoji, { fontSize: emojiSize }]}>🔥</Text>
         </LinearGradient>
       </View>
 
       {/* Marker tail */}
-      <View style={styles.markerTail} />
+      <View style={[styles.markerTail, {
+        borderLeftWidth: tailWidth,
+        borderRightWidth: tailWidth,
+        borderTopWidth: tailHeight,
+      }]} />
     </View>
   );
 }
@@ -172,6 +174,18 @@ export default function NativeMapbox({
   const cameraRef = useRef<Mapbox.Camera>(null);
   const mapRef = useRef<Mapbox.MapView>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [currentZoom, setCurrentZoom] = useState(INITIAL_VIEW_STATE.zoom);
+
+  // Calculate marker scale based on zoom level
+  // At zoom 10 and below: small (0.5x), zoom 14+: full size (1x)
+  const getMarkerScale = (zoom: number) => {
+    if (zoom <= 10) return 0.5;
+    if (zoom >= 14) return 1;
+    // Linear interpolation between zoom 10-14
+    return 0.5 + ((zoom - 10) / 4) * 0.5;
+  };
+
+  const markerScale = getMarkerScale(currentZoom);
 
   useEffect(() => {
     if (isMapLoaded && selectedMarkerId) {
@@ -197,6 +211,11 @@ export default function NativeMapbox({
         style={styles.map}
         styleURL={FALLAS_STYLE_URL}
         onDidFinishLoadingMap={() => setIsMapLoaded(true)}
+        onCameraChanged={(state) => {
+          if (state.properties.zoom !== undefined) {
+            setCurrentZoom(state.properties.zoom);
+          }
+        }}
         logoEnabled={false}
         attributionEnabled={false}
       >
@@ -233,6 +252,7 @@ export default function NativeMapbox({
                 isSelected={isSelected}
                 isSpecial={isSpecial}
                 onPress={() => handleMarkerPress(marker)}
+                scale={markerScale}
               />
             </Mapbox.MarkerView>
           );
@@ -264,11 +284,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    shadowColor: '#E63946',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
-    elevation: 8,
+    // Shadow only on Android, iOS renders it as a ring
+    ...Platform.select({
+      android: {
+        elevation: 8,
+      },
+      ios: {
+        // No shadow on iOS for non-selected markers
+      },
+    }),
   },
   markerGradient: {
     width: '100%',
@@ -310,16 +334,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 184, 0, 0.4)',
     top: 18,
     left: 18,
-  },
-  markerGlow: {
-    position: 'absolute',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 184, 0, 0.6)',
-    top: 10,
-    left: 10,
   },
 });
