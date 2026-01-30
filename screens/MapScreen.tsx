@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,16 @@ import Animated, {
   withRepeat,
   withTiming,
   withSequence,
+  withSpring,
+  runOnJS,
+  interpolate,
+  Extrapolation,
 } from 'react-native-reanimated';
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from 'react-native-gesture-handler';
 import { RootStackParamList, Falla } from '../App';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LocationIcon, StarIcon, NavigationIcon } from '../components/icons';
@@ -245,105 +254,173 @@ function UserLocationPulse() {
   );
 }
 
-// Bottom Preview Card
-function PreviewCard({
+// Bottom Sheet Height
+const BOTTOM_SHEET_HEIGHT = 160;
+
+// Bottom Preview Card with Bottom Sheet behavior
+function BottomSheetPreviewCard({
   marker,
+  isVisible,
   onPress,
   onGetDirections,
+  onClose,
   language,
 }: {
-  marker: typeof FALLA_MARKERS[0];
+  marker: typeof FALLA_MARKERS[0] | null;
+  isVisible: boolean;
   onPress: () => void;
   onGetDirections: () => void;
+  onClose: () => void;
   language: string;
 }) {
-  const isSpecial = marker.category === 'special';
+  const translateY = useSharedValue(BOTTOM_SHEET_HEIGHT + 100);
+  const context = useSharedValue({ y: 0 });
+
+  // Animate visibility
+  useEffect(() => {
+    if (isVisible && marker) {
+      translateY.value = withSpring(0, {
+        damping: 20,
+        stiffness: 200,
+      });
+    } else {
+      translateY.value = withSpring(BOTTOM_SHEET_HEIGHT + 100, {
+        damping: 20,
+        stiffness: 200,
+      });
+    }
+  }, [isVisible, marker]);
+
+  // Pan gesture for swipe down to dismiss
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      context.value = { y: translateY.value };
+    })
+    .onUpdate((event) => {
+      // Only allow dragging down
+      const newY = context.value.y + event.translationY;
+      translateY.value = Math.max(0, newY);
+    })
+    .onEnd((event) => {
+      // If dragged more than 50px or velocity is high, dismiss
+      if (event.translationY > 50 || event.velocityY > 500) {
+        translateY.value = withSpring(BOTTOM_SHEET_HEIGHT + 100, {
+          damping: 20,
+          stiffness: 200,
+        });
+        runOnJS(onClose)();
+      } else {
+        // Snap back
+        translateY.value = withSpring(0, {
+          damping: 20,
+          stiffness: 200,
+        });
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: translateY.value }],
+    };
+  });
+
+  const isSpecial = marker?.category === 'special';
+
+  if (!marker) return null;
 
   return (
-    <MotiView
-      from={{ translateY: 50, opacity: 0 }}
-      animate={{ translateY: 0, opacity: 1 }}
-      transition={{ type: 'timing', duration: 400 }}
-      style={styles.previewWrapper}
-    >
-      <View style={styles.previewCard}>
-        {/* Orange gradient top line */}
-        <LinearGradient
-          colors={['#FF6B35', '#FFB800', '#FF6B35']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.previewTopGradient}
-        />
-
-        <View style={styles.previewContent}>
-          {/* Character Illustration */}
-          <View style={styles.previewImageContainer}>
-            <LinearGradient
-              colors={['#FFF8F0', '#FFE8D6', '#FFF8F0']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.characterBackground}
-            >
-              {/* You can replace this emoji with an actual Image component */}
-              {/* <Image source={require('./path-to-character.png')} style={styles.characterImage} /> */}
-              <Text style={styles.characterEmoji}>🎭</Text>
-            </LinearGradient>
+    <GestureDetector gesture={panGesture}>
+      <Animated.View style={[styles.previewWrapper, animatedStyle]}>
+        <View style={styles.previewCard}>
+          {/* Drag Handle */}
+          <View style={styles.dragHandleContainer}>
+            <View style={styles.dragHandle} />
           </View>
 
-          {/* Info Section */}
-          <View style={styles.previewInfo}>
-            {/* Title and Heart */}
-            <View style={styles.previewHeader}>
-              <Text style={styles.previewTitle} numberOfLines={1}>
-                {marker.name}
-              </Text>
-              <TouchableOpacity style={styles.heartButton}>
-                <Text style={styles.heartIcon}>♡</Text>
-              </TouchableOpacity>
+          {/* Close Button */}
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={onClose}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.closeButtonText}>✕</Text>
+          </TouchableOpacity>
+
+          {/* Orange gradient top line */}
+          <LinearGradient
+            colors={['#FF6B35', '#FFB800', '#FF6B35']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.previewTopGradient}
+          />
+
+          <View style={styles.previewContent}>
+            {/* Character Illustration */}
+            <View style={styles.previewImageContainer}>
+              <LinearGradient
+                colors={['#FFF8F0', '#FFE8D6', '#FFF8F0']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.characterBackground}
+              >
+                <Text style={styles.characterEmoji}>🎭</Text>
+              </LinearGradient>
             </View>
 
-            {/* Badge and Distance */}
-            <View style={styles.previewMeta}>
-              {isSpecial && (
-                <View style={styles.especialBadge}>
-                  <Text style={styles.especialBadgeText}>ESPECIAL</Text>
-                </View>
-              )}
-              <Text style={styles.distanceText}>• 350m away</Text>
-            </View>
+            {/* Info Section */}
+            <View style={styles.previewInfo}>
+              {/* Title and Heart */}
+              <View style={styles.previewHeader}>
+                <Text style={styles.previewTitle} numberOfLines={1}>
+                  {marker.name}
+                </Text>
+                <TouchableOpacity style={styles.heartButton}>
+                  <Text style={styles.heartIcon}>♡</Text>
+                </TouchableOpacity>
+              </View>
 
-            {/* Action Buttons */}
-            <View style={styles.previewActions}>
-              <TouchableOpacity
-                style={styles.navigateButton}
-                onPress={onGetDirections}
-                activeOpacity={0.8}
-              >
-                <NavigationIcon size={16} color="#FFFFFF" />
-                <Text style={styles.navigateButtonText}>Navigate</Text>
-              </TouchableOpacity>
+              {/* Badge and Distance */}
+              <View style={styles.previewMeta}>
+                {isSpecial && (
+                  <View style={styles.especialBadge}>
+                    <Text style={styles.especialBadgeText}>ESPECIAL</Text>
+                  </View>
+                )}
+                <Text style={styles.distanceText}>• 350m away</Text>
+              </View>
 
-              <TouchableOpacity
-                style={styles.detailsButton}
-                onPress={onPress}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.detailsButtonText}>Details</Text>
-              </TouchableOpacity>
+              {/* Action Buttons */}
+              <View style={styles.previewActions}>
+                <TouchableOpacity
+                  style={styles.navigateButton}
+                  onPress={onGetDirections}
+                  activeOpacity={0.8}
+                >
+                  <NavigationIcon size={16} color="#FFFFFF" />
+                  <Text style={styles.navigateButtonText}>Navigate</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.detailsButton}
+                  onPress={onPress}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.detailsButtonText}>Details</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
-      </View>
-    </MotiView>
+      </Animated.View>
+    </GestureDetector>
   );
 }
 
 export default function MapScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { t, language } = useLanguage();
-  const [selectedMarker, setSelectedMarker] = useState<typeof FALLA_MARKERS[0] | null>(
-    FALLA_MARKERS[0]
-  );
+  const [selectedMarker, setSelectedMarker] = useState<typeof FALLA_MARKERS[0] | null>(null);
+  const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [filterSpecial, setFilterSpecial] = useState(false);
   const [filterNearMe, setFilterNearMe] = useState(false);
 
@@ -353,6 +430,11 @@ export default function MapScreen() {
 
   const handleMarkerPress = (marker: typeof FALLA_MARKERS[0]) => {
     setSelectedMarker(marker);
+    setIsPanelVisible(true);
+  };
+
+  const handleClosePanel = () => {
+    setIsPanelVisible(false);
   };
 
   const handleNavigateToFalla = () => {
@@ -382,7 +464,7 @@ export default function MapScreen() {
   });
 
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       {/* Map */}
       <View style={styles.mapContainer}>
         <MapComponent
@@ -395,7 +477,7 @@ export default function MapScreen() {
 
       {/* Version Label */}
       <View style={styles.versionContainer}>
-        <Text style={styles.versionText}>v0.0.2</Text>
+        <Text style={styles.versionText}>v0.0.3</Text>
       </View>
 
       {/* Filter Pills */}
@@ -414,15 +496,15 @@ export default function MapScreen() {
         />
       </View>
 
-      {/* Bottom Preview Card */}
-      {selectedMarker && (
-        <PreviewCard
-          marker={selectedMarker}
-          onPress={handleNavigateToFalla}
-          onGetDirections={openDirections}
-          language={language}
-        />
-      )}
+      {/* Bottom Sheet Preview Card */}
+      <BottomSheetPreviewCard
+        marker={selectedMarker}
+        isVisible={isPanelVisible}
+        onPress={handleNavigateToFalla}
+        onGetDirections={openDirections}
+        onClose={handleClosePanel}
+        language={language}
+      />
 
       {/* Legend */}
       <View style={styles.legendContainer}>
@@ -437,7 +519,7 @@ export default function MapScreen() {
           </View>
         </View>
       </View>
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
@@ -587,7 +669,7 @@ const styles = StyleSheet.create({
   filterPillTextActive: {
     color: '#fff',
   },
-  // Preview Card
+  // Preview Card / Bottom Sheet
   previewWrapper: {
     position: 'absolute',
     bottom: 100,
@@ -606,6 +688,34 @@ const styles = StyleSheet.create({
     elevation: 10,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.6)',
+  },
+  dragHandleContainer: {
+    alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  dragHandle: {
+    width: 36,
+    height: 4,
+    backgroundColor: '#D1D5DB',
+    borderRadius: 2,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 8,
+    right: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 20,
+  },
+  closeButtonText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '600',
   },
   previewTopGradient: {
     height: 4,
