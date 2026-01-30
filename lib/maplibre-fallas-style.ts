@@ -78,7 +78,7 @@ export const FALLAS_MAPLIBRE_STYLE: StyleSpecification = {
         'fill-opacity': 0.8,
       },
     },
-    // Buildings - dark red silhouettes
+    // Buildings - dark red silhouettes with fade-in
     {
       id: 'building',
       type: 'fill',
@@ -87,7 +87,13 @@ export const FALLAS_MAPLIBRE_STYLE: StyleSpecification = {
       minzoom: 12,
       paint: {
         'fill-color': '#2D1A1A',
-        'fill-opacity': 0.7,
+        'fill-opacity': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          12, 0,
+          13, 0.7,
+        ],
       },
     },
     // Building outlines - ember glow
