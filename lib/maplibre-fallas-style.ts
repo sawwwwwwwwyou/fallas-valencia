@@ -282,13 +282,15 @@ export const FALLAS_MAPLIBRE_STYLE: StyleSpecification = {
         'line-dasharray': [2, 2],
       },
     },
-    // Place labels - warm orange/gold
+    // Place labels - cities (disappear at zoom 11)
     {
       id: 'place-label-city',
       type: 'symbol',
       source: 'osm',
       'source-layer': 'place',
       filter: ['==', ['get', 'class'], 'city'],
+      minzoom: 4,
+      maxzoom: 11,
       layout: {
         'text-field': ['get', 'name'],
         'text-font': ['Open Sans Bold'],
@@ -297,7 +299,7 @@ export const FALLAS_MAPLIBRE_STYLE: StyleSpecification = {
           ['linear'],
           ['zoom'],
           8, 14,
-          12, 22,
+          10, 18,
         ],
         'text-transform': 'uppercase',
         'text-letter-spacing': 0.1,
@@ -308,13 +310,15 @@ export const FALLAS_MAPLIBRE_STYLE: StyleSpecification = {
         'text-halo-width': 2,
       },
     },
-    // Town/village labels
+    // Districts/neighborhoods (appear at zoom 11)
     {
       id: 'place-label-town',
       type: 'symbol',
       source: 'osm',
       'source-layer': 'place',
-      filter: ['match', ['get', 'class'], ['town', 'village', 'suburb'], true, false],
+      filter: ['match', ['get', 'class'], ['town', 'village', 'suburb', 'neighbourhood'], true, false],
+      minzoom: 11,
+      maxzoom: 17,
       layout: {
         'text-field': ['get', 'name'],
         'text-font': ['Open Sans Regular'],
