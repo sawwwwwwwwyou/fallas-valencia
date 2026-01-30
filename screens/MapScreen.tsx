@@ -393,6 +393,11 @@ export default function MapScreen() {
         />
       </View>
 
+      {/* Version Label */}
+      <View style={styles.versionContainer}>
+        <Text style={styles.versionText}>v0.0.2</Text>
+      </View>
+
       {/* Filter Pills */}
       <View style={styles.filterContainer}>
         <FilterPill
@@ -444,6 +449,20 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     position: 'relative',
+  },
+  versionContainer: {
+    position: 'absolute',
+    top: 60,
+    right: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  versionText: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 10,
+    fontWeight: '500',
   },
   mapPlaceholder: {
     flex: 1,
