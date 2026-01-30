@@ -61,6 +61,16 @@ export default function WebMapbox({
   const markersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
   const userMarkerRef = useRef<maplibregl.Marker | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [currentZoom, setCurrentZoom] = useState(INITIAL_VIEW_STATE.zoom);
+
+  // Calculate marker scale and opacity based on zoom
+  const getMarkerStyle = (zoom: number) => {
+    // Scale: 0.4 at zoom 10, 1.0 at zoom 14
+    const scale = zoom <= 10 ? 0.4 : zoom >= 14 ? 1 : 0.4 + ((zoom - 10) / 4) * 0.6;
+    // Opacity: 0.3 at zoom 9, 1.0 at zoom 11
+    const opacity = zoom <= 9 ? 0.3 : zoom >= 11 ? 1 : 0.3 + ((zoom - 9) / 2) * 0.7;
+    return { scale, opacity };
+  };
 
   // Initialize map
   useEffect(() => {
@@ -83,6 +93,13 @@ export default function WebMapbox({
       setTimeout(() => {
         setMapLoaded(true);
       }, 300);
+    });
+
+    // Track zoom changes for marker scaling
+    map.current.on('zoom', () => {
+      if (map.current) {
+        setCurrentZoom(map.current.getZoom());
+      }
     });
 
     return () => {
@@ -121,6 +138,21 @@ export default function WebMapbox({
       markersRef.current.set(marker.id, mapMarker);
     });
   }, [markers, selectedMarkerId, mapLoaded, onMarkerClick]);
+
+  // Update marker styles on zoom change
+  useEffect(() => {
+    if (!mapLoaded) return;
+    const { scale, opacity } = getMarkerStyle(currentZoom);
+    
+    markersRef.current.forEach((marker) => {
+      const el = marker.getElement();
+      if (el) {
+        el.style.transform = `scale(${scale})`;
+        el.style.opacity = String(opacity);
+        el.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+      }
+    });
+  }, [currentZoom, mapLoaded]);
 
   // Handle user location
   useEffect(() => {
