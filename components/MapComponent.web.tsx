@@ -1,11 +1,12 @@
 import React, { useRef, useEffect, useState } from 'react';
-import maplibregl from 'maplibre-gl';
-import 'maplibre-gl/dist/maplibre-gl.css';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { INITIAL_VIEW_STATE } from '../lib/maplibre-fallas-style';
 
 // Use same Mapbox style as native
 const MAPBOX_TOKEN = process.env.EXPO_PUBLIC_MAPBOX_TOKEN || '';
-const FALLAS_MAPBOX_STYLE = `https://api.mapbox.com/styles/v1/clawdik/cmkzi1tq6000c01sa71184yeo?access_token=${MAPBOX_TOKEN}`;
+mapboxgl.accessToken = MAPBOX_TOKEN;
+const FALLAS_MAPBOX_STYLE = `mapbox://styles/clawdik/cmkzi1tq6000c01sa71184yeo`;
 
 export interface FallaMarker {
   id: string;
@@ -61,9 +62,9 @@ export default function WebMapbox({
   showUserLocation = true,
 }: WebMapboxProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<maplibregl.Map | null>(null);
-  const markersRef = useRef<Map<string, maplibregl.Marker>>(new Map());
-  const userMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<Map<string, mapboxgl.Marker>>(new Map());
+  const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [currentZoom, setCurrentZoom] = useState(INITIAL_VIEW_STATE.zoom);
 
@@ -80,7 +81,7 @@ export default function WebMapbox({
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
-    map.current = new maplibregl.Map({
+    map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: FALLAS_MAPBOX_STYLE,
       center: [INITIAL_VIEW_STATE.longitude, INITIAL_VIEW_STATE.latitude],
@@ -89,7 +90,7 @@ export default function WebMapbox({
     });
 
     // Add navigation controls
-    map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
     map.current.on('load', () => {
       // Give the browser 300ms to settle after heavy WebGL initialization 
@@ -135,7 +136,7 @@ export default function WebMapbox({
         });
       });
 
-      const mapMarker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+      const mapMarker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
         .setLngLat([marker.longitude, marker.latitude])
         .addTo(map.current!);
 
@@ -172,7 +173,7 @@ export default function WebMapbox({
 
           // Add new user marker
           const el = createUserLocationElement();
-          userMarkerRef.current = new maplibregl.Marker({ element: el, anchor: 'center' })
+          userMarkerRef.current = new mapboxgl.Marker({ element: el, anchor: 'center' })
             .setLngLat([longitude, latitude])
             .addTo(map.current!);
         },
@@ -412,33 +413,33 @@ export default function WebMapbox({
         }
         
         /* Map controls styling */
-        .maplibregl-ctrl-group {
+        .mapboxgl-ctrl-group {
           background: rgba(26, 26, 26, 0.9) !important;
           border: 1px solid rgba(255, 107, 53, 0.3) !important;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
         }
         
-        .maplibregl-ctrl-group button {
+        .mapboxgl-ctrl-group button {
           background-color: transparent !important;
           border-color: rgba(255, 107, 53, 0.2) !important;
         }
         
-        .maplibregl-ctrl-group button:hover {
+        .mapboxgl-ctrl-group button:hover {
           background-color: rgba(255, 107, 53, 0.2) !important;
         }
         
-        .maplibregl-ctrl-group button span {
+        .mapboxgl-ctrl-group button span {
           filter: invert(1) sepia(1) saturate(5) hue-rotate(-10deg);
         }
         
         /* Attribution */
-        .maplibregl-ctrl-attrib {
+        .mapboxgl-ctrl-attrib {
           background: rgba(0,0,0,0.5) !important;
           color: rgba(255,255,255,0.6) !important;
           font-size: 10px !important;
         }
         
-        .maplibregl-ctrl-attrib a {
+        .mapboxgl-ctrl-attrib a {
           color: rgba(255,255,255,0.6) !important;
         }
       `}</style>
