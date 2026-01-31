@@ -42,9 +42,22 @@ import { useAuth } from '../contexts/AuthContext';
 
 import MapComponent from '../components/MapComponent';
 
-// Extended marker type for all POIs
-interface UnifiedMarker extends FallaMarker {
+// Extended marker type for all POIs - union of all marker properties
+interface UnifiedMarker {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
   type?: MapMarkerType;
+  // Falla-specific
+  district?: string;
+  category?: 'special' | 'firstA' | 'firstB' | 'secondA' | 'secondB' | 'infantil';
+  image?: string;
+  description_es?: string | null;
+  description_en?: string | null;
+  artist?: string | null;
+  is_featured?: boolean;
+  // POI-specific
   address?: string;
 }
 
@@ -592,7 +605,7 @@ export default function MapScreen() {
 
       {/* Version Label */}
       <View style={styles.versionContainer}>
-        <Text style={styles.versionText}>v0.0.8</Text>
+        <Text style={styles.versionText}>v0.0.9</Text>
       </View>
 
       {/* Filter Pills - Row 1: Location filters */}

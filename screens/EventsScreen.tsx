@@ -17,7 +17,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MotiView } from 'moti';
 import { RootStackParamList } from '../App';
-import { Event as EventType, EventWithDetails, EventTypeSlug, EVENT_ICONS } from '../types/database';
+import { Event as EventType, EventWithDetails, EventTypeSlug, EVENT_ICONS, Falla } from '../types/database';
 import { getEvents } from '../lib/supabase';
 import {
   AnimatedCard,
@@ -240,115 +240,158 @@ function getTodayAt(hours: number, minutes: number = 0): string {
   return date.toISOString();
 }
 
+// Mock event helper to create consistent mock data
+function createMockEvent(data: {
+  id: string;
+  title_es: string;
+  title_en: string;
+  start_time: string;
+  location: string;
+  description_es: string;
+  event_type: { id: string; name_es: string; name_en: string; icon: string };
+  pirotecnia?: string;
+  best_viewing_location?: string;
+  is_cancelled?: boolean;
+}): EventWithDetails {
+  return {
+    id: data.id,
+    event_type_id: data.event_type.id,
+    falla_id: null,
+    title_es: data.title_es,
+    title_en: data.title_en,
+    start_time: data.start_time,
+    end_time: null,
+    location: data.location,
+    lat: null,
+    lng: null,
+    description_es: data.description_es,
+    description_en: null,
+    is_cancelled: data.is_cancelled || false,
+    pirotecnia: data.pirotecnia || null,
+    best_viewing_location: data.best_viewing_location || null,
+    external_url: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    event_type: {
+      id: data.event_type.id,
+      name_es: data.event_type.name_es,
+      name_en: data.event_type.name_en,
+      icon: data.event_type.icon,
+      color: '#FF6B35',
+      description_es: null,
+      description_en: null,
+      created_at: new Date().toISOString(),
+    },
+    falla: null as unknown as Falla | null,
+  } as EventWithDetails;
+}
+
 // Mock events for demo when no real events exist
 // Times match the design EXACTLY: Mascletà (hero) + 4 timeline events
 const MOCK_EVENTS: EventWithDetails[] = [
   // Hero event - Mascletà
-  {
+  createMockEvent({
     id: 'mock-1',
     title_es: 'Mascletà',
     title_en: 'Mascletà',
-    start_time: getTodayAt(14, 0), // 14:00 - Plaza del Ayuntamiento
-    end_time: null,
+    start_time: getTodayAt(14, 0),
     location: 'Plaza del Ayuntamiento',
     description_es: 'Espectáculo de fuegos artificiales diurno',
     event_type: { id: '1', name_es: 'Mascletà', name_en: 'Mascletà', icon: '💥' },
-    falla: null,
-  },
-  // Timeline event 1 - matches design
-  {
+    pirotecnia: 'Pirotecnia Caballer',
+    best_viewing_location: 'Calle San Vicente, frente al Ayuntamiento',
+  }),
+  // Timeline event 1 - Ofrenda
+  createMockEvent({
     id: 'mock-2',
     title_es: 'Ofrenda de Flores',
     title_en: 'Flower Offering',
-    start_time: getTodayAt(16, 0), // 16:00 - Plaza de la Virgen
-    end_time: null,
+    start_time: getTodayAt(16, 0),
     location: 'Plaza de la Virgen',
     description_es: 'Ofrenda floral a la Virgen de los Desamparados',
     event_type: { id: '2', name_es: 'Ofrenda', name_en: 'Offering', icon: '🌺' },
-    falla: null,
-  },
-  // Timeline event 2 - matches design
-  {
+  }),
+  // Timeline event 2 - Cabalgata
+  createMockEvent({
     id: 'mock-3',
     title_es: 'Cabalgata del Fuego',
     title_en: 'Fire Parade',
-    start_time: getTodayAt(18, 30), // 18:30 - Calle Colón
-    end_time: null,
+    start_time: getTodayAt(18, 30),
     location: 'Calle Colón',
     description_es: 'Desfile de carrozas con pirotecnia',
     event_type: { id: '3', name_es: 'Cabalgata', name_en: 'Parade', icon: '🔥' },
-    falla: null,
-  },
-  // Timeline event 3 - matches design
-  {
+  }),
+  // Timeline event 3 - Castillo (with pirotecnia info)
+  createMockEvent({
     id: 'mock-4',
     title_es: 'Castell de Foc',
     title_en: 'Fireworks Castle',
-    start_time: getTodayAt(22, 0), // 22:00 - Jardín del Turia
-    end_time: null,
+    start_time: getTodayAt(22, 0),
     location: 'Jardín del Turia',
     description_es: 'Espectáculo de fuegos artificiales nocturno',
     event_type: { id: '4', name_es: 'Castillo', name_en: 'Fireworks', icon: '🎆' },
-    falla: null,
-  },
-  // Timeline event 4 - matches design (La Cremà at 01:00)
-  {
+    pirotecnia: 'Pirotecnia Valenciana',
+    best_viewing_location: 'Puente de las Flores o Puente de la Exposición',
+  }),
+  // Timeline event 4 - La Cremà
+  createMockEvent({
     id: 'mock-5',
     title_es: 'La Cremà',
     title_en: 'The Burning',
-    start_time: getTodayAt(25, 0), // 01:00 next day (25 = 1am tomorrow)
-    end_time: null,
+    start_time: getTodayAt(25, 0),
     location: 'Citywide',
     description_es: 'La quema de las fallas - el momento culminante',
     event_type: { id: '5', name_es: 'Cremà', name_en: 'Burning', icon: '🔥' },
-    falla: null,
-  },
+  }),
   // Additional events for scrollable demo
-  {
+  createMockEvent({
     id: 'mock-6',
     title_es: 'Despertà',
     title_en: 'Wake-up Call',
-    start_time: getTodayAt(32, 0), // 08:00 next day
-    end_time: null,
+    start_time: getTodayAt(32, 0),
     location: 'Barrio del Carmen',
     description_es: 'Despertador tradicional con petardos por las calles',
     event_type: { id: '6', name_es: 'Despertà', name_en: 'Wake-up', icon: '🎺' },
-    falla: null,
-  },
-  {
+  }),
+  createMockEvent({
     id: 'mock-7',
     title_es: 'Pasacalle Infantil',
     title_en: 'Children\'s Parade',
-    start_time: getTodayAt(34, 0), // 10:00 next day
-    end_time: null,
+    start_time: getTodayAt(34, 0),
     location: 'Centro Histórico',
     description_es: 'Desfile de las comisiones infantiles',
     event_type: { id: '7', name_es: 'Pasacalle', name_en: 'Parade', icon: '🎭' },
-    falla: null,
-  },
-  {
+  }),
+  createMockEvent({
     id: 'mock-8',
     title_es: 'Concierto de Bandas',
     title_en: 'Band Concert',
-    start_time: getTodayAt(36, 0), // 12:00 next day
-    end_time: null,
+    start_time: getTodayAt(36, 0),
     location: 'Plaza de la Virgen',
     description_es: 'Concierto de música tradicional valenciana',
     event_type: { id: '8', name_es: 'Concierto', name_en: 'Concert', icon: '🎵' },
-    falla: null,
-  },
-  {
+  }),
+  createMockEvent({
     id: 'mock-9',
     title_es: 'Visita a Monumentos',
     title_en: 'Monument Tours',
-    start_time: getTodayAt(38, 0), // 14:00 next day
-    end_time: null,
+    start_time: getTodayAt(38, 0),
     location: 'Toda la ciudad',
     description_es: 'Recorrido guiado por las fallas más destacadas',
     event_type: { id: '9', name_es: 'Visita', name_en: 'Tour', icon: '🗿' },
-    falla: null,
-  },
-] as EventWithDetails[];
+  }),
+  // Example cancelled event (for demo)
+  createMockEvent({
+    id: 'mock-10',
+    title_es: 'Verbena de la Plaza',
+    title_en: 'Plaza Street Party',
+    start_time: getTodayAt(40, 0),
+    location: 'Plaza del Mercado',
+    description_es: 'Fiesta callejera con música en vivo',
+    event_type: { id: '10', name_es: 'Verbena', name_en: 'Street Party', icon: '🎵' },
+    is_cancelled: true,
+  }),
+];
 
 // Filter Chips Row Component
 function FilterChipsRow({
