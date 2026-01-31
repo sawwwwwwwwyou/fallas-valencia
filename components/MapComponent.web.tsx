@@ -121,7 +121,7 @@ export default function WebMapbox({
     if (marker) {
       map.current.flyTo({
         center: [marker.longitude, marker.latitude],
-        zoom: 16,
+        zoom: 15,
         duration: 1000,
       });
     }
@@ -145,7 +145,7 @@ export default function WebMapbox({
         // Fly to marker
         map.current?.flyTo({
           center: [marker.longitude, marker.latitude],
-          zoom: 16,
+          zoom: 15,
           duration: 1000,
         });
       });
