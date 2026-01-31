@@ -158,19 +158,14 @@ export default function WebMapbox({
     });
   }, [markers, selectedMarkerId, mapLoaded, onMarkerClick]);
 
-  // Update marker styles on zoom change
+  // Update marker styles on zoom change using CSS custom properties
   useEffect(() => {
     if (!mapLoaded) return;
     const { scale, opacity } = getMarkerStyle(currentZoom);
     
-    markersRef.current.forEach((marker) => {
-      const el = marker.getElement();
-      if (el) {
-        el.style.transform = `scale(${scale})`;
-        el.style.opacity = String(opacity);
-        el.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
-      }
-    });
+    // Use CSS custom properties instead of inline transform (which Mapbox uses for positioning)
+    document.documentElement.style.setProperty('--fallas-marker-scale', String(scale));
+    document.documentElement.style.setProperty('--fallas-marker-opacity', String(opacity));
   }, [currentZoom, mapLoaded]);
 
   // Handle user location
@@ -258,6 +253,9 @@ export default function WebMapbox({
           flex-direction: column;
           align-items: center;
           position: relative;
+          transform: scale(var(--fallas-marker-scale, 1));
+          opacity: var(--fallas-marker-opacity, 1);
+          transition: transform 0.2s ease, opacity 0.2s ease;
         }
         
         .marker-body {
