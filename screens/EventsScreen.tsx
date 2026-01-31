@@ -7,6 +7,8 @@ import {
   RefreshControl,
   Pressable,
   ScrollView,
+  Alert,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -392,9 +394,30 @@ export default function EventsScreen() {
           description: event.falla.description_es || '',
         }
       });
+    } else {
+      // For events without falla, show event info
+      const title = language === 'en' && event.title_en ? event.title_en : event.title_es;
+      const description = language === 'en' && event.description_en 
+        ? event.description_en 
+        : event.description_es;
+      const eventTime = new Date(event.start_time);
+      const formattedTime = eventTime.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      
+      if (Platform.OS === 'web') {
+        // On web, use window.alert or console for now
+        window.alert(`${event.event_type?.icon || '📅'} ${title}\n\n⏰ ${formattedTime}\n📍 ${event.location || 'Valencia'}\n\n${description || ''}`);
+      } else {
+        Alert.alert(
+          `${event.event_type?.icon || '📅'} ${title}`,
+          `⏰ ${formattedTime}\n📍 ${event.location || 'Valencia'}\n\n${description || ''}`,
+          [{ text: 'OK' }]
+        );
+      }
     }
-    // TODO: Add EventDetail screen for non-falla events
-  }, [navigation]);
+  }, [navigation, language]);
 
   if (loading) {
     return (
