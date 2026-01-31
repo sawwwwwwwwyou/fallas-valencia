@@ -7,7 +7,18 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View, ActivityIndicator, StyleSheet, Platform } from 'react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { colors } from './lib/theme';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -304,18 +315,20 @@ function WebContainer({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <WebContainer>
-      <SafeAreaProvider>
-        <LanguageProvider>
-          <AuthProvider>
-            <NavigationContainer>
-              <AppNavigator />
-            </NavigationContainer>
-            <StatusBar style="light" />
-          </AuthProvider>
-        </LanguageProvider>
-      </SafeAreaProvider>
-    </WebContainer>
+    <QueryClientProvider client={queryClient}>
+      <WebContainer>
+        <SafeAreaProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <NavigationContainer>
+                <AppNavigator />
+              </NavigationContainer>
+              <StatusBar style="light" />
+            </AuthProvider>
+          </LanguageProvider>
+        </SafeAreaProvider>
+      </WebContainer>
+    </QueryClientProvider>
   );
 }
 

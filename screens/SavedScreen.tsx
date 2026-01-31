@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -16,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
 import { RootStackParamList, Falla } from '../App';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -31,6 +33,7 @@ import {
   borderRadius,
   shadows,
 } from '../lib/theme';
+import { useFavoriteItems, useToggleFavorite, SavedItem } from '../hooks';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -44,21 +47,10 @@ const COLORS = {
 
 type FilterType = 'all' | 'fallas' | 'events';
 
-interface SavedItem {
-  id: string;
-  type: 'falla' | 'event';
-  name: string;
-  location: string;
-  category?: string;
-  time?: string;
-  image: string;
-  saved: boolean;
-}
-
-// Mock data matching the design
-const SAVED_ITEMS: SavedItem[] = [
+// Demo data for when user is not logged in
+const DEMO_ITEMS: SavedItem[] = [
   {
-    id: '1',
+    id: 'demo-1',
     type: 'falla',
     name: 'Falla Convento Jerusalén',
     location: 'Ruzafa',
@@ -67,7 +59,7 @@ const SAVED_ITEMS: SavedItem[] = [
     saved: true,
   },
   {
-    id: '2',
+    id: 'demo-2',
     type: 'event',
     name: 'Mascletà',
     time: '14:00',
@@ -76,7 +68,7 @@ const SAVED_ITEMS: SavedItem[] = [
     saved: true,
   },
   {
-    id: '3',
+    id: 'demo-3',
     type: 'falla',
     name: 'Plaza del Ayuntamiento',
     location: 'Ciutat Vella',
@@ -85,7 +77,7 @@ const SAVED_ITEMS: SavedItem[] = [
     saved: true,
   },
   {
-    id: '4',
+    id: 'demo-4',
     type: 'event',
     name: 'Ofrenda de Flores',
     time: '16:00',
@@ -266,10 +258,23 @@ export default function SavedScreen() {
   const { user, signOut } = useAuth();
   const { language, t } = useLanguage();
   const insets = useSafeAreaInsets();
+  const queryClient = useQueryClient();
 
-  const [items, setItems] = useState(SAVED_ITEMS);
   const [filter, setFilter] = useState<FilterType>('all');
   const [refreshing, setRefreshing] = useState(false);
+
+  // Fetch favorites from Supabase (only if user is logged in)
+  const { items: supabaseItems, isLoading, refetch } = useFavoriteItems(user?.id);
+  const { toggle: toggleFavorite, isLoading: isToggling } = useToggleFavorite();
+
+  // Use Supabase data if logged in, otherwise show demo data
+  const items = useMemo(() => {
+    if (user && supabaseItems.length > 0) {
+      return supabaseItems;
+    }
+    // Return demo items for design preview when not logged in
+    return DEMO_ITEMS;
+  }, [user, supabaseItems]);
 
   const filteredItems = items.filter((item) => {
     if (filter === 'all') return true;
@@ -278,7 +283,7 @@ export default function SavedScreen() {
     return true;
   });
 
-  const toggleSaved = (id: string) => {
+  const toggleSaved = async (id: string, item: SavedItem) => {
     // Check if user is logged in
     if (!user) {
       // Show login prompt
@@ -299,18 +304,22 @@ export default function SavedScreen() {
       return;
     }
 
-    // Toggle saved state if logged in
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, saved: !item.saved } : item
-      )
-    );
+    // Toggle favorite in Supabase
+    if (item.fallaId) {
+      try {
+        await toggleFavorite(user.id, item.fallaId, item.saved);
+      } catch (error) {
+        console.error('Failed to toggle favorite:', error);
+        Alert.alert('Error', 'Failed to update favorite');
+      }
+    }
   };
 
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 1000);
-  }, []);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   // Navigate to map with selected falla
   const handleNavigate = (item: SavedItem) => {
@@ -324,13 +333,13 @@ export default function SavedScreen() {
     if (item.type === 'falla') {
       navigation.navigate('FallaDetail', {
         falla: {
-          id: item.id,
+          id: item.fallaId || item.id,
           name: item.name,
           category: item.category || '',
           address: item.location,
           description: language === 'es'
-            ? `Una de las fallas más emblemáticas de Valencia.`
-            : `One of the most emblematic fallas of Valencia.`,
+            ? (item.description_es || `Una de las fallas más emblemáticas de Valencia.`)
+            : (item.description_en || `One of the most emblematic fallas of Valencia.`),
         },
       });
     }
@@ -389,6 +398,13 @@ export default function SavedScreen() {
           />
         </View>
 
+        {/* Loading State */}
+        {isLoading && user && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+          </View>
+        )}
+
         {/* Items List */}
         <View style={styles.itemsList}>
           {filteredItems.map((item, index) => (
@@ -398,7 +414,7 @@ export default function SavedScreen() {
               index={index}
               onNavigate={() => handleNavigate(item)}
               onDetails={() => handleDetails(item)}
-              onToggleSaved={() => toggleSaved(item.id)}
+              onToggleSaved={() => toggleSaved(item.id, item)}
               language={language}
             />
           ))}
@@ -655,6 +671,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(0,0,0,0.6)',
     textAlign: 'center',
+  },
+  loadingContainer: {
+    paddingVertical: spacing.xl,
+    alignItems: 'center',
   },
   // Progress Card
   progressCard: {

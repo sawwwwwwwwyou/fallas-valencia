@@ -8,6 +8,7 @@ import {
   Linking,
   Image,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -34,70 +35,13 @@ import { RootStackParamList, Falla } from '../App';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LocationIcon, StarIcon, NavigationIcon } from '../components/icons';
 import { colors, spacing, borderRadius, shadows } from '../lib/theme';
+import { useFallasMarkers, FallaMarker } from '../hooks';
 
 import MapComponent from '../components/MapComponent';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-// Real Valencia coordinates for fallas
-const FALLA_MARKERS = [
-  {
-    id: '1',
-    name: 'Falla Plaza del Ayuntamiento',
-    district: 'Plaza del Ayuntamiento',
-    category: 'special' as const,
-    image: 'https://images.unsplash.com/photo-1647693680958-e2bd830cdbfb?w=400',
-    latitude: 39.4699,
-    longitude: -0.3763,
-  },
-  {
-    id: '2',
-    name: 'Falla Convento Jerusalén',
-    district: 'Ruzafa',
-    category: 'special' as const,
-    image: 'https://images.unsplash.com/photo-1760121002397-70751ea3c113?w=400',
-    latitude: 39.4589,
-    longitude: -0.3723,
-  },
-  {
-    id: '3',
-    name: 'Falla Na Jordana',
-    district: 'El Carmen',
-    category: 'special' as const,
-    image: 'https://images.unsplash.com/photo-1671639045782-93f73d559236?w=400',
-    latitude: 39.4789,
-    longitude: -0.3803,
-  },
-  {
-    id: '4',
-    name: 'Falla Antiga de Campanar',
-    district: 'Campanar',
-    category: 'firstA' as const,
-    image: 'https://images.unsplash.com/photo-1671639045782-93f73d559236?w=400',
-    latitude: 39.4820,
-    longitude: -0.4010,
-  },
-  {
-    id: '5',
-    name: 'Falla Cuba-Literato Azorín',
-    district: 'Ruzafa',
-    category: 'firstA' as const,
-    image: 'https://images.unsplash.com/photo-1647693680958-e2bd830cdbfb?w=400',
-    latitude: 39.4560,
-    longitude: -0.3670,
-  },
-  {
-    id: '6',
-    name: 'Falla Exposición',
-    district: 'Exposición',
-    category: 'special' as const,
-    image: 'https://images.unsplash.com/photo-1760121002397-70751ea3c113?w=400',
-    latitude: 39.4750,
-    longitude: -0.3650,
-  },
-];
 
 // Filter Pill Component
 function FilterPill({
@@ -266,7 +210,7 @@ function BottomSheetPreviewCard({
   onClose,
   language,
 }: {
-  marker: typeof FALLA_MARKERS[0] | null;
+  marker: FallaMarker | null;
   isVisible: boolean;
   onPress: () => void;
   onGetDirections: () => void;
@@ -419,16 +363,19 @@ function BottomSheetPreviewCard({
 export default function MapScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { t, language } = useLanguage();
-  const [selectedMarker, setSelectedMarker] = useState<typeof FALLA_MARKERS[0] | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<FallaMarker | null>(null);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [filterSpecial, setFilterSpecial] = useState(false);
   const [filterNearMe, setFilterNearMe] = useState(false);
+
+  // Fetch fallas from Supabase
+  const { markers: allMarkers, isLoading, error } = useFallasMarkers();
 
   const getCategoryLabel = (category: string) => {
     return category === 'special' ? t('category.special') : t('category.firstA');
   };
 
-  const handleMarkerPress = (marker: typeof FALLA_MARKERS[0]) => {
+  const handleMarkerPress = (marker: FallaMarker) => {
     setSelectedMarker(marker);
     setIsPanelVisible(true);
   };
@@ -446,8 +393,8 @@ export default function MapScreen() {
       category: getCategoryLabel(selectedMarker.category),
       address: `${selectedMarker.district}, Valencia`,
       description: language === 'es'
-        ? `Una de las fallas más emblemáticas de Valencia.`
-        : `One of the most emblematic fallas of Valencia.`,
+        ? (selectedMarker.description_es || `Una de las fallas más emblemáticas de Valencia.`)
+        : (selectedMarker.description_en || `One of the most emblematic fallas of Valencia.`),
     };
     navigation.navigate('FallaDetail', { falla });
   };
@@ -458,7 +405,7 @@ export default function MapScreen() {
   };
 
   // Filter markers
-  const filteredMarkers = FALLA_MARKERS.filter(marker => {
+  const filteredMarkers = allMarkers.filter(marker => {
     if (filterSpecial && marker.category !== 'special') return false;
     return true;
   });
@@ -467,17 +414,24 @@ export default function MapScreen() {
     <GestureHandlerRootView style={styles.container}>
       {/* Map */}
       <View style={styles.mapContainer}>
-        <MapComponent
-          markers={filteredMarkers}
-          onMarkerClick={handleMarkerPress}
-          selectedMarkerId={selectedMarker?.id}
-          showUserLocation={true}
-        />
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary.orange} />
+            <Text style={styles.loadingText}>Loading fallas...</Text>
+          </View>
+        ) : (
+          <MapComponent
+            markers={filteredMarkers}
+            onMarkerClick={handleMarkerPress}
+            selectedMarkerId={selectedMarker?.id}
+            showUserLocation={true}
+          />
+        )}
       </View>
 
       {/* Version Label */}
       <View style={styles.versionContainer}>
-        <Text style={styles.versionText}>v0.0.3</Text>
+        <Text style={styles.versionText}>v0.0.4</Text>
       </View>
 
       {/* Filter Pills */}
@@ -531,6 +485,17 @@ const styles = StyleSheet.create({
   mapContainer: {
     flex: 1,
     position: 'relative',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#0D0D0D',
+  },
+  loadingText: {
+    color: '#fff',
+    marginTop: 12,
+    fontSize: 14,
   },
   versionContainer: {
     position: 'absolute',
