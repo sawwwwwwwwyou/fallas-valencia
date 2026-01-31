@@ -15,6 +15,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { MotiView } from 'moti';
 import { RootStackParamList } from '../App';
 import { Event as EventType, EventWithDetails, EventTypeSlug, EVENT_ICONS, Falla } from '../types/database';
@@ -393,7 +394,7 @@ const MOCK_EVENTS: EventWithDetails[] = [
   }),
 ];
 
-// Filter Chips Row Component
+// Filter Chips Row Component with Glassmorphism
 function FilterChipsRow({
   selectedFilter,
   onFilterChange,
@@ -404,36 +405,43 @@ function FilterChipsRow({
   t: (key: string) => string;
 }) {
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.filterContainer}
-      style={styles.filterScroll}
-    >
-      {FILTER_CHIPS.map((chip) => {
-        const isSelected = selectedFilter === chip.id;
-        return (
-          <Pressable
-            key={chip.id}
-            onPress={() => onFilterChange(chip.id)}
-            style={[
-              styles.filterChip,
-              isSelected && styles.filterChipSelected,
-            ]}
+    <View style={styles.filterWrapper}>
+      <BlurView intensity={80} tint="light" style={styles.filterBlurContainer}>
+        <View style={styles.filterInner}>
+          <Text style={styles.filterSectionTitle}>{t('events.filterByType')}</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterContainer}
+            style={styles.filterScroll}
           >
-            <Text style={styles.filterChipIcon}>{chip.icon}</Text>
-            <Text
-              style={[
-                styles.filterChipText,
-                isSelected && styles.filterChipTextSelected,
-              ]}
-            >
-              {chip.label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
+            {FILTER_CHIPS.map((chip) => {
+              const isSelected = selectedFilter === chip.id;
+              return (
+                <Pressable
+                  key={chip.id}
+                  onPress={() => onFilterChange(chip.id)}
+                  style={[
+                    styles.filterChip,
+                    isSelected && styles.filterChipSelected,
+                  ]}
+                >
+                  <Text style={styles.filterChipIcon}>{chip.icon}</Text>
+                  <Text
+                    style={[
+                      styles.filterChipText,
+                      isSelected && styles.filterChipTextSelected,
+                    ]}
+                  >
+                    {chip.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </View>
+      </BlurView>
+    </View>
   );
 }
 
@@ -719,9 +727,16 @@ export default function EventsScreen() {
       end={{ x: 0, y: 1 }}
       style={styles.container}
     >
+      {/* Filter chips at top with glassmorphism */}
+      <FilterChipsRow
+        selectedFilter={selectedFilter}
+        onFilterChange={setSelectedFilter}
+        t={t}
+      />
+
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 100, paddingTop: spacing.sm }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -737,16 +752,6 @@ export default function EventsScreen() {
           language={language}
           showHeader={true}
         />
-        
-        {/* Filter chips below the feed header */}
-        <View style={styles.filterSection}>
-          <Text style={styles.filterSectionTitle}>{t('events.filterByType')}</Text>
-          <FilterChipsRow
-            selectedFilter={selectedFilter}
-            onFilterChange={setSelectedFilter}
-            t={t}
-          />
-        </View>
 
         {/* Empty state when filtered with no results */}
         {displayEvents.length === 0 && selectedFilter !== 'todos' && (
@@ -825,10 +830,24 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     paddingTop: spacing.sm,
   },
-  // Filter section
-  filterSection: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+  // Filter section with glassmorphism
+  filterWrapper: {
+    marginHorizontal: spacing.md,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
+    borderRadius: borderRadius.lg,
+    overflow: 'hidden',
+  },
+  filterBlurContainer: {
+    borderRadius: borderRadius.lg,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  filterInner: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   filterSectionTitle: {
     fontSize: typography.sizes.caption,
@@ -836,7 +855,7 @@ const styles = StyleSheet.create({
     color: colors.text.tertiary,
     textTransform: 'uppercase',
     letterSpacing: 1,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   filterScroll: {
     flexGrow: 0,
@@ -851,11 +870,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: borderRadius.full,
-    backgroundColor: colors.background.white,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     borderWidth: 1,
-    borderColor: 'rgba(255,107,53,0.2)',
+    borderColor: 'rgba(255, 107, 53, 0.2)',
     gap: 6,
     marginRight: spacing.sm,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   filterChipSelected: {
     backgroundColor: colors.primary.orange,
