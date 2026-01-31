@@ -166,9 +166,15 @@ export default function WebMapbox({
     markersRef.current.forEach((marker) => {
       const el = marker.getElement();
       if (el) {
-        el.style.transform = `scale(${scale})`;
+        // Apply scale to inner .fire-marker element, NOT the root element!
+        // Mapbox uses transform on root element for positioning - don't overwrite it!
+        const innerMarker = el.querySelector('.fire-marker') as HTMLElement;
+        if (innerMarker) {
+          innerMarker.style.transform = `scale(${scale})`;
+          innerMarker.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+        }
         el.style.opacity = String(opacity);
-        el.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+        el.style.transition = 'opacity 0.2s ease';
       }
     });
   }, [currentZoom, mapLoaded]);
