@@ -231,11 +231,17 @@ export default function GuideScreen() {
   const { t, language } = useLanguage();
 
   return (
-    <ScrollView
+    <LinearGradient
+      colors={['#FFF8F0', '#FFE8D6', '#FFF0E5']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
       style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
     >
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
       {/* Header */}
       <View style={styles.header}>
         <View>
@@ -328,9 +334,10 @@ export default function GuideScreen() {
         </GlassCard>
       </View>
 
-      {/* Bottom Padding */}
-      <View style={{ height: 100 }} />
-    </ScrollView>
+        {/* Bottom Padding */}
+        <View style={{ height: 100 }} />
+      </ScrollView>
+    </LinearGradient>
   );
 }
 

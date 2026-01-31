@@ -325,16 +325,17 @@ function TimelineEvent({
           <Text style={{ fontSize: 18 }}>{event.event_type?.icon || '📅'}</Text>
         </View>
 
-        {/* Card - removed blur for performance (8 cards * blur = heavy) */}
-        <View
+        {/* Card with subtle gradient */}
+        <LinearGradient
+          colors={['rgba(255,255,255,0.98)', 'rgba(255,248,240,0.95)']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
           style={{
             flex: 1,
-            backgroundColor: 'rgba(255,255,255,0.95)', // Slightly more opaque to compensate
             borderRadius: 16,
             padding: 16,
             borderWidth: 1,
             borderColor: 'rgba(255,107,53,0.2)',
-            // Blur disabled for performance - too many cards
           }}
         >
           <View
@@ -364,7 +365,7 @@ function TimelineEvent({
           <Text style={{ fontSize: 14, color: 'rgba(45,45,45,0.6)' }}>
             {event.location || 'Valencia'}
           </Text>
-        </View>
+        </LinearGradient>
       </MotiView>
     </Pressable>
   );

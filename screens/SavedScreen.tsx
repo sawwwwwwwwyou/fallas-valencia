@@ -239,11 +239,18 @@ function SavedItemCard({
 
             {/* Actions */}
             <View style={styles.itemActions}>
-              <TouchableOpacity style={styles.primaryButton} onPress={onNavigate}>
-                <Text style={styles.primaryButtonIcon}>🧭</Text>
-                <Text style={styles.primaryButtonText}>
-                  {t('saved.navigate')}
-                </Text>
+              <TouchableOpacity onPress={onNavigate} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={['#FF6B35', '#E63946']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.primaryButton}
+                >
+                  <Text style={styles.primaryButtonIcon}>🧭</Text>
+                  <Text style={styles.primaryButtonText}>
+                    {t('saved.navigate')}
+                  </Text>
+                </LinearGradient>
               </TouchableOpacity>
               <TouchableOpacity style={styles.secondaryButton} onPress={onDetails}>
                 <Text style={styles.secondaryButtonText}>
@@ -351,7 +358,12 @@ export default function SavedScreen() {
   };
 
   return (
-    <AnimatedScreen style={styles.container}>
+    <LinearGradient
+      colors={['#FFF8F0', '#FFE8D6', '#FFF0E5']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.container}
+    >
       <ScrollView
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
@@ -441,7 +453,7 @@ export default function SavedScreen() {
         {/* Bottom Padding */}
         <View style={{ height: 100 }} />
       </ScrollView>
-    </AnimatedScreen>
+    </LinearGradient>
   );
 }
 
@@ -625,14 +637,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   primaryButton: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
     height: 36,
+    paddingHorizontal: 16,
     borderRadius: 50,
-    backgroundColor: COLORS.primary,
   },
   primaryButtonIcon: {
     fontSize: 14,

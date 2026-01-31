@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import { MotiView } from 'moti';
 import { RootStackParamList } from '../App';
 import { Event as EventType, EventWithDetails } from '../types/database';
@@ -421,9 +422,14 @@ export default function EventsScreen() {
 
   if (loading) {
     return (
-      <AnimatedScreen style={styles.container}>
+      <LinearGradient
+        colors={['#FFF8F0', '#FFE8D6', '#FFF0E5']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={styles.container}
+      >
         <SkeletonList count={6} />
-      </AnimatedScreen>
+      </LinearGradient>
     );
   }
 
@@ -439,7 +445,12 @@ export default function EventsScreen() {
 
   // Always show EventsFeed with header (like original design)
   return (
-    <AnimatedScreen style={styles.container}>
+    <LinearGradient
+      colors={['#FFF8F0', '#FFE8D6', '#FFF0E5']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+      style={styles.container}
+    >
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingBottom: 100 }}
@@ -459,7 +470,7 @@ export default function EventsScreen() {
           showHeader={true}
         />
       </ScrollView>
-    </AnimatedScreen>
+    </LinearGradient>
   );
 
   // Fallback to sections view (kept for reference)
