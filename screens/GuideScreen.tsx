@@ -54,6 +54,14 @@ interface GuideCategory {
 // Topics matching design
 const GUIDE_TOPICS: GuideCategory[] = [
   {
+    id: 'streetClosures',
+    titleKey: 'guide.streetClosures',
+    subtitleKey: 'guide.topic.streetClosures',
+    emoji: '🚧',
+    gradient: [COLORS.flameRed, '#B91C1C'],
+    screen: 'GuideStreetClosures',
+  },
+  {
     id: 'history',
     titleKey: 'guide.history',
     subtitleKey: 'guide.topic.history',
@@ -76,6 +84,22 @@ const GUIDE_TOPICS: GuideCategory[] = [
     emoji: '💥',
     gradient: [COLORS.gold, '#FFD700'],
     screen: 'GuideFireworks',
+  },
+  {
+    id: 'transport',
+    titleKey: 'guide.transport',
+    subtitleKey: 'guide.topic.transport',
+    emoji: '🚇',
+    gradient: ['#4CAF50', '#2E7D32'],
+    screen: 'GuideTransport',
+  },
+  {
+    id: 'practical',
+    titleKey: 'guide.practical',
+    subtitleKey: 'guide.topic.practical',
+    emoji: 'ℹ️',
+    gradient: ['#607D8B', '#455A64'],
+    screen: 'GuidePracticalInfo',
   },
   {
     id: 'food',

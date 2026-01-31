@@ -9,6 +9,33 @@ import {
 } from 'react-native';
 import { useLanguage } from '../../contexts/LanguageContext';
 
+const STRIKE_SCHEDULE = [
+  {
+    date: '14 marzo',
+    times: ['12:00-14:30'],
+  },
+  {
+    date: '15 marzo',
+    times: ['11:00-14:00', '20:00-22:00'],
+  },
+  {
+    date: '16 marzo',
+    times: ['00:05-02:00', '11:30-14:00', '19:30-21:30', '22:45-00:00'],
+  },
+  {
+    date: '17 marzo',
+    times: ['00:30-02:30', '12:30-15:00', '20:30-22:30'],
+  },
+  {
+    date: '18 marzo',
+    times: ['01:00-03:00', '12:45-15:15', '17:00-19:00', '22:45-00:00'],
+  },
+  {
+    date: '19 marzo',
+    times: ['04:30-06:30', '12:40-15:00'],
+  },
+];
+
 export default function GuideTransportScreen() {
   const { t } = useLanguage();
 
@@ -18,6 +45,39 @@ export default function GuideTransportScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Strike Warning Banner */}
+      <View style={styles.strikeBanner}>
+        <Text style={styles.strikeEmoji}>⚠️</Text>
+        <View style={styles.strikeContent}>
+          <Text style={styles.strikeTitle}>{t('transport.strikeTitle')}</Text>
+          <Text style={styles.strikeSubtitle}>{t('transport.strikeWarning')}</Text>
+        </View>
+      </View>
+
+      {/* Strike Schedule */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionEmoji}>🚨</Text>
+          <Text style={styles.sectionTitle}>{t('transport.strikeSchedule')}</Text>
+        </View>
+        
+        <View style={styles.card}>
+          {STRIKE_SCHEDULE.map((day, index) => (
+            <View key={index} style={[styles.strikeDay, index > 0 && styles.strikeDayBorder]}>
+              <Text style={styles.strikeDateLabel}>{day.date}</Text>
+              <View style={styles.strikeTimesContainer}>
+                {day.times.map((time, timeIndex) => (
+                  <View key={timeIndex} style={styles.strikeTimeTag}>
+                    <Text style={styles.strikeTimeText}>{time}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ))}
+          <Text style={styles.strikeNote}>{t('transport.strikeNote')}</Text>
+        </View>
+      </View>
+
       {/* Metro Section */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
@@ -30,9 +90,9 @@ export default function GuideTransportScreen() {
             <Text style={styles.infoLabel}>{t('transport.hours')}</Text>
             <Text style={styles.infoValue}>05:30 - 00:30</Text>
           </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>{t('transport.march15_19')}</Text>
-            <Text style={styles.infoValue}>{t('transport.allNight')}</Text>
+          <View style={styles.highlightRow}>
+            <Text style={styles.highlightLabel}>🎉 {t('transport.march15_19')}</Text>
+            <Text style={styles.highlightValue}>{t('transport.allNight')}</Text>
           </View>
           <View style={styles.divider} />
           <Text style={styles.tip}>{t('transport.metroTip')}</Text>
@@ -46,7 +106,7 @@ export default function GuideTransportScreen() {
         </View>
       </View>
 
-      {/* Bus Section */}
+      {/* Bus Section - EMT */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionEmoji}>🚌</Text>
@@ -57,8 +117,17 @@ export default function GuideTransportScreen() {
           <Text style={styles.warningText}>{t('transport.busWarning')}</Text>
           <Text style={styles.cardText}>{t('transport.busInfo')}</Text>
           
+          <View style={styles.appButtons}>
+            <TouchableOpacity 
+              style={[styles.appButton, { backgroundColor: '#FF6B35' }]}
+              onPress={() => openLink('https://emtvalencia.info/fallas25/')}
+            >
+              <Text style={styles.appButtonText}>🚌 EMT Fallas 2025</Text>
+            </TouchableOpacity>
+          </View>
+          
           <TouchableOpacity 
-            style={styles.linkButton}
+            style={[styles.linkButton, { marginTop: 12 }]}
             onPress={() => openLink('https://www.emtvalencia.es')}
           >
             <Text style={styles.linkButtonText}>{t('transport.busApp')}</Text>
@@ -74,7 +143,10 @@ export default function GuideTransportScreen() {
         </View>
         
         <View style={styles.card}>
-          <Text style={styles.cardText}>{t('transport.parkingRecommend')}</Text>
+          <View style={styles.parkingTip}>
+            <Text style={styles.parkingTipEmoji}>💡</Text>
+            <Text style={styles.parkingTipText}>{t('transport.parkingRecommend')}</Text>
+          </View>
           
           <View style={styles.parkingItem}>
             <Text style={styles.parkingName}>Parking Ciudad de las Artes</Text>
@@ -89,6 +161,11 @@ export default function GuideTransportScreen() {
           <View style={styles.parkingItem}>
             <Text style={styles.parkingName}>P+R Beniferri</Text>
             <Text style={styles.parkingDesc}>{t('transport.parkingFree')}</Text>
+          </View>
+
+          <View style={styles.parkingItem}>
+            <Text style={styles.parkingName}>P+R Manises</Text>
+            <Text style={styles.parkingDesc}>{t('transport.parkingManises')}</Text>
           </View>
         </View>
       </View>
@@ -120,6 +197,8 @@ export default function GuideTransportScreen() {
           </View>
         </View>
       </View>
+
+      <View style={{ height: 80 }} />
     </ScrollView>
   );
 }
@@ -131,6 +210,33 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+  },
+  strikeBanner: {
+    flexDirection: 'row',
+    backgroundColor: '#FFEBEE',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    alignItems: 'center',
+    borderLeftWidth: 4,
+    borderLeftColor: '#E63946',
+  },
+  strikeEmoji: {
+    fontSize: 28,
+    marginRight: 12,
+  },
+  strikeContent: {
+    flex: 1,
+  },
+  strikeTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#C62828',
+    marginBottom: 4,
+  },
+  strikeSubtitle: {
+    fontSize: 14,
+    color: '#C62828',
   },
   section: {
     marginBottom: 24,
@@ -159,6 +265,42 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  strikeDay: {
+    paddingVertical: 12,
+  },
+  strikeDayBorder: {
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  strikeDateLabel: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#C62828',
+    marginBottom: 8,
+  },
+  strikeTimesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  strikeTimeTag: {
+    backgroundColor: '#FFEBEE',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  strikeTimeText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#C62828',
+  },
+  strikeNote: {
+    fontSize: 12,
+    color: '#888',
+    fontStyle: 'italic',
+    marginTop: 12,
+    textAlign: 'center',
+  },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -172,6 +314,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
+  },
+  highlightRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#E8F5E9',
+    marginHorizontal: -16,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginTop: 8,
+  },
+  highlightLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2E7D32',
+  },
+  highlightValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#2E7D32',
   },
   divider: {
     height: 1,
@@ -207,6 +368,27 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 14,
+  },
+  parkingTip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF8E1',
+    marginHorizontal: -16,
+    marginTop: -16,
+    marginBottom: 16,
+    padding: 12,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  parkingTipEmoji: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  parkingTipText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#F57C00',
+    fontWeight: '500',
   },
   parkingItem: {
     marginTop: 12,

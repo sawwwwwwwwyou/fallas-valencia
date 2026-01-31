@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { INITIAL_VIEW_STATE } from '../lib/maplibre-fallas-style';
+import { MARKER_CONFIG, MapMarkerType } from '../hooks/usePOIs';
 
 // Use same Mapbox style as native
 const MAPBOX_TOKEN = process.env.EXPO_PUBLIC_MAPBOX_TOKEN || '';
@@ -11,11 +12,13 @@ const FALLAS_MAPBOX_STYLE = `mapbox://styles/clawdik/cmkzi1tq6000c01sa71184yeo`;
 export interface FallaMarker {
   id: string;
   name: string;
-  district: string;
-  category: 'special' | 'firstA' | 'firstB' | 'second';
+  district?: string;
+  category?: 'special' | 'firstA' | 'firstB' | 'second' | 'secondA' | 'secondB' | 'infantil';
   latitude: number;
   longitude: number;
   image?: string;
+  // New: marker type for different POI types
+  type?: MapMarkerType;
 }
 
 interface WebMapboxProps {
@@ -25,19 +28,21 @@ interface WebMapboxProps {
   showUserLocation?: boolean;
 }
 
-// Create fire marker HTML element
-function createFireMarkerElement(marker: FallaMarker, isSelected: boolean): HTMLDivElement {
+// Create marker HTML element - supports different types
+function createMarkerElement(marker: FallaMarker, isSelected: boolean): HTMLDivElement {
   const el = document.createElement('div');
+  const markerType: MapMarkerType = marker.type || 'falla';
+  const config = MARKER_CONFIG[markerType];
   const isSpecial = marker.category === 'special';
 
   el.className = 'fallas-marker';
   el.innerHTML = `
-    <div class="fire-marker ${isSpecial ? 'special' : ''} ${isSelected ? 'selected' : ''}">
+    <div class="fire-marker ${markerType} ${isSpecial ? 'special' : ''} ${isSelected ? 'selected' : ''}" data-type="${markerType}">
       ${isSelected ? '<div class="marker-selected-ring"></div><div class="marker-selected-ring delay"></div>' : ''}
-      <div class="marker-body">
-        <span class="marker-icon">🔥</span>
+      <div class="marker-body" style="background: linear-gradient(135deg, ${config.gradientColors[0]} 0%, ${config.gradientColors[1]} 100%);">
+        <span class="marker-icon">${config.emoji}</span>
       </div>
-      <div class="marker-tail"></div>
+      <div class="marker-tail" style="border-top-color: ${config.gradientColors[1]};"></div>
     </div>
   `;
 
@@ -137,7 +142,7 @@ export default function WebMapbox({
 
     // Add new markers
     markers.forEach(marker => {
-      const el = createFireMarkerElement(marker, selectedMarkerId === marker.id);
+      const el = createMarkerElement(marker, selectedMarkerId === marker.id);
 
       el.addEventListener('click', () => {
         onMarkerClick?.(marker);
@@ -301,6 +306,36 @@ export default function WebMapbox({
           100% {
             box-shadow: 0 4px 20px rgba(255, 107, 53, 0.8), 0 0 40px rgba(255, 107, 53, 0.6);
           }
+        }
+        
+        /* Mercado markers - green */
+        .fire-marker.mercado .marker-body {
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+        .fire-marker.mercado:hover .marker-body {
+          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.7), 0 0 30px rgba(16, 185, 129, 0.5);
+        }
+        
+        /* Viewpoint markers - purple */
+        .fire-marker.viewpoint .marker-body {
+          box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3);
+          animation: viewpoint-glow 3s ease-in-out infinite alternate;
+        }
+        @keyframes viewpoint-glow {
+          0% {
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3);
+          }
+          100% {
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.7), 0 0 30px rgba(139, 92, 246, 0.5);
+          }
+        }
+        
+        /* Museum markers - blue */
+        .fire-marker.museum .marker-body {
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+        .fire-marker.museum:hover .marker-body {
+          box-shadow: 0 6px 20px rgba(59, 130, 246, 0.7), 0 0 30px rgba(59, 130, 246, 0.5);
         }
         
         .fire-marker.selected .marker-body {

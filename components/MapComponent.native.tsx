@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { INITIAL_VIEW_STATE } from '../lib/maplibre-fallas-style';
+import { MARKER_CONFIG, MapMarkerType } from '../hooks/usePOIs';
 
 // Set Mapbox access token
 const MAPBOX_TOKEN = process.env.EXPO_PUBLIC_MAPBOX_TOKEN || '';
@@ -19,11 +20,13 @@ Mapbox.setAccessToken(MAPBOX_TOKEN);
 export interface FallaMarker {
   id: string;
   name: string;
-  district: string;
-  category: 'special' | 'firstA' | 'firstB' | 'second';
+  district?: string;
+  category?: 'special' | 'firstA' | 'firstB' | 'second' | 'secondA' | 'secondB' | 'infantil';
   latitude: number;
   longitude: number;
   image?: string;
+  // New: marker type for different POI types
+  type?: MapMarkerType;
 }
 
 interface NativeMapboxProps {

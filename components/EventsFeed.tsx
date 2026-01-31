@@ -289,6 +289,7 @@ function TimelineEvent({
 
   // Get color based on event type
   const dotColor = getEventDotColor(event.event_type?.name_es);
+  const isCancelled = event.is_cancelled;
 
   return (
     <Pressable
@@ -314,20 +315,25 @@ function TimelineEvent({
             width: 40,
             height: 40,
             borderRadius: 20,
-            backgroundColor: dotColor,
+            backgroundColor: isCancelled ? '#E0E0E0' : dotColor,
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 10,
             borderWidth: 2,
-            borderColor: 'rgba(255,107,53,0.3)',
+            borderColor: isCancelled ? '#BDBDBD' : 'rgba(255,107,53,0.3)',
           }}
         >
-          <Text style={{ fontSize: 18 }}>{event.event_type?.icon || '📅'}</Text>
+          <Text style={{ fontSize: 18, opacity: isCancelled ? 0.5 : 1 }}>
+            {event.event_type?.icon || '📅'}
+          </Text>
         </View>
 
         {/* Card with subtle gradient */}
         <LinearGradient
-          colors={['rgba(255,255,255,0.98)', 'rgba(255,248,240,0.95)']}
+          colors={isCancelled 
+            ? ['rgba(240,240,240,0.98)', 'rgba(230,230,230,0.95)']
+            : ['rgba(255,255,255,0.98)', 'rgba(255,248,240,0.95)']
+          }
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={{
@@ -335,9 +341,28 @@ function TimelineEvent({
             borderRadius: 16,
             padding: 16,
             borderWidth: 1,
-            borderColor: 'rgba(255,107,53,0.2)',
+            borderColor: isCancelled ? '#E0E0E0' : 'rgba(255,107,53,0.2)',
           }}
         >
+          {/* Cancelled badge */}
+          {isCancelled && (
+            <View
+              style={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                backgroundColor: '#C62828',
+                paddingHorizontal: 8,
+                paddingVertical: 2,
+                borderRadius: 4,
+              }}
+            >
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#fff' }}>
+                CANCELADO
+              </Text>
+            </View>
+          )}
+
           <View
             style={{
               flexDirection: 'row',
@@ -350,21 +375,57 @@ function TimelineEvent({
               style={{
                 fontSize: 16,
                 fontWeight: '600',
-                color: '#2d2d2d',
+                color: isCancelled ? '#9E9E9E' : '#2d2d2d',
                 flex: 1,
+                textDecorationLine: isCancelled ? 'line-through' : 'none',
               }}
               numberOfLines={2}
             >
               {title}
             </Text>
-            <Text style={{ fontSize: 12, color: 'rgba(45,45,45,0.6)' }}>
+            <Text 
+              style={{ 
+                fontSize: 12, 
+                color: isCancelled ? '#BDBDBD' : 'rgba(45,45,45,0.6)',
+                marginLeft: isCancelled ? 0 : 8,
+              }}
+            >
               {formattedTime}
             </Text>
           </View>
 
-          <Text style={{ fontSize: 14, color: 'rgba(45,45,45,0.6)' }}>
+          <Text 
+            style={{ 
+              fontSize: 14, 
+              color: isCancelled ? '#BDBDBD' : 'rgba(45,45,45,0.6)',
+              textDecorationLine: isCancelled ? 'line-through' : 'none',
+            }}
+          >
             {event.location || 'Valencia'}
           </Text>
+
+          {/* Pirotecnia info */}
+          {event.pirotecnia && !isCancelled && (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 8,
+                gap: 4,
+              }}
+            >
+              <Text style={{ fontSize: 14 }}>🎆</Text>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: '#E65100',
+                  fontWeight: '500',
+                }}
+              >
+                {event.pirotecnia}
+              </Text>
+            </View>
+          )}
         </LinearGradient>
       </MotiView>
     </Pressable>

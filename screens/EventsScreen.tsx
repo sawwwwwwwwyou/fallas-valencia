@@ -9,13 +9,15 @@ import {
   ScrollView,
   Alert,
   Platform,
+  Modal,
+  Linking,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MotiView } from 'moti';
 import { RootStackParamList } from '../App';
-import { Event as EventType, EventWithDetails } from '../types/database';
+import { Event as EventType, EventWithDetails, EventTypeSlug, EVENT_ICONS } from '../types/database';
 import { getEvents } from '../lib/supabase';
 import {
   AnimatedCard,
@@ -33,6 +35,24 @@ import {
   shadows,
 } from '../lib/theme';
 import { useLanguage } from '../contexts/LanguageContext';
+
+// Filter types for the horizontal scroll
+type FilterType = 'todos' | 'mascletà' | 'fuegos' | 'ofrenda' | 'cremà';
+
+interface FilterChip {
+  id: FilterType;
+  label: string;
+  icon: string;
+  eventTypes: string[]; // Maps to event_type names in DB
+}
+
+const FILTER_CHIPS: FilterChip[] = [
+  { id: 'todos', label: 'Todos', icon: '📅', eventTypes: [] },
+  { id: 'mascletà', label: 'Mascletà', icon: '💥', eventTypes: ['mascletà'] },
+  { id: 'fuegos', label: 'Fuegos', icon: '🎆', eventTypes: ['castillo', 'fuegos artificiales'] },
+  { id: 'ofrenda', label: 'Ofrenda', icon: '🌺', eventTypes: ['ofrenda'] },
+  { id: 'cremà', label: 'Cremà', icon: '🔥', eventTypes: ['cremà'] },
+];
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -330,6 +350,184 @@ const MOCK_EVENTS: EventWithDetails[] = [
   },
 ] as EventWithDetails[];
 
+// Filter Chips Row Component
+function FilterChipsRow({
+  selectedFilter,
+  onFilterChange,
+  t,
+}: {
+  selectedFilter: FilterType;
+  onFilterChange: (filter: FilterType) => void;
+  t: (key: string) => string;
+}) {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.filterContainer}
+      style={styles.filterScroll}
+    >
+      {FILTER_CHIPS.map((chip) => {
+        const isSelected = selectedFilter === chip.id;
+        return (
+          <Pressable
+            key={chip.id}
+            onPress={() => onFilterChange(chip.id)}
+            style={[
+              styles.filterChip,
+              isSelected && styles.filterChipSelected,
+            ]}
+          >
+            <Text style={styles.filterChipIcon}>{chip.icon}</Text>
+            <Text
+              style={[
+                styles.filterChipText,
+                isSelected && styles.filterChipTextSelected,
+              ]}
+            >
+              {chip.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
+// Event Detail Modal Component
+function EventDetailModal({
+  event,
+  visible,
+  onClose,
+  language,
+}: {
+  event: EventWithDetails | null;
+  visible: boolean;
+  onClose: () => void;
+  language: string;
+}) {
+  if (!event) return null;
+
+  const title = language === 'en' && event.title_en ? event.title_en : event.title_es;
+  const description = language === 'en' && event.description_en
+    ? event.description_en
+    : event.description_es;
+  const eventTime = new Date(event.start_time);
+  const formattedDate = eventTime.toLocaleDateString('es-ES', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+  const formattedTime = eventTime.toLocaleTimeString('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  const handleOpenLink = () => {
+    if (event.external_url) {
+      Linking.openURL(event.external_url);
+    }
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          {/* Header */}
+          <View style={styles.modalHeader}>
+            <View style={styles.modalHeaderLeft}>
+              <Text style={styles.modalIcon}>
+                {event.event_type?.icon || EVENT_ICONS['general']}
+              </Text>
+              <View>
+                <Text style={styles.modalTypeName}>
+                  {event.event_type?.name_es?.toUpperCase() || 'EVENTO'}
+                </Text>
+                {event.is_cancelled && (
+                  <View style={styles.cancelledBadge}>
+                    <Text style={styles.cancelledBadgeText}>CANCELADO</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+            <Pressable onPress={onClose} style={styles.modalCloseButton}>
+              <Text style={styles.modalCloseText}>✕</Text>
+            </Pressable>
+          </View>
+
+          {/* Title */}
+          <Text
+            style={[
+              styles.modalTitle,
+              event.is_cancelled && styles.cancelledText,
+            ]}
+          >
+            {title}
+          </Text>
+
+          {/* Time & Location */}
+          <View style={styles.modalInfoRow}>
+            <ClockIcon size={18} color={colors.text.secondary} />
+            <Text style={styles.modalInfoText}>
+              {formattedDate} • {formattedTime}
+            </Text>
+          </View>
+
+          {event.location && (
+            <View style={styles.modalInfoRow}>
+              <LocationIcon size={18} color={colors.text.secondary} />
+              <Text style={styles.modalInfoText}>{event.location}</Text>
+            </View>
+          )}
+
+          {/* Pirotecnia */}
+          {event.pirotecnia && (
+            <View style={styles.modalPirotecniaRow}>
+              <Text style={styles.modalPirotecniaIcon}>🎆</Text>
+              <Text style={styles.modalPirotecniaText}>{event.pirotecnia}</Text>
+            </View>
+          )}
+
+          {/* Best viewing location */}
+          {event.best_viewing_location && (
+            <View style={styles.modalViewingRow}>
+              <Text style={styles.modalViewingLabel}>📍 Mejor punto de vista:</Text>
+              <Text style={styles.modalViewingText}>{event.best_viewing_location}</Text>
+            </View>
+          )}
+
+          {/* Description */}
+          {description && (
+            <View style={styles.modalDescriptionContainer}>
+              <Text style={styles.modalDescription}>{description}</Text>
+            </View>
+          )}
+
+          {/* External link button */}
+          {event.external_url && (
+            <Pressable style={styles.modalLinkButton} onPress={handleOpenLink}>
+              <Text style={styles.modalLinkText}>🔗 Más información</Text>
+            </Pressable>
+          )}
+
+          {/* Falla link */}
+          {event.falla && (
+            <View style={styles.modalFallaRow}>
+              <Text style={styles.modalFallaLabel}>🔥 Falla:</Text>
+              <Text style={styles.modalFallaName}>{event.falla.name}</Text>
+            </View>
+          )}
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 // Empty State Component
 function EmptyState({ t }: { t: (key: string) => string }) {
   return (
@@ -348,6 +546,9 @@ export default function EventsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<FilterType>('todos');
+  const [selectedEvent, setSelectedEvent] = useState<EventWithDetails | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const loadEvents = useCallback(async () => {
     try {
@@ -378,47 +579,53 @@ export default function EventsScreen() {
     setRefreshing(false);
   }, [loadEvents]);
 
+  // Filter events by selected type
+  const filteredEvents = useMemo(() => {
+    if (selectedFilter === 'todos') {
+      return events;
+    }
+    const selectedChip = FILTER_CHIPS.find(c => c.id === selectedFilter);
+    if (!selectedChip || selectedChip.eventTypes.length === 0) {
+      return events;
+    }
+    return events.filter(e => {
+      const eventTypeName = e.event_type?.name_es?.toLowerCase() || '';
+      return selectedChip.eventTypes.some(type => 
+        eventTypeName.includes(type.toLowerCase())
+      );
+    });
+  }, [events, selectedFilter]);
+
   // Group events by date
   const sections = useMemo(() => {
-    return groupEventsByDate(events, t);
-  }, [events, t]);
+    return groupEventsByDate(filteredEvents, t);
+  }, [filteredEvents, t]);
 
   const handleEventPress = useCallback((event: EventWithDetails) => {
-    // If event has a falla, navigate to falla detail
-    if (event.falla) {
+    // Open modal with event details
+    setSelectedEvent(event);
+    setModalVisible(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setModalVisible(false);
+    setSelectedEvent(null);
+  }, []);
+
+  const handleNavigateToFalla = useCallback(() => {
+    if (selectedEvent?.falla) {
+      handleCloseModal();
       navigation.navigate('FallaDetail', {
         falla: {
-          id: event.falla.id,
-          name: event.falla.name,
-          category: event.falla.category?.name_es || '',
-          address: event.falla.address || '',
-          description: event.falla.description_es || '',
+          id: selectedEvent.falla.id,
+          name: selectedEvent.falla.name,
+          category: selectedEvent.falla.category?.name_es || '',
+          address: selectedEvent.falla.address || '',
+          description: selectedEvent.falla.description_es || '',
         }
       });
-    } else {
-      // For events without falla, show event info
-      const title = language === 'en' && event.title_en ? event.title_en : event.title_es;
-      const description = language === 'en' && event.description_en 
-        ? event.description_en 
-        : event.description_es;
-      const eventTime = new Date(event.start_time);
-      const formattedTime = eventTime.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-      
-      if (Platform.OS === 'web') {
-        // On web, use window.alert or console for now
-        window.alert(`${event.event_type?.icon || '📅'} ${title}\n\n⏰ ${formattedTime}\n📍 ${event.location || 'Valencia'}\n\n${description || ''}`);
-      } else {
-        Alert.alert(
-          `${event.event_type?.icon || '📅'} ${title}`,
-          `⏰ ${formattedTime}\n📍 ${event.location || 'Valencia'}\n\n${description || ''}`,
-          [{ text: 'OK' }]
-        );
-      }
     }
-  }, [navigation, language]);
+  }, [selectedEvent, navigation, handleCloseModal]);
 
   if (loading) {
     return (
@@ -433,15 +640,33 @@ export default function EventsScreen() {
     );
   }
 
-  // If we have events for today, show the new EventsFeed design
-  const todayEvents = events.filter(e => {
+  // Filter events for today based on selected filter
+  const todayEvents = filteredEvents.filter(e => {
     const eventDate = new Date(e.start_time).toDateString();
     const today = new Date().toDateString();
     return eventDate === today;
   });
 
-  // Use mock data for demo when no real events
-  const displayEvents = todayEvents.length > 0 ? todayEvents : MOCK_EVENTS;
+  // Use mock data for demo when no real events (but respect filters)
+  let displayEvents: EventWithDetails[];
+  if (todayEvents.length > 0) {
+    displayEvents = todayEvents;
+  } else if (selectedFilter === 'todos') {
+    displayEvents = MOCK_EVENTS;
+  } else {
+    // Filter mock events too
+    const selectedChip = FILTER_CHIPS.find(c => c.id === selectedFilter);
+    if (selectedChip && selectedChip.eventTypes.length > 0) {
+      displayEvents = MOCK_EVENTS.filter(e => {
+        const eventTypeName = e.event_type?.name_es?.toLowerCase() || '';
+        return selectedChip.eventTypes.some(type =>
+          eventTypeName.includes(type.toLowerCase())
+        );
+      });
+    } else {
+      displayEvents = MOCK_EVENTS;
+    }
+  }
 
   // Always show EventsFeed with header (like original design)
   return (
@@ -469,7 +694,41 @@ export default function EventsScreen() {
           language={language}
           showHeader={true}
         />
+        
+        {/* Filter chips below the feed header */}
+        <View style={styles.filterSection}>
+          <Text style={styles.filterSectionTitle}>{t('events.filterByType')}</Text>
+          <FilterChipsRow
+            selectedFilter={selectedFilter}
+            onFilterChange={setSelectedFilter}
+            t={t}
+          />
+        </View>
+
+        {/* Empty state when filtered with no results */}
+        {displayEvents.length === 0 && selectedFilter !== 'todos' && (
+          <View style={styles.emptyFilterState}>
+            <Text style={styles.emptyFilterIcon}>🔍</Text>
+            <Text style={styles.emptyFilterText}>
+              No hay eventos de tipo "{FILTER_CHIPS.find(c => c.id === selectedFilter)?.label}"
+            </Text>
+            <Pressable
+              style={styles.clearFilterButton}
+              onPress={() => setSelectedFilter('todos')}
+            >
+              <Text style={styles.clearFilterText}>Ver todos</Text>
+            </Pressable>
+          </View>
+        )}
       </ScrollView>
+
+      {/* Event Detail Modal */}
+      <EventDetailModal
+        event={selectedEvent}
+        visible={modalVisible}
+        onClose={handleCloseModal}
+        language={language}
+      />
     </LinearGradient>
   );
 
@@ -522,6 +781,233 @@ const styles = StyleSheet.create({
   list: {
     padding: spacing.md,
     paddingTop: spacing.sm,
+  },
+  // Filter section
+  filterSection: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+  },
+  filterSectionTitle: {
+    fontSize: typography.sizes.caption,
+    fontWeight: typography.weights.semibold,
+    color: colors.text.tertiary,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: spacing.sm,
+  },
+  filterScroll: {
+    flexGrow: 0,
+  },
+  filterContainer: {
+    paddingVertical: spacing.xs,
+    gap: spacing.sm,
+  },
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.full,
+    backgroundColor: colors.background.white,
+    borderWidth: 1,
+    borderColor: 'rgba(255,107,53,0.2)',
+    gap: 6,
+    marginRight: spacing.sm,
+  },
+  filterChipSelected: {
+    backgroundColor: colors.primary.orange,
+    borderColor: colors.primary.orange,
+  },
+  filterChipIcon: {
+    fontSize: 14,
+  },
+  filterChipText: {
+    fontSize: typography.sizes.small,
+    fontWeight: typography.weights.medium,
+    color: colors.text.primary,
+  },
+  filterChipTextSelected: {
+    color: colors.background.white,
+  },
+  // Empty filter state
+  emptyFilterState: {
+    alignItems: 'center',
+    padding: spacing.xl,
+  },
+  emptyFilterIcon: {
+    fontSize: 48,
+    marginBottom: spacing.md,
+  },
+  emptyFilterText: {
+    fontSize: typography.sizes.body,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    marginBottom: spacing.md,
+  },
+  clearFilterButton: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.primary.orange,
+    borderRadius: borderRadius.full,
+  },
+  clearFilterText: {
+    color: colors.background.white,
+    fontWeight: typography.weights.semibold,
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: colors.background.white,
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
+    padding: spacing.lg,
+    paddingBottom: spacing.xl + 20, // Extra space for bottom safe area
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: spacing.md,
+  },
+  modalHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  modalIcon: {
+    fontSize: 32,
+  },
+  modalTypeName: {
+    fontSize: typography.sizes.small,
+    fontWeight: typography.weights.bold,
+    color: colors.text.secondary,
+    letterSpacing: 1,
+  },
+  modalCloseButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.background.ash,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCloseText: {
+    fontSize: 16,
+    color: colors.text.secondary,
+  },
+  modalTitle: {
+    fontSize: typography.sizes.h2,
+    fontWeight: typography.weights.bold,
+    color: colors.text.primary,
+    marginBottom: spacing.md,
+  },
+  modalInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  modalInfoText: {
+    fontSize: typography.sizes.body,
+    color: colors.text.secondary,
+  },
+  modalPirotecniaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3E0',
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginTop: spacing.md,
+    gap: spacing.sm,
+  },
+  modalPirotecniaIcon: {
+    fontSize: 24,
+  },
+  modalPirotecniaText: {
+    fontSize: typography.sizes.body,
+    fontWeight: typography.weights.semibold,
+    color: '#E65100',
+    flex: 1,
+  },
+  modalViewingRow: {
+    backgroundColor: '#E3F2FD',
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    marginTop: spacing.sm,
+  },
+  modalViewingLabel: {
+    fontSize: typography.sizes.small,
+    fontWeight: typography.weights.semibold,
+    color: '#1565C0',
+    marginBottom: spacing.xs,
+  },
+  modalViewingText: {
+    fontSize: typography.sizes.body,
+    color: '#0D47A1',
+  },
+  modalDescriptionContainer: {
+    marginTop: spacing.md,
+    padding: spacing.md,
+    backgroundColor: colors.background.cream,
+    borderRadius: borderRadius.md,
+  },
+  modalDescription: {
+    fontSize: typography.sizes.body,
+    color: colors.text.primary,
+    lineHeight: 22,
+  },
+  modalLinkButton: {
+    marginTop: spacing.md,
+    padding: spacing.md,
+    backgroundColor: colors.primary.navy,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+  },
+  modalLinkText: {
+    fontSize: typography.sizes.body,
+    fontWeight: typography.weights.semibold,
+    color: colors.background.white,
+  },
+  modalFallaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: spacing.md,
+    padding: spacing.md,
+    backgroundColor: '#FFEBEE',
+    borderRadius: borderRadius.md,
+    gap: spacing.sm,
+  },
+  modalFallaLabel: {
+    fontSize: typography.sizes.body,
+    color: colors.text.secondary,
+  },
+  modalFallaName: {
+    fontSize: typography.sizes.body,
+    fontWeight: typography.weights.semibold,
+    color: colors.primary.flame,
+    flex: 1,
+  },
+  // Cancelled styles
+  cancelledBadge: {
+    backgroundColor: '#C62828',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: borderRadius.sm,
+    marginTop: 4,
+  },
+  cancelledBadgeText: {
+    fontSize: typography.sizes.small - 2,
+    fontWeight: typography.weights.bold,
+    color: colors.background.white,
+  },
+  cancelledText: {
+    textDecorationLine: 'line-through',
+    color: colors.text.tertiary,
   },
   // Section Header
   sectionHeader: {

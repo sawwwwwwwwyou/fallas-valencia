@@ -529,7 +529,7 @@ export default function MapScreen() {
 
       {/* Version Label */}
       <View style={styles.versionContainer}>
-        <Text style={styles.versionText}>v0.0.6</Text>
+        <Text style={styles.versionText}>v0.0.7</Text>
       </View>
 
       {/* Filter Pills */}

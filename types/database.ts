@@ -81,6 +81,31 @@ export interface EventType {
   created_at: string;
 }
 
+// Event type enum for filtering
+export type EventTypeSlug =
+  | 'mascletà'
+  | 'castillo'
+  | 'ofrenda'
+  | 'cremà'
+  | 'despertà'
+  | 'cabalgata'
+  | 'verbena'
+  | 'plantà'
+  | 'general';
+
+// Event type icons mapping
+export const EVENT_ICONS: Record<EventTypeSlug, string> = {
+  'mascletà': '💥',
+  'castillo': '🎆',
+  'ofrenda': '🌺',
+  'cremà': '🔥',
+  'despertà': '🎺',
+  'cabalgata': '🎭',
+  'verbena': '🎵',
+  'plantà': '🏗️',
+  'general': '📅',
+};
+
 export interface Event {
   id: string;
   event_type_id: string | null;
@@ -97,6 +122,10 @@ export interface Event {
   description_es: string | null;
   description_en: string | null;
   is_cancelled: boolean;
+  // New fields for phase 2
+  pirotecnia: string | null;
+  best_viewing_location: string | null;
+  external_url: string | null;
   created_at: string;
   updated_at: string;
 }

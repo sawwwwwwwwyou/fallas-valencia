@@ -4,20 +4,51 @@ import {
   Text, 
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
+  Linking,
 } from 'react-native';
 import { useLanguage } from '../../contexts/LanguageContext';
 
 export default function GuideFireworksScreen() {
   const { t } = useLanguage();
 
+  const openLink = (url: string) => {
+    Linking.openURL(url);
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Alert Banner */}
+      {/* Alert Banner - Prohibited Hours */}
       <View style={styles.alertBanner}>
         <Text style={styles.alertEmoji}>⚠️</Text>
         <View style={styles.alertContent}>
           <Text style={styles.alertTitle}>{t('fireworks.banHours')}</Text>
           <Text style={styles.alertText}>{t('fireworks.banText')}</Text>
+        </View>
+      </View>
+
+      {/* Prohibited Times Detail */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t('fireworks.prohibitedTimes')}</Text>
+        <View style={styles.card}>
+          <View style={styles.prohibitedRow}>
+            <Text style={styles.prohibitedEmoji}>🚫</Text>
+            <View style={styles.prohibitedInfo}>
+              <Text style={styles.prohibitedTime}>09:00 - 10:00</Text>
+              <Text style={styles.prohibitedReason}>{t('fireworks.morningRest')}</Text>
+            </View>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.prohibitedRow}>
+            <Text style={styles.prohibitedEmoji}>🚫</Text>
+            <View style={styles.prohibitedInfo}>
+              <Text style={styles.prohibitedTime}>15:00 - 17:00</Text>
+              <Text style={styles.prohibitedReason}>{t('fireworks.afternoonRest')}</Text>
+            </View>
+          </View>
+          <View style={styles.warningNote}>
+            <Text style={styles.warningNoteText}>{t('fireworks.fineWarning')}</Text>
+          </View>
         </View>
       </View>
 
@@ -82,8 +113,17 @@ export default function GuideFireworksScreen() {
             <Text style={styles.shopName}>{t('fireworks.kiosks')}</Text>
             <Text style={styles.shopAddress}>{t('fireworks.kiosksInfo')}</Text>
           </View>
+          
+          <TouchableOpacity 
+            style={styles.instagramButton}
+            onPress={() => openLink('https://www.instagram.com/p/CpZt7zLto7y/')}
+          >
+            <Text style={styles.instagramButtonText}>📍 {t('fireworks.seeLocations')}</Text>
+          </TouchableOpacity>
         </View>
       </View>
+
+      <View style={{ height: 80 }} />
     </ScrollView>
   );
 }
@@ -142,6 +182,48 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  prohibitedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  prohibitedEmoji: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  prohibitedInfo: {
+    flex: 1,
+  },
+  prohibitedTime: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#E63946',
+    marginBottom: 2,
+  },
+  prohibitedReason: {
+    fontSize: 13,
+    color: '#666',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#eee',
+    marginVertical: 8,
+  },
+  warningNote: {
+    backgroundColor: '#FFEBEE',
+    marginHorizontal: -16,
+    marginBottom: -16,
+    marginTop: 12,
+    padding: 12,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  warningNoteText: {
+    fontSize: 12,
+    color: '#C62828',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
   ruleItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -194,9 +276,16 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#666',
   },
-  divider: {
-    height: 1,
-    backgroundColor: '#eee',
-    marginVertical: 4,
+  instagramButton: {
+    backgroundColor: '#E1306C',
+    borderRadius: 8,
+    padding: 12,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  instagramButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });

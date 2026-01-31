@@ -40,6 +40,8 @@ import GuideFairsScreen from './screens/guide/GuideFairsScreen';
 import GuideNightlifeScreen from './screens/guide/GuideNightlifeScreen';
 import GuideBullfightingScreen from './screens/guide/GuideBullfightingScreen';
 import GuideGlossaryScreen from './screens/guide/GuideGlossaryScreen';
+import GuideStreetClosuresScreen from './screens/guide/GuideStreetClosuresScreen';
+import GuidePracticalInfoScreen from './screens/guide/GuidePracticalInfoScreen';
 
 import { AnimatedTabIcon, CustomTabBar, FloatingTabBar, FloatingLanguageSwitcher } from './components';
 
@@ -53,6 +55,8 @@ export type RootStackParamList = {
   GuideNightlife: undefined;
   GuideBullfighting: undefined;
   GuideGlossary: undefined;
+  GuideStreetClosures: undefined;
+  GuidePracticalInfo: undefined;
   // Auth screens
   Login: undefined;
   Register: undefined;
@@ -296,6 +300,26 @@ function AppNavigator() {
           options={{
             headerTitle: 'Glosario',
             headerStyle: { backgroundColor: '#2196F3' },
+            headerTintColor: '#fff',
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="GuideStreetClosures"
+          component={GuideStreetClosuresScreen}
+          options={{
+            headerTitle: 'Calles Cortadas',
+            headerStyle: { backgroundColor: '#E63946' },
+            headerTintColor: '#fff',
+            animation: 'slide_from_right',
+          }}
+        />
+        <Stack.Screen
+          name="GuidePracticalInfo"
+          component={GuidePracticalInfoScreen}
+          options={{
+            headerTitle: 'Información Práctica',
+            headerStyle: { backgroundColor: '#607D8B' },
             headerTintColor: '#fff',
             animation: 'slide_from_right',
           }}
