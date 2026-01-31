@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -36,7 +37,8 @@ import { RootStackParamList, MainTabsParamList, Falla } from '../App';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LocationIcon, StarIcon, NavigationIcon } from '../components/icons';
 import { colors, spacing, borderRadius, shadows } from '../lib/theme';
-import { useFallasMarkers, FallaMarker } from '../hooks';
+import { useFallasMarkers, FallaMarker, useToggleFavorite, useFavorites } from '../hooks';
+import { useAuth } from '../contexts/AuthContext';
 
 import MapComponent from '../components/MapComponent';
 
@@ -210,6 +212,8 @@ function BottomSheetPreviewCard({
   onPress,
   onGetDirections,
   onClose,
+  onToggleFavorite,
+  isFavorite,
   language,
 }: {
   marker: FallaMarker | null;
@@ -217,6 +221,8 @@ function BottomSheetPreviewCard({
   onPress: () => void;
   onGetDirections: () => void;
   onClose: () => void;
+  onToggleFavorite: () => void;
+  isFavorite: boolean;
   language: string;
 }) {
   const translateY = useSharedValue(BOTTOM_SHEET_HEIGHT + 100);
@@ -320,8 +326,8 @@ function BottomSheetPreviewCard({
                 <Text style={styles.previewTitle} numberOfLines={1}>
                   {marker.name}
                 </Text>
-                <TouchableOpacity style={styles.heartButton}>
-                  <Text style={styles.heartIcon}>♡</Text>
+                <TouchableOpacity style={styles.heartButton} onPress={onToggleFavorite}>
+                  <Text style={styles.heartIcon}>{isFavorite ? '❤️' : '♡'}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -366,13 +372,24 @@ export default function MapScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<MapRouteProp>();
   const { t, language } = useLanguage();
+  const { user } = useAuth();
   const [selectedMarker, setSelectedMarker] = useState<FallaMarker | null>(null);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [filterSpecial, setFilterSpecial] = useState(false);
   const [filterNearMe, setFilterNearMe] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   // Fetch fallas from Supabase
   const { markers: allMarkers, isLoading, error } = useFallasMarkers();
+  
+  // Favorites
+  const { data: favorites } = useFavorites(user?.id);
+  const { toggle: toggleFavorite, isLoading: isTogglingFavorite } = useToggleFavorite();
+  
+  // Check if selected marker is favorite
+  const isSelectedFavorite = selectedMarker && favorites 
+    ? favorites.some(f => f.falla_id === selectedMarker.id)
+    : false;
 
   // Handle navigation from SavedScreen with selectedFallaId
   useEffect(() => {
@@ -421,9 +438,71 @@ export default function MapScreen() {
     Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${selectedMarker.latitude},${selectedMarker.longitude}`);
   };
 
+  const handleToggleFavorite = useCallback(async () => {
+    if (!selectedMarker) return;
+    
+    if (!user) {
+      if (Platform.OS === 'web') {
+        window.alert(language === 'es' ? 'Inicia sesión para guardar favoritos' : 'Sign in to save favorites');
+      } else {
+        Alert.alert(
+          language === 'es' ? 'Iniciar sesión' : 'Sign In',
+          language === 'es' ? 'Inicia sesión para guardar favoritos' : 'Sign in to save favorites'
+        );
+      }
+      return;
+    }
+    
+    try {
+      await toggleFavorite(user.id, selectedMarker.id, isSelectedFavorite);
+    } catch (err) {
+      console.error('Failed to toggle favorite:', err);
+    }
+  }, [selectedMarker, user, isSelectedFavorite, toggleFavorite, language]);
+
+  // Get user location for Near Me filter
+  useEffect(() => {
+    if (filterNearMe && !userLocation) {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.log('Geolocation error:', error);
+            // Fallback to Valencia center if geolocation fails
+            setUserLocation({ lat: 39.4699, lng: -0.3763 });
+          }
+        );
+      } else {
+        // Fallback to Valencia center
+        setUserLocation({ lat: 39.4699, lng: -0.3763 });
+      }
+    }
+  }, [filterNearMe, userLocation]);
+
+  // Calculate distance between two points (Haversine formula)
+  const getDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
   // Filter markers
   const filteredMarkers = allMarkers.filter(marker => {
     if (filterSpecial && marker.category !== 'special') return false;
+    if (filterNearMe && userLocation) {
+      const distance = getDistance(userLocation.lat, userLocation.lng, marker.latitude, marker.longitude);
+      if (distance > 1) return false; // Within 1km
+    }
     return true;
   });
 
@@ -474,6 +553,8 @@ export default function MapScreen() {
         onPress={handleNavigateToFalla}
         onGetDirections={openDirections}
         onClose={handleClosePanel}
+        onToggleFavorite={handleToggleFavorite}
+        isFavorite={isSelectedFavorite}
         language={language}
       />
 
