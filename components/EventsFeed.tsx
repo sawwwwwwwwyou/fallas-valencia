@@ -207,16 +207,48 @@ function HeroContent({
   formattedTime: string;
   countdown: string;
 }) {
+  const isCancelled = event.is_cancelled;
+
   return (
     <>
+      {/* Cancelled overlay badge */}
+      {isCancelled && (
+        <View
+          style={{
+            position: 'absolute',
+            top: -12,
+            left: 0,
+            right: 0,
+            alignItems: 'center',
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: '#C62828',
+              paddingHorizontal: 16,
+              paddingVertical: 4,
+              borderRadius: 12,
+            }}
+          >
+            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 12 }}>
+              CANCELADO
+            </Text>
+          </View>
+        </View>
+      )}
+
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 }}>
-        <Text style={{ fontSize: 24 }}>{event.event_type?.icon || '💥'}</Text>
+        <Text style={{ fontSize: 24, opacity: isCancelled ? 0.5 : 1 }}>
+          {event.event_type?.icon || '💥'}
+        </Text>
         <Text
           style={{
             fontSize: 24,
             fontWeight: '700',
             color: '#fff',
             fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+            textDecorationLine: isCancelled ? 'line-through' : 'none',
+            opacity: isCancelled ? 0.7 : 1,
           }}
         >
           {title}
@@ -225,26 +257,44 @@ function HeroContent({
 
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 }}>
         <ClockIcon size={16} color="rgba(255,255,255,0.9)" />
-        <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14 }}>
+        <Text 
+          style={{ 
+            color: 'rgba(255,255,255,0.9)', 
+            fontSize: 14,
+            textDecorationLine: isCancelled ? 'line-through' : 'none',
+          }}
+        >
           {formattedTime} - {event.location || 'Valencia'}
         </Text>
       </View>
 
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>
-          Starts in
-        </Text>
-        <Text
-          style={{
-            fontSize: 20,
-            fontWeight: '700',
-            color: '#FFB800',
-            fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-          }}
-        >
-          {countdown}
-        </Text>
-      </View>
+      {/* Pirotecnia info */}
+      {event.pirotecnia && !isCancelled && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 }}>
+          <Text style={{ fontSize: 14 }}>🎆</Text>
+          <Text style={{ color: '#FFB800', fontSize: 14, fontWeight: '600' }}>
+            {event.pirotecnia}
+          </Text>
+        </View>
+      )}
+
+      {!isCancelled && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>
+            Starts in
+          </Text>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: '700',
+              color: '#FFB800',
+              fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+            }}
+          >
+            {countdown}
+          </Text>
+        </View>
+      )}
     </>
   );
 }

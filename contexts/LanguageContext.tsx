@@ -21,6 +21,7 @@ const translations: Record<Language, Translations> = {
     'events.noEvents': 'No events scheduled',
     'events.checkLater': 'Check back later for upcoming events',
     'events.headerTitle': 'What\'s happening',
+    'events.filterByType': 'Filter by type',
 
     // Headers
     'header.main': 'Fallas Valencia 2025',
@@ -83,6 +84,9 @@ const translations: Record<Language, Translations> = {
     'guide.topic.music': 'Traditional Performances',
     'guide.streetClosures': 'Street Closures',
     'guide.topic.streetClosures': 'Traffic restrictions & zones',
+    'guide.practical': 'Practical Info',
+    'guide.topic.practical': 'Tickets, museums & more',
+    'guide.topic.transport': 'Metro, buses & parking',
 
     // Street Closures screen
     'closures.status.before': 'Closures start March 1',
@@ -147,6 +151,11 @@ const translations: Record<Language, Translations> = {
     'fireworks.kiosks': 'Street kiosks',
     'fireworks.kiosksInfo': 'Appear from March 1 in the center',
     'fireworks.tempKiosk': 'Mercado Central (temporary kiosk)',
+    'fireworks.prohibitedTimes': 'Prohibited Hours',
+    'fireworks.morningRest': 'Morning rest period',
+    'fireworks.afternoonRest': 'Afternoon rest (siesta)',
+    'fireworks.fineWarning': '⚠️ Fines up to €600 for violations!',
+    'fireworks.seeLocations': 'See kiosk locations (Instagram)',
 
     // Transport screen
     'transport.metro': 'Metro',
@@ -166,6 +175,11 @@ const translations: Record<Language, Translations> = {
     'transport.parkingFree': 'Free with metro ticket',
     'transport.taxi': 'Taxi and Cabify',
     'transport.taxiInfo': "Taxis work, but the center is difficult — streets closed. Uber doesn't work in Valencia!",
+    'transport.strikeTitle': 'Metro Strike!',
+    'transport.strikeWarning': 'Limited service on some hours — check schedule below',
+    'transport.strikeSchedule': 'Strike Hours',
+    'transport.strikeNote': 'Service available outside these hours. 24h service still applies March 15-19.',
+    'transport.parkingManises': 'Near airport — free with metro ticket',
 
     // Exhibitions screen
     'exhibitions.intro': 'Dive into Fallas culture through museums and exhibitions',
@@ -275,6 +289,25 @@ const translations: Record<Language, Translations> = {
     'glossary.nitDelFoc': 'Nit del Foc',
     'glossary.nitDelFocDef': '"Night of Fire" — main fireworks of the year, March 18. Lasts 20-25 minutes. Best spot — Paseo de la Alameda.',
 
+    // Practical Info screen
+    'practical.tickets': 'Tickets',
+    'practical.specialCategory': 'Special Category Fallas',
+    'practical.ticketsDesc': 'Get tickets for special seating at major fallas to avoid crowds and get the best views.',
+    'practical.buyTickets': 'Buy Tickets',
+    'practical.untilMarch15': 'Until March 15',
+    'practical.ninotVote': '💡 Vote for your favorite ninot — it will be saved from the fire!',
+    'practical.museums': 'Fallas Museums',
+    'practical.museuFallerDesc': 'Collection of pardoned ninots since 1934. History of the festival in figures.',
+    'practical.museuArtistaDesc': 'Workshops where the figures are created. See the creative process!',
+    'practical.officialApp': 'Official Fallas App',
+    'practical.appDesc': 'Download the official app for schedules, maps, and notifications.',
+    'practical.bullfighting': 'Bullfighting',
+    'practical.bullfightingDesc': 'Traditional bullfighting events during the Feria Taurina de Fallas.',
+    'practical.march': 'March',
+    'practical.buyBullfightTickets': 'Buy Bullfight Tickets',
+    'practical.usefulLinks': 'Useful Links',
+    'practical.fallaLocations': 'Falla Locations',
+
     // Common
     'common.from': 'from',
     'common.until': 'until',
@@ -295,6 +328,7 @@ const translations: Record<Language, Translations> = {
     'events.noEvents': 'No hay eventos programados',
     'events.checkLater': 'Vuelve más tarde para ver próximos eventos',
     'events.headerTitle': 'Qué pasa hoy',
+    'events.filterByType': 'Filtrar por tipo',
 
     // Headers
     'header.main': 'Fallas Valencia 2025',
@@ -357,6 +391,9 @@ const translations: Record<Language, Translations> = {
     'guide.topic.music': 'Actuaciones Tradicionales',
     'guide.streetClosures': 'Calles Cortadas',
     'guide.topic.streetClosures': 'Restricciones de tráfico y zonas',
+    'guide.practical': 'Info Práctica',
+    'guide.topic.practical': 'Entradas, museos y más',
+    'guide.topic.transport': 'Metro, buses y parking',
 
     // Street Closures screen
     'closures.status.before': 'Los cortes empiezan el 1 de marzo',
@@ -421,6 +458,11 @@ const translations: Record<Language, Translations> = {
     'fireworks.kiosks': 'Quioscos en la calle',
     'fireworks.kiosksInfo': 'Aparecen desde el 1 de marzo en el centro',
     'fireworks.tempKiosk': 'Mercado Central (quiosco temporal)',
+    'fireworks.prohibitedTimes': 'Horas Prohibidas',
+    'fireworks.morningRest': 'Período de descanso matutino',
+    'fireworks.afternoonRest': 'Descanso de tarde (siesta)',
+    'fireworks.fineWarning': '⚠️ ¡Multas de hasta 600€ por incumplimiento!',
+    'fireworks.seeLocations': 'Ver ubicación de quioscos (Instagram)',
 
     // Transport screen
     'transport.metro': 'Metro',
@@ -440,6 +482,11 @@ const translations: Record<Language, Translations> = {
     'transport.parkingFree': 'Gratis con billete de metro',
     'transport.taxi': 'Taxi y Cabify',
     'transport.taxiInfo': 'Los taxis funcionan, pero el centro es difícil — calles cortadas. ¡Uber no funciona en Valencia!',
+    'transport.strikeTitle': '¡Huelga de Metro!',
+    'transport.strikeWarning': 'Servicio limitado en algunas horas — consulta horarios abajo',
+    'transport.strikeSchedule': 'Horarios de Huelga',
+    'transport.strikeNote': 'Servicio disponible fuera de estas horas. Servicio 24h sigue aplicando 15-19 marzo.',
+    'transport.parkingManises': 'Cerca del aeropuerto — gratis con billete de metro',
 
     // Exhibitions screen
     'exhibitions.intro': 'Sumérgete en la cultura fallera a través de museos y exposiciones',
@@ -548,6 +595,25 @@ const translations: Record<Language, Translations> = {
     'glossary.despertaDef': '"Despertar" — a las 8 de la mañana los falleros recorren las calles tirando petardos para despertar a los vecinos. ¡Tradición!',
     'glossary.nitDelFoc': 'Nit del Foc',
     'glossary.nitDelFocDef': '"Noche del Fuego" — fuegos artificiales principales del año, 18 de marzo. Dura 20-25 minutos. Mejor sitio — Paseo de la Alameda.',
+
+    // Practical Info screen
+    'practical.tickets': 'Entradas',
+    'practical.specialCategory': 'Fallas de Sección Especial',
+    'practical.ticketsDesc': 'Consigue entradas con asiento especial en las fallas principales para evitar multitudes y tener mejor vista.',
+    'practical.buyTickets': 'Comprar Entradas',
+    'practical.untilMarch15': 'Hasta 15 de marzo',
+    'practical.ninotVote': '💡 ¡Vota por tu ninot favorito — será salvado del fuego!',
+    'practical.museums': 'Museos Falleros',
+    'practical.museuFallerDesc': 'Colección de ninots indultats desde 1934. Historia de las fiestas en figuras.',
+    'practical.museuArtistaDesc': '¡Talleres donde se crean las figuras. Puedes ver el proceso creativo!',
+    'practical.officialApp': 'App Oficial de Fallas',
+    'practical.appDesc': 'Descarga la app oficial para horarios, mapas y notificaciones.',
+    'practical.bullfighting': 'Toros',
+    'practical.bullfightingDesc': 'Corridas tradicionales durante la Feria Taurina de Fallas.',
+    'practical.march': 'marzo',
+    'practical.buyBullfightTickets': 'Comprar Entradas Toros',
+    'practical.usefulLinks': 'Enlaces Útiles',
+    'practical.fallaLocations': 'Ubicación de Fallas',
 
     // Common
     'common.from': 'desde',

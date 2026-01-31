@@ -39,7 +39,7 @@ interface NativeMapboxProps {
 // Custom Fallas style with orange roads (identical to web)
 const FALLAS_STYLE_URL = 'mapbox://styles/clawdik/cmkzi1tq6000c01sa71184yeo';
 
-// Animated marker component with ripple rings
+// Animated marker component with ripple rings - supports different marker types
 function AnimatedMarker({
   marker,
   isSelected,
@@ -53,6 +53,10 @@ function AnimatedMarker({
   onPress: () => void;
   scale?: number;
 }) {
+  // Get marker config based on type
+  const markerType: MapMarkerType = marker.type || 'falla';
+  const config = MARKER_CONFIG[markerType];
+  
   // Dynamic sizes based on zoom scale
   const markerSize = Math.round(44 * scale);
   const containerSize = Math.round(80 * scale);
@@ -114,6 +118,16 @@ function AnimatedMarker({
     opacity: ripple2Opacity.value,
   }));
 
+  // Get ripple color based on marker type
+  const getRippleColor = () => {
+    switch (markerType) {
+      case 'mercado': return 'rgba(16, 185, 129, 0.4)';
+      case 'viewpoint': return 'rgba(139, 92, 246, 0.4)';
+      case 'museum': return 'rgba(59, 130, 246, 0.4)';
+      default: return 'rgba(255, 184, 0, 0.4)';
+    }
+  };
+
   return (
     <View style={[styles.markerContainer, { width: containerSize, height: containerSize }]}>
       {/* Ripple rings for selected marker */}
@@ -125,6 +139,7 @@ function AnimatedMarker({
             borderRadius: markerSize / 2,
             top: (containerSize - markerSize) / 2,
             left: (containerSize - markerSize) / 2,
+            backgroundColor: getRippleColor(),
           }]} />
           <Animated.View style={[styles.selectedRing, ripple2Style, { 
             width: markerSize, 
@@ -132,11 +147,10 @@ function AnimatedMarker({
             borderRadius: markerSize / 2,
             top: (containerSize - markerSize) / 2,
             left: (containerSize - markerSize) / 2,
+            backgroundColor: getRippleColor(),
           }]} />
         </>
       )}
-
-      {/* Glow effect removed - only ripple animation on selected */}
 
       {/* Marker body with gradient */}
       <View
@@ -149,12 +163,12 @@ function AnimatedMarker({
         onTouchEnd={onPress}
       >
         <LinearGradient
-          colors={['#FF6B35', '#E63946']}
+          colors={config.gradientColors}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.markerGradient}
         >
-          <Text style={[styles.markerEmoji, { fontSize: emojiSize }]}>🔥</Text>
+          <Text style={[styles.markerEmoji, { fontSize: emojiSize }]}>{config.emoji}</Text>
         </LinearGradient>
       </View>
 
@@ -163,6 +177,7 @@ function AnimatedMarker({
         borderLeftWidth: tailWidth,
         borderRightWidth: tailWidth,
         borderTopWidth: tailHeight,
+        borderTopColor: config.gradientColors[1],
       }]} />
     </View>
   );

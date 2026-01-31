@@ -37,10 +37,16 @@ import { RootStackParamList, MainTabsParamList, Falla } from '../App';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LocationIcon, StarIcon, NavigationIcon } from '../components/icons';
 import { colors, spacing, borderRadius, shadows } from '../lib/theme';
-import { useFallasMarkers, FallaMarker, useToggleFavorite, useFavorites } from '../hooks';
+import { useFallasMarkers, FallaMarker, useToggleFavorite, useFavorites, usePOIMarkers, MARKER_CONFIG, MapMarkerType } from '../hooks';
 import { useAuth } from '../contexts/AuthContext';
 
 import MapComponent from '../components/MapComponent';
+
+// Extended marker type for all POIs
+interface UnifiedMarker extends FallaMarker {
+  type?: MapMarkerType;
+  address?: string;
+}
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type MapRouteProp = RouteProp<MainTabsParamList, 'Mapa'>;
@@ -216,7 +222,7 @@ function BottomSheetPreviewCard({
   isFavorite,
   language,
 }: {
-  marker: FallaMarker | null;
+  marker: UnifiedMarker | null;
   isVisible: boolean;
   onPress: () => void;
   onGetDirections: () => void;
@@ -276,7 +282,10 @@ function BottomSheetPreviewCard({
     };
   });
 
+  const markerType: MapMarkerType = marker?.type || 'falla';
+  const markerConfig = MARKER_CONFIG[markerType];
   const isSpecial = marker?.category === 'special';
+  const isFallaType = markerType === 'falla';
 
   if (!marker) return null;
 
@@ -307,7 +316,7 @@ function BottomSheetPreviewCard({
           />
 
           <View style={styles.previewContent}>
-            {/* Character Illustration */}
+            {/* Character Illustration - dynamic based on marker type */}
             <View style={styles.previewImageContainer}>
               <LinearGradient
                 colors={['#FFF8F0', '#FFE8D6', '#FFF8F0']}
@@ -315,7 +324,7 @@ function BottomSheetPreviewCard({
                 end={{ x: 1, y: 1 }}
                 style={styles.characterBackground}
               >
-                <Text style={styles.characterEmoji}>🎭</Text>
+                <Text style={styles.characterEmoji}>{markerConfig.emoji}</Text>
               </LinearGradient>
             </View>
 
@@ -333,9 +342,16 @@ function BottomSheetPreviewCard({
 
               {/* Badge and Distance */}
               <View style={styles.previewMeta}>
-                {isSpecial && (
+                {isFallaType && isSpecial && (
                   <View style={styles.especialBadge}>
                     <Text style={styles.especialBadgeText}>ESPECIAL</Text>
+                  </View>
+                )}
+                {!isFallaType && (
+                  <View style={[styles.especialBadge, { backgroundColor: `${markerConfig.color}15` }]}>
+                    <Text style={[styles.especialBadgeText, { color: markerConfig.color }]}>
+                      {language === 'es' ? markerConfig.label_es.toUpperCase() : markerConfig.label_en.toUpperCase()}
+                    </Text>
                   </View>
                 )}
                 <Text style={styles.distanceText}>• 350m away</Text>
@@ -344,21 +360,27 @@ function BottomSheetPreviewCard({
               {/* Action Buttons */}
               <View style={styles.previewActions}>
                 <TouchableOpacity
-                  style={styles.navigateButton}
+                  style={[styles.navigateButton, !isFallaType && { flex: 2 }]}
                   onPress={onGetDirections}
                   activeOpacity={0.8}
                 >
                   <NavigationIcon size={16} color="#FFFFFF" />
-                  <Text style={styles.navigateButtonText}>Navigate</Text>
+                  <Text style={styles.navigateButtonText}>
+                    {language === 'es' ? 'Navegar' : 'Navigate'}
+                  </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.detailsButton}
-                  onPress={onPress}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.detailsButtonText}>Details</Text>
-                </TouchableOpacity>
+                {isFallaType && (
+                  <TouchableOpacity
+                    style={styles.detailsButton}
+                    onPress={onPress}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.detailsButtonText}>
+                      {language === 'es' ? 'Detalles' : 'Details'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           </View>
@@ -373,14 +395,37 @@ export default function MapScreen() {
   const route = useRoute<MapRouteProp>();
   const { t, language } = useLanguage();
   const { user } = useAuth();
-  const [selectedMarker, setSelectedMarker] = useState<FallaMarker | null>(null);
+  const [selectedMarker, setSelectedMarker] = useState<UnifiedMarker | null>(null);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
   const [filterSpecial, setFilterSpecial] = useState(false);
   const [filterNearMe, setFilterNearMe] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  
+  // Marker type filters - fallas enabled by default
+  const [filterFallas, setFilterFallas] = useState(true);
+  const [filterMercados, setFilterMercados] = useState(false);
+  const [filterViewpoints, setFilterViewpoints] = useState(false);
+  const [filterMuseums, setFilterMuseums] = useState(false);
 
   // Fetch fallas from Supabase
-  const { markers: allMarkers, isLoading, error } = useFallasMarkers();
+  const { markers: allFallaMarkers, isLoading: fallasLoading, error } = useFallasMarkers();
+  
+  // Fetch POIs (mercados, viewpoints, museums)
+  const { mercados, viewpoints, museums, isLoading: poisLoading } = usePOIMarkers();
+  
+  // Combine loading states
+  const isLoading = fallasLoading || poisLoading;
+  
+  // Transform falla markers to include type
+  const fallasWithType: UnifiedMarker[] = allFallaMarkers.map(m => ({ ...m, type: 'falla' as MapMarkerType }));
+  
+  // All markers combined
+  const allMarkers: UnifiedMarker[] = [
+    ...fallasWithType,
+    ...mercados.map(m => ({ ...m, type: 'mercado' as MapMarkerType })),
+    ...viewpoints.map(m => ({ ...m, type: 'viewpoint' as MapMarkerType })),
+    ...museums.map(m => ({ ...m, type: 'museum' as MapMarkerType })),
+  ];
   
   // Favorites
   const { data: favorites } = useFavorites(user?.id);
@@ -422,17 +467,25 @@ export default function MapScreen() {
 
   const handleNavigateToFalla = () => {
     if (!selectedMarker) return;
-
-    const falla: Falla = {
-      id: selectedMarker.id,
-      name: selectedMarker.name,
-      category: getCategoryLabel(selectedMarker.category),
-      address: `${selectedMarker.district}, Valencia`,
-      description: language === 'es'
-        ? (selectedMarker.description_es || `Una de las fallas más emblemáticas de Valencia.`)
-        : (selectedMarker.description_en || `One of the most emblematic fallas of Valencia.`),
-    };
-    navigation.navigate('FallaDetail', { falla });
+    
+    const markerType = selectedMarker.type || 'falla';
+    
+    // Only navigate to detail for fallas
+    if (markerType === 'falla') {
+      const falla: Falla = {
+        id: selectedMarker.id,
+        name: selectedMarker.name,
+        category: getCategoryLabel(selectedMarker.category || 'firstA'),
+        address: `${selectedMarker.district || 'Valencia'}, Valencia`,
+        description: language === 'es'
+          ? (selectedMarker.description_es || `Una de las fallas más emblemáticas de Valencia.`)
+          : (selectedMarker.description_en || `One of the most emblematic fallas of Valencia.`),
+      };
+      navigation.navigate('FallaDetail', { falla });
+    } else {
+      // For POIs, just open directions for now
+      openDirections();
+    }
   };
 
   const openDirections = () => {
@@ -498,9 +551,19 @@ export default function MapScreen() {
     return R * c;
   };
 
-  // Filter markers
+  // Filter markers by type and other criteria
   const filteredMarkers = allMarkers.filter(marker => {
-    if (filterSpecial && marker.category !== 'special') return false;
+    // Filter by marker type
+    const markerType = marker.type || 'falla';
+    if (markerType === 'falla' && !filterFallas) return false;
+    if (markerType === 'mercado' && !filterMercados) return false;
+    if (markerType === 'viewpoint' && !filterViewpoints) return false;
+    if (markerType === 'museum' && !filterMuseums) return false;
+    
+    // Filter special (only applies to fallas)
+    if (filterSpecial && markerType === 'falla' && marker.category !== 'special') return false;
+    
+    // Filter near me
     if (filterNearMe && userLocation) {
       const distance = getDistance(userLocation.lat, userLocation.lng, marker.latitude, marker.longitude);
       if (distance > 1) return false; // Within 1km
@@ -529,10 +592,10 @@ export default function MapScreen() {
 
       {/* Version Label */}
       <View style={styles.versionContainer}>
-        <Text style={styles.versionText}>v0.0.7</Text>
+        <Text style={styles.versionText}>v0.0.8</Text>
       </View>
 
-      {/* Filter Pills */}
+      {/* Filter Pills - Row 1: Location filters */}
       <View style={styles.filterContainer}>
         <FilterPill
           icon={<NavigationIcon size={16} color={filterNearMe ? '#fff' : colors.primary.orange} />}
@@ -545,6 +608,34 @@ export default function MapScreen() {
           label="Especial"
           active={filterSpecial}
           onPress={() => setFilterSpecial(!filterSpecial)}
+        />
+      </View>
+      
+      {/* Filter Pills - Row 2: Marker type filters */}
+      <View style={styles.filterContainerSecondRow}>
+        <FilterPill
+          icon={<Text style={{ fontSize: 14 }}>🔥</Text>}
+          label={language === 'es' ? 'Fallas' : 'Fallas'}
+          active={filterFallas}
+          onPress={() => setFilterFallas(!filterFallas)}
+        />
+        <FilterPill
+          icon={<Text style={{ fontSize: 14 }}>🛍️</Text>}
+          label={language === 'es' ? 'Mercados' : 'Markets'}
+          active={filterMercados}
+          onPress={() => setFilterMercados(!filterMercados)}
+        />
+        <FilterPill
+          icon={<Text style={{ fontSize: 14 }}>🎆</Text>}
+          label={language === 'es' ? 'Miradores' : 'Viewpoints'}
+          active={filterViewpoints}
+          onPress={() => setFilterViewpoints(!filterViewpoints)}
+        />
+        <FilterPill
+          icon={<Text style={{ fontSize: 14 }}>🏛️</Text>}
+          label={language === 'es' ? 'Museos' : 'Museums'}
+          active={filterMuseums}
+          onPress={() => setFilterMuseums(!filterMuseums)}
         />
       </View>
 
@@ -564,12 +655,20 @@ export default function MapScreen() {
       <View style={styles.legendContainer}>
         <View style={styles.legend}>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, styles.legendDotSpecial]} />
-            <Text style={styles.legendText}>{t('map.legend.special')}</Text>
+            <Text style={styles.legendEmoji}>🔥</Text>
+            <Text style={styles.legendText}>{language === 'es' ? 'Fallas' : 'Fallas'}</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={styles.legendDot} />
-            <Text style={styles.legendText}>{t('map.legend.firstA')}</Text>
+            <Text style={styles.legendEmoji}>🛍️</Text>
+            <Text style={styles.legendText}>{language === 'es' ? 'Mercados' : 'Markets'}</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <Text style={styles.legendEmoji}>🎆</Text>
+            <Text style={styles.legendText}>{language === 'es' ? 'Miradores' : 'Viewpoints'}</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <Text style={styles.legendEmoji}>🏛️</Text>
+            <Text style={styles.legendText}>{language === 'es' ? 'Museos' : 'Museums'}</Text>
           </View>
         </View>
       </View>
@@ -599,12 +698,13 @@ const styles = StyleSheet.create({
   },
   versionContainer: {
     position: 'absolute',
-    top: 60,
+    top: 110,
     right: 16,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
+    zIndex: 5,
   },
   versionText: {
     color: 'rgba(255, 255, 255, 0.6)',
@@ -709,6 +809,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 8,
     zIndex: 10,
+  },
+  filterContainerSecondRow: {
+    position: 'absolute',
+    top: 60,
+    left: 16,
+    right: 16,
+    flexDirection: 'row',
+    gap: 6,
+    zIndex: 10,
+    flexWrap: 'wrap',
   },
   filterPill: {
     flexDirection: 'row',
@@ -929,7 +1039,7 @@ const styles = StyleSheet.create({
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 4,
   },
   legendDot: {
     width: 12,
@@ -940,8 +1050,11 @@ const styles = StyleSheet.create({
   legendDotSpecial: {
     backgroundColor: '#FFB800',
   },
-  legendText: {
+  legendEmoji: {
     fontSize: 12,
+  },
+  legendText: {
+    fontSize: 11,
     color: '#ccc',
   },
 });
