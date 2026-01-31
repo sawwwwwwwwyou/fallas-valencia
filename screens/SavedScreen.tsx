@@ -19,7 +19,9 @@ import { MotiView } from 'moti';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../contexts/AuthContext';
-import { RootStackParamList, Falla } from '../App';
+import { RootStackParamList, MainTabsParamList, Falla } from '../App';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LocationIcon, CheckIcon, FlameIcon, HeartIcon } from '../components/icons';
 import {
@@ -35,7 +37,10 @@ import {
 } from '../lib/theme';
 import { useFavoriteItems, useToggleFavorite, SavedItem } from '../hooks';
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type NavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<MainTabsParamList>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
 
 // Colors matching the design
 const COLORS = {
@@ -323,9 +328,9 @@ export default function SavedScreen() {
 
   // Navigate to map with selected falla
   const handleNavigate = (item: SavedItem) => {
-    // Switch to Map tab
-    navigation.navigate('Mapa' as any);
-    // TODO: Pass marker ID to highlight on map
+    // Switch to Map tab with selected falla
+    const fallaId = item.fallaId || item.id;
+    navigation.navigate('Mapa', { selectedFallaId: fallaId });
   };
 
   // Open details screen

@@ -10,8 +10,9 @@ import {
   Dimensions,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { MotiView } from 'moti';
@@ -31,7 +32,7 @@ import {
   GestureDetector,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
-import { RootStackParamList, Falla } from '../App';
+import { RootStackParamList, MainTabsParamList, Falla } from '../App';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LocationIcon, StarIcon, NavigationIcon } from '../components/icons';
 import { colors, spacing, borderRadius, shadows } from '../lib/theme';
@@ -40,6 +41,7 @@ import { useFallasMarkers, FallaMarker } from '../hooks';
 import MapComponent from '../components/MapComponent';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type MapRouteProp = RouteProp<MainTabsParamList, 'Mapa'>;
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -362,6 +364,7 @@ function BottomSheetPreviewCard({
 
 export default function MapScreen() {
   const navigation = useNavigation<NavigationProp>();
+  const route = useRoute<MapRouteProp>();
   const { t, language } = useLanguage();
   const [selectedMarker, setSelectedMarker] = useState<FallaMarker | null>(null);
   const [isPanelVisible, setIsPanelVisible] = useState(false);
@@ -370,6 +373,20 @@ export default function MapScreen() {
 
   // Fetch fallas from Supabase
   const { markers: allMarkers, isLoading, error } = useFallasMarkers();
+
+  // Handle navigation from SavedScreen with selectedFallaId
+  useEffect(() => {
+    const selectedFallaId = route.params?.selectedFallaId;
+    if (selectedFallaId && allMarkers.length > 0) {
+      const marker = allMarkers.find(m => m.id === selectedFallaId);
+      if (marker) {
+        setSelectedMarker(marker);
+        setIsPanelVisible(true);
+      }
+      // Clear the param after handling to avoid re-triggering
+      navigation.setParams({ selectedFallaId: undefined } as any);
+    }
+  }, [route.params?.selectedFallaId, allMarkers]);
 
   const getCategoryLabel = (category: string) => {
     return category === 'special' ? t('category.special') : t('category.firstA');
@@ -431,7 +448,7 @@ export default function MapScreen() {
 
       {/* Version Label */}
       <View style={styles.versionContainer}>
-        <Text style={styles.versionText}>v0.0.4</Text>
+        <Text style={styles.versionText}>v0.0.5</Text>
       </View>
 
       {/* Filter Pills */}

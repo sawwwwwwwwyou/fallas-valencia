@@ -68,7 +68,14 @@ export type Falla = {
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-const Tab = createBottomTabNavigator();
+export type MainTabsParamList = {
+  Eventos: undefined;
+  Mapa: { selectedFallaId?: string } | undefined;
+  Guía: undefined;
+  Guardado: undefined;
+};
+
+const Tab = createBottomTabNavigator<MainTabsParamList>();
 
 // Protected Tab Screen - shows Login if not authenticated
 // For design review: always show SavedScreen
