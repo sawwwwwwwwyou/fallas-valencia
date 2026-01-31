@@ -113,6 +113,20 @@ export default function WebMapbox({
     };
   }, []);
 
+  // Handle selectedMarkerId change - fly to selected marker
+  useEffect(() => {
+    if (!map.current || !mapLoaded || !selectedMarkerId) return;
+
+    const marker = markers.find(m => m.id === selectedMarkerId);
+    if (marker) {
+      map.current.flyTo({
+        center: [marker.longitude, marker.latitude],
+        zoom: 15,
+        duration: 1000,
+      });
+    }
+  }, [selectedMarkerId, mapLoaded, markers]);
+
   // Handle markers
   useEffect(() => {
     if (!map.current || !mapLoaded) return;

@@ -174,6 +174,7 @@ function ProgressCard({ visitedCount, totalCount }: { visitedCount: number; tota
 function SavedItemCard({
   item,
   index,
+  onCardPress,
   onNavigate,
   onDetails,
   onToggleSaved,
@@ -181,6 +182,7 @@ function SavedItemCard({
 }: {
   item: SavedItem;
   index: number;
+  onCardPress: () => void;
   onNavigate: () => void;
   onDetails: () => void;
   onToggleSaved: () => void;
@@ -193,6 +195,7 @@ function SavedItemCard({
       animate={{ opacity: 1, translateY: 0 }}
       transition={{ type: 'timing', duration: 300, delay: index * 100 }}
     >
+      <TouchableOpacity onPress={onCardPress} activeOpacity={0.9}>
       <GlassCard style={styles.itemCard}>
         {/* Top gradient line */}
         <LinearGradient
@@ -261,6 +264,7 @@ function SavedItemCard({
           </View>
         </View>
       </GlassCard>
+      </TouchableOpacity>
     </MotiView >
   );
 }
@@ -429,6 +433,7 @@ export default function SavedScreen() {
               key={item.id}
               item={item}
               index={index}
+              onCardPress={() => handleNavigate(item)}
               onNavigate={() => handleNavigate(item)}
               onDetails={() => handleDetails(item)}
               onToggleSaved={() => toggleSaved(item.id, item)}

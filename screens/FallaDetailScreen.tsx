@@ -65,7 +65,7 @@ export default function FallaDetailScreen() {
   const scrollY = useSharedValue(0);
 
   const handleViewOnMap = () => {
-    // Close the detail screen and navigate to Mapa tab
+    // Close the detail screen and navigate to Mapa tab with falla ID
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
@@ -75,7 +75,7 @@ export default function FallaDetailScreen() {
             state: {
               routes: [
                 { name: 'Lista' },
-                { name: 'Mapa' },
+                { name: 'Mapa', params: { selectedFallaId: falla.id } },
                 { name: 'Guardado' },
                 { name: 'Guía' },
               ],

@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -391,19 +391,21 @@ export default function MapScreen() {
     ? favorites.some(f => f.falla_id === selectedMarker.id)
     : false;
 
-  // Handle navigation from SavedScreen with selectedFallaId
-  useEffect(() => {
-    const selectedFallaId = route.params?.selectedFallaId;
-    if (selectedFallaId && allMarkers.length > 0) {
-      const marker = allMarkers.find(m => m.id === selectedFallaId);
-      if (marker) {
-        setSelectedMarker(marker);
-        setIsPanelVisible(true);
+  // Handle navigation from SavedScreen/FallaDetailScreen with selectedFallaId
+  useFocusEffect(
+    useCallback(() => {
+      const selectedFallaId = route.params?.selectedFallaId;
+      if (selectedFallaId && allMarkers.length > 0) {
+        const marker = allMarkers.find(m => m.id === selectedFallaId);
+        if (marker) {
+          setSelectedMarker(marker);
+          setIsPanelVisible(true);
+        }
+        // Clear the param after handling to avoid re-triggering
+        navigation.setParams({ selectedFallaId: undefined } as any);
       }
-      // Clear the param after handling to avoid re-triggering
-      navigation.setParams({ selectedFallaId: undefined } as any);
-    }
-  }, [route.params?.selectedFallaId, allMarkers]);
+    }, [route.params?.selectedFallaId, allMarkers])
+  );
 
   const getCategoryLabel = (category: string) => {
     return category === 'special' ? t('category.special') : t('category.firstA');
@@ -527,7 +529,7 @@ export default function MapScreen() {
 
       {/* Version Label */}
       <View style={styles.versionContainer}>
-        <Text style={styles.versionText}>v0.0.5</Text>
+        <Text style={styles.versionText}>v0.0.6</Text>
       </View>
 
       {/* Filter Pills */}
